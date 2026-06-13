@@ -1,0 +1,35 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Core User Identity Profiles and Ledger balances
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      match /ledger/{txId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if false; // Only manageable server-side via Cloud Run Admin SDK
+      }
+      
+      match /notifications_log/{logId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if false; // Pushed exclusively by the notification engine
+      }
+    }
+    
+    // The Master Agent Telemetry Stream (Mandatory Proof-of-Work for Hackathon Panels)
+    match /agent_execution_logs/{logId} {
+      // Allow the Admin console interface to pull traces if authenticated as an administrator
+      allow read: if request.auth != null && request.auth.token.admin == true;
+      // Strict Lockout: Frontend client clients can never write directly to system logs
+      allow write: if false; 
+    }
+    
+    // Global Scraped Job Listings Board Cache
+    match /scraped_jobs/{jobId} {
+      allow read: if true; // Publicly readable so prospects see the live job marquee stream
+      allow write: if false; // Populated exclusively by the Boolean Scraper Agent
+    }
+  }
+}

@@ -1,0 +1,49 @@
+# Node / Dependency Directories
+node_modules/
+**/node_modules/
+
+# Production Build Outputs
+dist/
+**/dist/
+build/
+**/build/
+
+# Local Environment Variables & Secrets (Keep these out of git!)
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.production.local
+.env.test.local
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Deployment & Hosting Specific files
+.vercel/
+.netlify/
+firebase-debug.log
+firestore-debug.log
+pubsub-debug.log
+ui-debug.log
+
+# Temporary Scratch Files & Local Backup Directories
+scratch/
+**/scratch/
+deployment_backups/
+*.tgz
+*.zip
+*.tar.gz
+*.log
