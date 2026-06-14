@@ -12,6 +12,7 @@ import manualSearchRouter from './routes/manual-search';
 import emailRouter from './routes/application-email';
 import referralsRouter from './routes/referrals';
 import mailroomRouter from './routes/mailroom';
+import interviewRouter from './routes/interview';
 import axios from 'axios';
 import { Type } from '@google/genai';
 import { getGeminiClient } from './utils/gemini';
@@ -1237,6 +1238,211 @@ app.get('/api/admin/agent-logs', async (req: Request, res: Response) => {
 });
 
 
+// =========================================================================
+// CANDIDATE KANBAN TASKS MANAGEMENT ENDPOINTS
+// =========================================================================
+
+// Fetches user tasks from the tasks subcollection (with automatic default seed fallback)
+app.get('/api/users/:userId/tasks', authenticateToken, async (req: Request, res: Response) => {
+  const userId = (req as any).userId || req.params.userId;
+  try {
+    const userRef = db.collection('users').doc(userId);
+    const tasksSnapshot = await userRef.collection('tasks').get();
+    
+    let tasksList = tasksSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    // Seed default highly compatible tasks if the subcollection is completely empty
+    if (tasksList.length === 0) {
+      console.log(`[Database Sync] Seeding 3 default Kanban tasks for candidate ${userId}...`);
+      const defaultTasks = [
+        { id: 'task-1', title: 'Lead AI Engineer', company: 'Google', status: 'matched', salary: '$180k - $240k', confidence: 96, date: 'Today', pinned: false, createdAt: new Date().toISOString() },
+        { id: 'task-2', title: 'Senior React Developer', company: 'Vercel', status: 'applied', salary: '$140k - $185k', confidence: 89, date: '2 days ago', pinned: false, createdAt: new Date().toISOString() },
+        { id: 'task-3', title: 'LLM Fine-Tuning Specialist', company: 'Anthropic', status: 'interviews', salary: '$200k - $260k', confidence: 93, date: 'Scheduled Jun 15', pinned: false, createdAt: new Date().toISOString() }
+      ];
+
+      const batch = db.batch();
+      for (const t of defaultTasks) {
+        const docRef = userRef.collection('tasks').doc(t.id);
+        batch.set(docRef, t);
+      }
+      await batch.commit();
+      
+      tasksList = defaultTasks;
+    }
+
+    res.status(200).json(tasksList);
+  } catch (error: any) {
+    console.error(`Failed to fetch tasks for user ${userId}:`, error);
+    res.status(500).json({ error: "Failed to fetch candidate task tracking cards.", details: error.message });
+  }
+});
+
+// Creates a new custom task
+app.post('/api/users/:userId/tasks', authenticateToken, async (req: Request, res: Response) => {
+  const userId = (req as any).userId || req.params.userId;
+  const task = req.body;
+  if (!task.title || !task.company) {
+    res.status(400).json({ error: "Missing required parameters: title and company are required." });
+    return;
+  }
+
+  try {
+    const taskId = task.id || 'task_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+    const newTask = {
+      id: taskId,
+      title: task.title,
+      company: task.company,
+      status: task.status || 'matched',
+      salary: task.salary || 'Competitive',
+      confidence: typeof task.confidence === 'number' ? task.confidence : 90,
+      date: task.date || 'Today',
+      pinned: !!task.pinned,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    await db.collection('users').doc(userId).collection('tasks').doc(taskId).set(newTask);
+    res.status(201).json(newTask);
+  } catch (error: any) {
+    console.error(`Failed to create task for user ${userId}:`, error);
+    res.status(500).json({ error: "Failed to register custom career task.", details: error.message });
+  }
+});
+
+// Updates a specific task status, pin, or details
+app.put('/api/users/:userId/tasks/:taskId', authenticateToken, async (req: Request, res: Response) => {
+  const userId = (req as any).userId || req.params.userId;
+  const { taskId } = req.params;
+  const updates = req.body;
+
+  try {
+    const docRef = db.collection('users').doc(userId).collection('tasks').doc(taskId);
+    const doc = await docRef.get();
+    if (!doc.exists) {
+      res.status(404).json({ error: "Task card not found." });
+      return;
+    }
+
+    const cleanUpdates = {
+      ...updates,
+      updatedAt: new Date().toISOString()
+    };
+    // Delete id in body to prevent overwriting key
+    delete cleanUpdates.id;
+
+    await docRef.update(cleanUpdates);
+    const updated = await docRef.get();
+    res.status(200).json({ id: taskId, ...updated.data() });
+  } catch (error: any) {
+    console.error(`Failed to update task ${taskId} for user ${userId}:`, error);
+    res.status(500).json({ error: "Failed to update task tracking card.", details: error.message });
+  }
+});
+
+// Deletes a specific task
+app.delete('/api/users/:userId/tasks/:taskId', authenticateToken, async (req: Request, res: Response) => {
+  const userId = (req as any).userId || req.params.userId;
+  const { taskId } = req.params;
+
+  try {
+    const docRef = db.collection('users').doc(userId).collection('tasks').doc(taskId);
+    const doc = await docRef.get();
+    if (!doc.exists) {
+      res.status(404).json({ error: "Task card not found." });
+      return;
+    }
+
+    await docRef.delete();
+    res.status(200).json({ success: true, message: "Task card successfully deleted from board." });
+  } catch (error: any) {
+    console.error(`Failed to delete task ${taskId} for user ${userId}:`, error);
+    res.status(500).json({ error: "Failed to delete task tracking card.", details: error.message });
+  }
+});
+
+
+// =========================================================================
+// GLOBAL ADMINISTRATIVE LEDGER & APPLICATIONS AGGREGATION ENDPOINTS
+// =========================================================================
+
+// Global Transactions Ledger Aggregator (All Candidates)
+app.get('/api/admin/global-transactions', async (req: Request, res: Response) => {
+  try {
+    const usersSnapshot = await db.collection('users').get();
+    const allTransactions: any[] = [];
+
+    // Retrieve ledger subcollection documents for each user
+    for (const doc of usersSnapshot.docs) {
+      const userData = doc.data();
+      const ledgerSnapshot = await doc.ref.collection('ledger').get();
+      
+      ledgerSnapshot.forEach(transDoc => {
+        const transData = transDoc.data();
+        allTransactions.push({
+          id: transDoc.id,
+          userId: doc.id,
+          userEmail: userData.email || '',
+          userFullName: userData.fullName || 'Anonymous',
+          ...transData
+        });
+      });
+    }
+
+    // Sort chronologically descending
+    allTransactions.sort((a, b) => {
+      const aTime = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+      const bTime = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+      return bTime - aTime;
+    });
+
+    res.status(200).json(allTransactions.slice(0, 200)); // Cap to 200 for lightning speed
+  } catch (error: any) {
+    console.error("Failed to compile global ledger details:", error);
+    res.status(500).json({ error: "Failed to fetch global system transactions.", details: error.message });
+  }
+});
+
+// Global Application Milestones Aggregator (All Candidates)
+app.get('/api/admin/global-applications', async (req: Request, res: Response) => {
+  try {
+    const usersSnapshot = await db.collection('users').get();
+    const allApplications: any[] = [];
+
+    // Retrieve tasks subcollection documents for each user
+    for (const doc of usersSnapshot.docs) {
+      const userData = doc.data();
+      const tasksSnapshot = await doc.ref.collection('tasks').get();
+      
+      tasksSnapshot.forEach(taskDoc => {
+        const taskData = taskDoc.data();
+        allApplications.push({
+          id: taskDoc.id,
+          userId: doc.id,
+          userEmail: userData.email || '',
+          userFullName: userData.fullName || 'Anonymous',
+          ...taskData
+        });
+      });
+    }
+
+    // Sort by creation date descending
+    allApplications.sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
+
+    res.status(200).json(allApplications);
+  } catch (error: any) {
+    console.error("Failed to compile global active applications:", error);
+    res.status(500).json({ error: "Failed to fetch global ecosystem applications.", details: error.message });
+  }
+});
+
+
 // ----------------------------------------------------
 // SYSTEM SETTINGS / CONFIGURATIONS ENDPOINTS
 // ----------------------------------------------------
@@ -1766,6 +1972,7 @@ app.use('/api', manualSearchRouter);
 app.use('/api', emailRouter);
 app.use('/api', referralsRouter);
 app.use('/api', mailroomRouter);
+app.use('/api', interviewRouter);
 app.use('/api/test', testAudioRouter);
 
 const PORT = process.env.PORT || 8080;
