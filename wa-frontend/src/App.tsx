@@ -427,6 +427,7 @@ export default function App() {
       user: string;
       pass: string;
     };
+    applyMode?: 'autonomous' | 'manual';
     workHistory?: { company: string; role: string; startDate: string; endDate: string; achievements: string; }[];
     educationList?: { institution: string; degree: string; fieldOfStudy: string; gradYear: string; }[];
     maritalStatus?: string;
@@ -459,6 +460,7 @@ export default function App() {
       hasRemoteBackupPlan: false
     },
     smtpSettings: { host: '', port: 587, user: '', pass: '' },
+    applyMode: 'autonomous',
     workHistory: [],
     educationList: [],
     maritalStatus: '[   ]',
@@ -491,6 +493,7 @@ export default function App() {
   const [settingsGeminiKey, setSettingsGeminiKey] = useState<string>('');
   const [settingsFlwPubKey, setSettingsFlwPubKey] = useState<string>('');
   const [settingsFlwSecKey, setSettingsFlwSecKey] = useState<string>('');
+  const [settingsApplyMode, setSettingsApplyMode] = useState<'autonomous' | 'manual'>('autonomous');
   const [isUpdatingSettings, setIsUpdatingSettings] = useState<boolean>(false);
 
   // Logs and Ticker State
@@ -1207,6 +1210,7 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
       setSettingsGeminiKey(profile.geminiApiKey || '');
       setSettingsFlwPubKey(profile.flutterwavePublicKey || '');
       setSettingsFlwSecKey(profile.flutterwaveSecretKey || '');
+      setSettingsApplyMode(profile.applyMode || 'autonomous');
     }
   }, [profile, userPhone]);
 
@@ -1269,6 +1273,7 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
             hasRemoteBackupPlan: data.infrastructureStatus?.hasRemoteBackupPlan ?? false
           },
           smtpSettings: data.smtpSettings || { host: '', port: 587, user: '', pass: '' },
+          applyMode: data.applyMode || 'autonomous',
           workHistory,
           educationList,
           maritalStatus,
@@ -1676,8 +1681,24 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
     }
   };
 
+  // Helper to download text content as a file
+  const downloadTxtFile = (content: string, filename: string) => {
+    const element = document.createElement("a");
+    const file = new Blob([content], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = filename;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    addLog(`Initiated client download of ${filename}`);
+  };
+
   // Autonomous Background Auto-Apply Agent
   const triggerAutoApplyRoutine = async (jobsList: JobMatch[]) => {
+    if (profile.applyMode === 'manual') {
+      addLog(`[AI Agent] Auto-Apply routine skipped: Manual Direct Apply mode is active.`);
+      return;
+    }
     // Filter jobs with match score 60% - 100% and a valid application email
     const candidates = jobsList.filter(job => job.score >= 60 && job.score <= 100 && job.applicationEmail);
     if (candidates.length === 0) return;
@@ -3211,6 +3232,7 @@ ${profile.name || '[   ]'}`;
           geminiApiKey: settingsGeminiKey,
           flutterwavePublicKey: settingsFlwPubKey,
           flutterwaveSecretKey: settingsFlwSecKey,
+          applyMode: settingsApplyMode,
           hasVoiceOnboarded: hasVoiceOnboarded,
           tickerTargetDomains: tickerTargetDomains,
           scanInterval: settingsScanInterval,
@@ -3613,8 +3635,8 @@ ${profile.name || '[   ]'}`;
             </div>
           )}
           
-          {/* SMTP INTEGRATION PENDING EDUCATION BANNER */}
-          {userId && userRole !== 'admin' && (!settingsSmtpHost || !settingsSmtpUser || !settingsSmtpPass) && (
+           {/* SMTP INTEGRATION PENDING EDUCATION BANNER */}
+          {userId && userRole !== 'admin' && settingsApplyMode === 'autonomous' && (!settingsSmtpHost || !settingsSmtpUser || !settingsSmtpPass) && (
             <div style={{
               margin: '1.25rem 2rem 0 2rem',
               padding: '0.85rem 1.25rem',
@@ -3654,6 +3676,51 @@ ${profile.name || '[   ]'}`;
                 }}
               >
                 Connect Gmail ⚙️
+              </button>
+            </div>
+          )}
+
+          {/* MANUAL DIRECT APPLY MODE ACTIVE BANNER */}
+          {userId && userRole !== 'admin' && settingsApplyMode === 'manual' && (
+            <div style={{
+              margin: '1.25rem 2rem 0 2rem',
+              padding: '0.85rem 1.25rem',
+              background: 'rgba(16, 185, 129, 0.08)',
+              border: '1px solid rgba(16, 185, 129, 0.25)',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '1rem',
+              boxShadow: '0 0 15px rgba(16, 185, 129, 0.05)',
+              backdropFilter: 'blur(10px)'
+            }} className="animate-fade-in">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <span style={{ fontSize: '1.25rem' }}>📩</span>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <strong style={{ fontSize: '0.85rem', color: '#34d399', fontWeight: 800 }}>Manual Direct Apply Mode Active</strong>
+                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)' }}>
+                    No Google SMTP connection needed. GiGO will generate and let you download tailored documents (CV & Cover Letters) on-the-fly to attach in your native email client!
+                  </span>
+                </div>
+              </div>
+              <button 
+                onClick={() => {
+                  setSettingsActiveTab('keys');
+                  setShowSettingsModal(true);
+                }}
+                className="btn-glass"
+                style={{ 
+                  padding: '0.4rem 0.85rem', 
+                  fontSize: '0.75rem', 
+                  fontWeight: 700, 
+                  borderColor: 'rgba(16, 185, 129, 0.35)', 
+                  color: '#34d399',
+                  background: 'rgba(16, 185, 129, 0.05)',
+                  flexShrink: 0
+                }}
+              >
+                Modify Preference ⚙️
               </button>
             </div>
           )}
@@ -7183,6 +7250,122 @@ ${profile.name || '[   ]'}`;
                   </div>
                 </div>
 
+                {/* Manual direct apply documents generator & downloader hub */}
+                {(() => {
+                  const tailoredCV = compiledDocuments.find(d => d.type === 'CV' && (
+                    (d.jobId && String(d.jobId) === String(selectedJob.id)) ||
+                    (d.jobTitle && d.jobTitle.toLowerCase() === selectedJob.jobTitle.toLowerCase() && d.companyName && d.companyName.toLowerCase() === selectedJob.companyName.toLowerCase())
+                  ));
+                  const tailoredCoverLetter = compiledDocuments.find(d => d.type === 'COVER_LETTER' && (
+                    (d.jobId && String(d.jobId) === String(selectedJob.id)) ||
+                    (d.jobTitle && d.jobTitle.toLowerCase() === selectedJob.jobTitle.toLowerCase() && d.companyName && d.companyName.toLowerCase() === selectedJob.companyName.toLowerCase())
+                  ));
+
+                  return settingsApplyMode === 'manual' && selectedJob.applicationMethod !== 'portal' && selectedJob.applicationMethod !== 'google_form' ? (
+                    <div style={{
+                      marginTop: '0.25rem',
+                      marginBottom: '1rem',
+                      padding: '1rem',
+                      background: 'rgba(16, 185, 129, 0.05)',
+                      border: '1px solid rgba(16, 185, 129, 0.25)',
+                      borderRadius: '10px'
+                    }} className="animate-fade-in">
+                      <h6 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#34d399', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        📥 Tailored Document Generator & Downloader
+                      </h6>
+                      <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', margin: '0 0 1rem 0', lineHeight: '1.35' }}>
+                        Compile specialized files with Gemini Pro to match this exact job, then download and attach them in your email app.
+                      </p>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                        {/* CV CARD */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff' }}>ATS Custom CV / Resume</div>
+                            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
+                              {tailoredCV ? '✅ Generated & Ready' : '❌ Not generated yet'}
+                            </div>
+                          </div>
+                          {tailoredCV ? (
+                            <div style={{ display: 'flex', gap: '0.35rem' }}>
+                              <button 
+                                className="btn-glass"
+                                style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem', borderColor: 'rgba(16,185,129,0.3)', color: '#34d399', background: 'rgba(16,185,129,0.05)' }}
+                                onClick={() => downloadTxtFile(tailoredCV.content, `${selectedJob.jobTitle.replace(/[^a-z0-9]/gi, '_')}_CV.txt`)}
+                              >
+                                📥 Download
+                              </button>
+                              <button 
+                                className="btn-glass"
+                                style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem' }}
+                                onClick={() => {
+                                  navigator.clipboard.writeText(tailoredCV.content);
+                                  alert("CV copied to clipboard!");
+                                }}
+                              >
+                                📋 Copy
+                              </button>
+                            </div>
+                          ) : (
+                            <button 
+                              className="btn-glass"
+                              style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem', borderColor: 'rgba(139,92,246,0.3)', color: '#c4b5fd', background: 'rgba(139,92,246,0.05)' }}
+                              disabled={isGeneratingCV}
+                              onClick={async () => {
+                                await generateATSAsset(selectedJob, 'CV');
+                              }}
+                            >
+                              {isGeneratingCV ? '⚡ Generating...' : '✨ Compile CV (₦500)'}
+                            </button>
+                          )}
+                        </div>
+
+                        {/* COVER LETTER CARD */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff' }}>ATS Custom Cover Letter</div>
+                            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
+                              {tailoredCoverLetter ? '✅ Generated & Ready' : '❌ Not generated yet'}
+                            </div>
+                          </div>
+                          {tailoredCoverLetter ? (
+                            <div style={{ display: 'flex', gap: '0.35rem' }}>
+                              <button 
+                                className="btn-glass"
+                                style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem', borderColor: 'rgba(16,185,129,0.3)', color: '#34d399', background: 'rgba(16,185,129,0.05)' }}
+                                onClick={() => downloadTxtFile(tailoredCoverLetter.content, `${selectedJob.jobTitle.replace(/[^a-z0-9]/gi, '_')}_Cover_Letter.txt`)}
+                              >
+                                📥 Download
+                              </button>
+                              <button 
+                                className="btn-glass"
+                                style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem' }}
+                                onClick={() => {
+                                  navigator.clipboard.writeText(tailoredCoverLetter.content);
+                                  alert("Cover Letter copied to clipboard!");
+                                }}
+                              >
+                                📋 Copy
+                              </button>
+                            </div>
+                          ) : (
+                            <button 
+                              className="btn-glass"
+                              style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem', borderColor: 'rgba(139,92,246,0.3)', color: '#c4b5fd', background: 'rgba(139,92,246,0.05)' }}
+                              disabled={isGeneratingCoverLetter}
+                              onClick={async () => {
+                                await generateATSAsset(selectedJob, 'COVER_LETTER');
+                              }}
+                            >
+                              {isGeneratingCoverLetter ? '⚡ Generating...' : '✨ Compile Letter (₦400)'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
+
                 <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.75rem' }}>
                   <button 
                     className="btn-glass" 
@@ -7211,11 +7394,50 @@ ${profile.name || '[   ]'}`;
                       style={{ flex: 1, justifyContent: 'center', fontWeight: 700 }} 
                       onClick={() => {
                         const job = selectedJob;
-                        setSelectedJob(null);
-                        openEmailModalForJob(job);
+                        if (settingsApplyMode === 'manual') {
+                          const hasCV = compiledDocuments.some(d => d.type === 'CV' && (
+                            (d.jobId && String(d.jobId) === String(job.id)) ||
+                            (d.jobTitle && d.jobTitle.toLowerCase() === job.jobTitle.toLowerCase() && d.companyName && d.companyName.toLowerCase() === job.companyName.toLowerCase())
+                          ));
+                          const hasCL = compiledDocuments.some(d => d.type === 'COVER_LETTER' && (
+                            (d.jobId && String(d.jobId) === String(job.id)) ||
+                            (d.jobTitle && d.jobTitle.toLowerCase() === job.jobTitle.toLowerCase() && d.companyName && d.companyName.toLowerCase() === job.companyName.toLowerCase())
+                          ));
+
+                          let msg = "Launching your local email app pre-filled with the recruiter's address, subject line, and cover letter body.";
+                          if (!hasCV || !hasCL) {
+                            msg += "\n\n⚠️ Notice: You have not generated or downloaded tailored documents (CV / Cover Letter) for this job yet. We highly recommend generating them first in the generator card above!";
+                          } else {
+                            msg += "\n\n📎 Friendly Reminder: Don't forget to attach your downloaded CV and Cover Letter files in your email client before hitting send!";
+                          }
+
+                          alert(msg);
+
+                          const finalSubject = job.emailSubject || `Application for ${job.jobTitle} - ${profile.name || 'Candidate'}`;
+                          const finalBody = `Dear Hiring Team,\n\nI am writing to express my interest in the ${job.jobTitle} position at ${job.companyName}.\n\nBased on my qualifications, I believe my profile aligns with your requirements.\n\nBest regards,\n${profile.name || 'Candidate'}`;
+                          
+                          window.location.href = `mailto:${job.applicationEmail}?subject=${encodeURIComponent(finalSubject)}&body=${encodeURIComponent(finalBody)}`;
+                          addLog(`Launched native mail client for manual application to <${job.applicationEmail}>`);
+
+                          // Move to 'applied' status
+                          const isTracked = tasks.some(t => t.title === job.jobTitle && t.company === job.companyName);
+                          if (isTracked) {
+                            setTasks(prev => prev.map(t => {
+                              if (t.title === job.jobTitle && t.company === job.companyName) {
+                                return { ...t, status: 'applied' as const };
+                              }
+                              return t;
+                            }));
+                          } else {
+                            importTickerJob(job, true);
+                          }
+                        } else {
+                          setSelectedJob(null);
+                          openEmailModalForJob(job);
+                        }
                       }}
                     >
-                      ✉️ Apply via Email Dispatcher
+                      {settingsApplyMode === 'manual' ? '📩 Apply via Native Mail Client' : '✉️ Apply via Email Dispatcher'}
                     </button>
                   )}
                 </div>
@@ -8672,6 +8894,87 @@ ${profile.name || '[   ]'}`;
                       <div className="animate-fade-in">
                         <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem', color: '#fff' }}>🔑 SMTP & API Relay Core Calibrations</h4>
                         
+                        {/* DELIVERY PREFERENCE SELECTOR */}
+                        <div style={{
+                          background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)',
+                          border: '1px solid var(--border-glass)',
+                          borderRadius: '12px',
+                          padding: '1.5rem',
+                          marginBottom: '1.5rem',
+                          boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                          backdropFilter: 'blur(12px)',
+                          WebkitBackdropFilter: 'blur(12px)'
+                        }}>
+                          <h5 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            ⚡ GiGO Job Dispatch Delivery Preferences
+                          </h5>
+                          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.45', margin: '0 0 1.25rem 0' }}>
+                            Choose how you want GiGO to apply for jobs on your behalf. You can switch between these modes at any time.
+                          </p>
+
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            {/* Option 1: Autonomous Sync & Apply */}
+                            <div 
+                              onClick={() => setSettingsApplyMode('autonomous')}
+                              style={{
+                                cursor: 'pointer',
+                                background: settingsApplyMode === 'autonomous' ? 'rgba(138, 92, 246, 0.15)' : 'rgba(255,255,255,0.02)',
+                                border: settingsApplyMode === 'autonomous' ? '2px solid var(--primary)' : '1px solid var(--border-glass)',
+                                borderRadius: '10px',
+                                padding: '1.25rem',
+                                transition: 'all 0.3s ease',
+                                boxShadow: settingsApplyMode === 'autonomous' ? '0 0 15px rgba(138, 92, 246, 0.3)' : 'none'
+                              }}
+                            >
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                <input 
+                                  type="radio" 
+                                  checked={settingsApplyMode === 'autonomous'} 
+                                  onChange={() => setSettingsApplyMode('autonomous')}
+                                  style={{ accentColor: 'var(--primary)' }}
+                                />
+                                <span style={{ fontSize: '1rem' }}>🤖</span>
+                                <h6 style={{ fontSize: '0.85rem', fontWeight: 800, color: settingsApplyMode === 'autonomous' ? '#fff' : 'var(--text-secondary)', margin: 0 }}>
+                                  Autonomous Sync & Apply
+                                </h6>
+                              </div>
+                              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.4' }}>
+                                Connect your Google Account below. GiGO will automatically dispatch tailored applications and sync all recruiter threads back to your dashboard in the background.
+                              </p>
+                            </div>
+
+                            {/* Option 2: Manual Direct Apply */}
+                            <div 
+                              onClick={() => setSettingsApplyMode('manual')}
+                              style={{
+                                cursor: 'pointer',
+                                background: settingsApplyMode === 'manual' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.02)',
+                                border: settingsApplyMode === 'manual' ? '2px solid var(--success)' : '1px solid var(--border-glass)',
+                                borderRadius: '10px',
+                                padding: '1.25rem',
+                                transition: 'all 0.3s ease',
+                                boxShadow: settingsApplyMode === 'manual' ? '0 0 15px rgba(16, 185, 129, 0.3)' : 'none'
+                              }}
+                            >
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                <input 
+                                  type="radio" 
+                                  checked={settingsApplyMode === 'manual'} 
+                                  onChange={() => setSettingsApplyMode('manual')}
+                                  style={{ accentColor: 'var(--success)' }}
+                                />
+                                <span style={{ fontSize: '1rem' }}>📩</span>
+                                <h6 style={{ fontSize: '0.85rem', fontWeight: 800, color: settingsApplyMode === 'manual' ? '#fff' : 'var(--text-secondary)', margin: 0 }}>
+                                  Manual Direct Apply
+                                </h6>
+                              </div>
+                              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.4' }}>
+                                No Google connection needed. GiGO will generate your customized CV & Cover Letter on-the-fly. Click 'Apply' to download assets and launch your native email client instantly.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
                         {/* SMTP EDUCATION & CALIBRATION GUIDE */}
                         <div style={{
                           background: 'linear-gradient(135deg, rgba(138, 92, 246, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)',
@@ -8711,8 +9014,8 @@ ${profile.name || '[   ]'}`;
                                 🔑 3-Step Setup Handshake
                               </h6>
                               <ol style={{ paddingLeft: '1.2rem', margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                                <li><strong>MFA</strong>: Ensure <strong>2-Step Verification</strong> is active in your Google Account settings.</li>
-                                <li><strong>Create App Password</strong>: In your Google Account, search for <em>"App passwords"</em>. Select <em>Other (Custom name)</em>, type <code>"GiGO Platform"</code>, click generate, and copy the 16-character code.</li>
+                                <li><strong>MFA</strong>: Ensure <a href="https://myaccount.google.com/signinoption/two-step-verification" target="_blank" rel="noopener noreferrer" style={{ color: '#00f2fe', textDecoration: 'underline', fontWeight: 700 }}>2-Step Verification</a> is active in your Google Account settings.</li>
+                                <li><strong>Create App Password</strong>: Visit <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" style={{ color: '#00f2fe', textDecoration: 'underline', fontWeight: 700 }}>Google App Passwords</a>. Select <em>Other (Custom name)</em>, type <code>"GiGO Platform"</code>, click generate, and copy the 16-character code.</li>
                                 <li><strong>Fill & Deploy</strong>: Fill out the server details below using your copied code as your SMTP Password (with no spaces), and click <strong>Save Calibrations</strong>.</li>
                               </ol>
                             </div>

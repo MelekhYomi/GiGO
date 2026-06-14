@@ -29,6 +29,12 @@ router.post('/send-application-email', async (req: Request, res: Response) => {
     }
 
     const userData = userDoc.data() || {};
+
+    if (userData.applyMode === 'manual') {
+      res.status(400).json({ error: "Automated SMTP dispatch blocked: Delivery Preference is set to Manual Direct Apply." });
+      return;
+    }
+
     const walletBalanceNGN = userData.financials?.walletBalanceNGN || 0;
 
     // Check if user has sufficient funds

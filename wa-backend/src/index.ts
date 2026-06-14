@@ -86,6 +86,7 @@ app.get('/api/users/:userId', authenticateToken, async (req: Request, res: Respo
         },
         hasVoiceOnboarded: false,
         tickerTargetDomains: [],
+        applyMode: 'autonomous',
         maritalStatus: '[   ]',
         dob: '[   ]',
         address: '[   ]',
@@ -117,7 +118,8 @@ app.post('/api/users/:userId/update', authenticateToken, async (req: Request, re
     profilePic, smtpSettings, password, hasVoiceOnboarded, tickerTargetDomains, 
     workTypePreferences, scanInterval, feedRefreshInterval,
     workHistory, educationList, maritalStatus, dob, address, hobbies, 
-    strengths, softSkills, teamworkExperience, conflictResolution, calibrationAxes, calibrationHistory
+    strengths, softSkills, teamworkExperience, conflictResolution, calibrationAxes, calibrationHistory,
+    applyMode
   } = req.body;
   try {
     const userRef = db.collection('users').doc(userId);
@@ -198,6 +200,7 @@ app.post('/api/users/:userId/update', authenticateToken, async (req: Request, re
     if (conflictResolution !== undefined) updatePayload.conflictResolution = conflictResolution;
     if (calibrationAxes !== undefined) updatePayload.calibrationAxes = calibrationAxes;
     if (calibrationHistory !== undefined) updatePayload.calibrationHistory = calibrationHistory;
+    if (applyMode !== undefined) updatePayload.applyMode = applyMode;
 
     await userRef.set(updatePayload, { merge: true });
     
