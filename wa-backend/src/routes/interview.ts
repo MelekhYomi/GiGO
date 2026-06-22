@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { db } from '../firebase-config';
 import { getGeminiClient } from '../utils/gemini';
 import { authenticateToken } from '../utils/auth';
+import { Type } from '@google/genai';
 
 const router = Router();
 
@@ -45,65 +46,69 @@ router.post('/interview/generate-questions', authenticateToken, async (req: Requ
     console.log(`🎙️ Mock Interview Agent: Constructing customized question set for ${profile.fullName || userId}...`);
     console.log(`💼 Target Role: ${targetJobTitle} at ${targetCompany} (${targetJobStyle})`);
 
-    // C. Invoke Gemini 2.5 Flash to synthesize tailored question sets
+    // C. Invoke Gemini to synthesize tailored question sets with real-time Google search grounding
     const { ai, modelFlash } = getGeminiClient(profile.geminiApiKey);
 
     const prompt = `
-You are the Lead Technical Recruiter and ATS Interview Design Agent at GiGO.
-Your goal is to design exactly 5 high-fidelity, core interview questions tailored specifically to a candidate's background, their target role, and the unique constraints of the job style (Remote, Hybrid, or On-site, and sub-genres like NGO, corporate, or shift/part-time).
-
-Candidate Profile Context:
-- Full Name: ${profile.fullName || 'Candidate'}
-- Target Role: ${profile.role || 'Professional'}
-- Experience Level: ${profile.yearsOfExperience || 0} years
-- Summary: ${profile.professionalSummary || 'No summary available'}
-- Skills: ${Array.isArray(profile.skills) ? profile.skills.join(', ') : profile.skills || ''}
-
-Target Job Details:
-- Job Title: ${targetJobTitle}
+You are the Lead Recruitment Intelligence Scraper and ATS Interview Design Agent at GiGO.
+Your user is preparing for a highly targeted interview for the following role:
+- Target Role: ${targetJobTitle}
 - Company: ${targetCompany}
-- Style: ${targetJobStyle} (e.g., Remote, Hybrid, Onsite, Part-Time, NGO, NGO Hybrid, Hotel Reception, etc.)
-- Description/Requirements: ${targetDescription}
+- Job Style/Arrangement: ${targetJobStyle}
+- Job Details: ${targetDescription}
 
-CRITICAL RULES FOR DESIGNING QUESTIONS:
-1. Every question MUST be highly specific to this exact job title and company. Avoid generic boilerplates.
+CRITICAL REQUIREMENT:
+You must perform a real-time internet search to scrape and look up actual, active, or popular interview questions, technical assessments, behavioral questions, or coding challenges on the web that are specific to this exact job title and company (from sites like Glassdoor, LeetCode, GitHub, LinkedIn, company careers pages, or technical blogs).
+
+Using the live search grounding results, synthesize a highly specific, high-fidelity set of EXACTLY 5 interview questions.
+Ensure that:
+1. Every question is highly relevant to this exact job title and company, grounded in real questions found on the web.
 2. Incorporate the JOB STYLE and workplace expectations directly:
    - On-Site: Emphasize physical collaboration, face-to-face team synergy, site presence, daily routine, or in-person problem-solving.
    - Remote: Focus on extreme self-direction, remote tool stack proficiency (Slack, Linear, Zoom), async communication depth, and self-organization.
    - Hybrid: Address the coordination challenge of working across office days and home days, aligning scheduled tasks, and managing mixed-synergy schedules.
 3. Group the 5 questions into distinct, standard professional categories:
-   - "Technical Core Domain": Core technical or operational competence required for this specific role.
-   - "Workplace Environment Adaptability": Specific scenarios addressing On-Site, Remote, or Hybrid workflow parameters.
-   - "Behavioral & Communication": Aligning team dynamics, handling feedback, or stakeholder alignment.
-   - "Scenario Problem Solving": A hypothetical high-fidelity challenge specific to this company and role.
-   - "Growth & Industry Adaptability": Dynamic thinking, learning new tools, or keeping up with modern industry trends.
+   - "Domain Competency": Core technical or operational competence required for this specific role.
+   - "Workplace Adaptability (On-Site/Remote/Hybrid specific)": Specific scenarios addressing On-Site, Remote, or Hybrid workflow parameters.
+   - "Behavioral/Culture Fit": Aligning team dynamics, handling feedback, or stakeholder alignment.
+   - "Problem Solving": A hypothetical high-fidelity challenge specific to this company and role.
+   - "Modern Industry Adaptation": Dynamic thinking, learning new tools, or keeping up with modern industry trends.
 4. For EACH question, you MUST generate personalized, high-fidelity MVIP preparation guidance:
    - focusArea: A detailed explanation of what the interviewer is looking out for and expecting to hear in the response (e.g., "The interviewer is assessing whether you can proactively prevent scope creep...").
-   - keyPoints: An array of 3 exact key points, benchmarks, or professional concepts the candidate should make sure to mention or reference in their answer.
+   - keyPoints: An array of exactly 3 exact key points, benchmarks, or professional concepts the candidate should make sure to mention or reference in their answer.
    - communicationGuidance: Direct recommendations on the tone, language style, and communication approach to use (e.g., "Adopt an authoritative yet collaborative tone. Use words like 'milestones', 'alignment', and 'mitigate'").
-
-Return the response as a JSON array of exactly 5 objects. Do NOT wrap in markdown formatting (like \`\`\`json). Return raw JSON only.
-Format:
-[
-  {
-    "id": 1,
-    "category": "Technical Core Domain",
-    "question": "Question text here...",
-    "focusArea": "Detailed explanation of what interviewer expects...",
-    "keyPoints": ["key point 1 to mention", "key point 2 to mention", "key point 3 to mention"],
-    "communicationGuidance": "Tone and language guidelines..."
-  },
-  ...
-]
 `;
 
     const result = await ai.models.generateContent({
       model: modelFlash,
-      contents: prompt
+      contents: prompt,
+      config: {
+        tools: [{ googleSearch: {} }],
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.ARRAY,
+          description: "List of exactly 5 customized interview questions sourced in real time",
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              id: { type: Type.INTEGER },
+              category: { type: Type.STRING },
+              question: { type: Type.STRING },
+              focusArea: { type: Type.STRING },
+              keyPoints: { 
+                type: Type.ARRAY, 
+                items: { type: Type.STRING } 
+              },
+              communicationGuidance: { type: Type.STRING }
+            },
+            required: ['id', 'category', 'question', 'focusArea', 'keyPoints', 'communicationGuidance']
+          }
+        }
+      }
     });
+
     const responseText = result.text?.trim() || '';
 
-    // Strip markdown code block wrappers if Gemini accidentally included them
     let cleanJson = responseText;
     if (cleanJson.startsWith('```')) {
       cleanJson = cleanJson.replace(/^```json\s*/i, '').replace(/```$/, '').trim();

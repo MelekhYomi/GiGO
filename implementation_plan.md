@@ -1,6 +1,6 @@
-# Implementation Plan: Premium & Standard Administrative Dashboard
+# Implementation Plan: Real-Time Google Scraped Bespoke AI Interview & Nigerian Voice Assistant
 
-We will optimize and redesign the GiGO Administrative Dashboard into a unified, professional, and standard Administrative Cockpit. We will replace the current basic list with a premium, multi-tabbed glassmorphic console that aggregates candidate telemetry, financial registers, active job applications, and global configuration options.
+We will upgrade the GiGO Mock Interview Suite into an elite, real-time-grounded, highly interactive simulator. The AI agent will perform real-time Google search sweeps to find actual, recent interview questions on the web for any selected or typed-in target job title and company. In addition, we will implement a beautiful Nigerian/African smart female voice assistant for the "Read Aloud" question-reading system, and enrich the interface with category-level preparation guidance, keyword mapping, and rigorous scorecard feedback.
 
 ---
 
@@ -8,56 +8,44 @@ We will optimize and redesign the GiGO Administrative Dashboard into a unified, 
 
 ```mermaid
 graph TD
-    A[👑 Admin Client Portal] -->|Select Tab| B(📊 Dashboard Stats)
-    A -->|Tab 1: Activities Board| C[Global Activity Monitor / Logs]
-    A -->|Tab 2: Financial Ledger| D[Global Financial Records Ledger]
-    A -->|Tab 3: Application Hub| E[Ecosystem Cross-User Applications Board]
-    A -->|Tab 4: Candidate Directory| F[Candidate List & Overrides]
-    A -->|Tab 5: Control Engine| G[System Config & Boolean Scraper]
-
-    H[Backend index.ts] -->|Aggregates collections| C
-    H -->|Aggregates subcollections group| D
-    H -->|Aggregates user tasks subcollections| E
-    H -->|Standard candidate task endpoints| I[Candidate Kanban Board]
+    A[🎨 MockInterviewRoom UI] -->|Select Job OR Type Custom Role| B(💻 Compile Track Action)
+    B -->|POST /api/interview/generate-questions| C[Backend interviewRouter]
+    C -->|Constructs Boolean Query & invokes Gemini| D[Gemini 2.5 Flash / Pro]
+    D -->|Tool: Google Search Grounding| E[🌐 Live Web Sweep: Glassdoor/LeetCode/LinkedIn]
+    E -->|Returns real interview questions| D
+    D -->|MIME Type: application/json| C
+    C -->|Returns structured 5-question set| A
+    A -->|Renders question terminal & Category Chips| F[💡 Expandable Prep Guidance Drawer]
+    A -->|Read Aloud Question| G[🎙️ SpeechSynthesis Utterance]
+    G -->|Nigerian/African Female Voice Heuristic| H[🔊 Smart Audio Output]
 ```
 
-### 1. Persistent Candidate Kanban Task Subcollection
-To enable "seeing what is happening with each user's applications" reliably, we will migrate the Kanban tasks list from transient frontend React state to a persistent Firestore subcollection: `users/{userId}/tasks`.
-*   **Backend Endpoints**:
-    *   `GET /api/users/:userId/tasks`: Retrieve all tracked applications for a user. If none exist, we automatically seed 3 high-quality default tasks (`Lead AI Engineer` at Google, `Senior React Developer` at Vercel, `LLM Fine-Tuning Specialist` at Anthropic) into Firestore.
-    *   `POST /api/users/:userId/tasks`: Create or register a custom application tracking card.
-    *   `PUT /api/users/:userId/tasks/:taskId`: Update an application status column (`matched` | `applied` | `interviews`), pin state, or details.
-    *   `DELETE /api/users/:userId/tasks/:taskId`: Delete an application card.
-*   **Frontend Synchronization**:
-    *   On authentication or mounting, `App.tsx` will fetch task states from `/api/users/:userId/tasks` and load them into `tasks` state.
-    *   Any board drop event, manual tracking creation, pin toggle, or deletion will immediately synchronize with Firestore.
+### 1. Real-Time Google Search Grounding for Questions
+*   **Backend Endpoint**: `/api/interview/generate-questions`
+    *   **Google Search Grounding Tool**: Add `tools: [{ googleSearch: {} }]` to the Gemini model generation configuration inside `wa-backend/src/routes/interview.ts`.
+    *   **Scraping Real-Time Questions**: Update the prompt to direct Gemini to use Google Search to crawl Glassdoor, LeetCode, GitHub, corporate career pages, and LinkedIn in real time for popular and current interview questions matching the specific job title and company.
+    *   **Guaranteed JSON Output**: Enforce a strict JSON array schema structure via `responseMimeType: 'application/json'` and `responseSchema` parameters inside the GenAI SDK config. This eliminates syntax parsing failures.
+    *   **Custom Target Role Payload**: Accept a `customJob` object (`jobTitle`, `companyName`, `jobStyle`) from the request body to generate bespoke interview questions on-the-fly, even if the candidate hasn't loaded any discovered/matched jobs in their cockpit.
 
-### 2. High-Performance Global Admin Aggregators
-We will introduce two high-performance admin aggregation endpoints in `wa-backend/src/index.ts`:
-*   `GET /api/admin/global-transactions`:
-    *   Queries all users.
-    *   Iterates through each user and fetches their `ledger` subcollection documents.
-    *   Aggregates them into a flat array of transaction records, appending user details (`fullName`, `email`, `userId`) to each.
-    *   Sorts all transactions in-memory by `timestamp` descending and limits to 150 items. This avoids requiring complex Firestore Collection Group indexes and ensures 100% execution stability.
-*   `GET /api/admin/global-applications`:
-    *   Queries all users.
-    *   Iterates and retrieves their `tasks` subcollection documents.
-    *   Aggregates them into a flat array of active job application paths, appending user profiles.
-    *   Sorts and returns them to populate the global Cross-User Applications Kanban Board.
+### 2. High-Converting Interactive UI Redesign (MockInterviewRoom.tsx)
+*   **Dual-Option Job Input**:
+    *   Provide a toggle or clean selector to choose between:
+        1.  **💼 Active Matched Jobs** (dropdown of matched jobs populated from the dashboard).
+        2.  **✍️ Custom Target Role** (input text fields for custom Job Title, Company, and select dropdown for Job Style: Remote, Hybrid, or On-site).
+    *   This ensures "Compile Track" is fully functional and immediate, even if no matching jobs are present.
+*   **Stunning Preparation & Guidance Drawer**:
+    *   Render the active question's **Category** (e.g., Domain Competency, Workplace Adaptability, Behavioral, etc.) in a glowing neon badge.
+    *   Add an expandable/collapsible **💡 Preparation Guidance** panel directly on the Live Question Terminal containing:
+        -   **Focus Area**: Detailed recruiter expectations.
+        -   **Keywords to Mention**: Interactive checklist of recommended terminology.
+        -   **Communication Guide**: Actionable tone recommendations.
+    *   This provides standard prep utility to candidates before they record their verbal response.
 
-### 3. Redesigned Premium Glassmorphic Admin Dashboard UI
-The frontend `App.tsx` and `App.css` will be modified to introduce a state-of-the-art admin panel:
-*   **Stats Ribbon KPIs**:
-    *   `Total Candidates`: Total registered user profiles.
-    *   `Ecosystem Funds`: Aggregated wallet values across USD and NGN pools.
-    *   `Applications Tracked`: Total cumulative active application cards.
-    *   `Telemetry Feed Logs`: Cumulative agent log counts.
-*   **Premium Tabbed Navigation**:
-    *   **📊 Global Activities Board**: Consolidated chronological activity feed integrating system telemetry, continuous validation checks, and real-time candidate operations (cloning, calibrations, registrations).
-    *   **💳 Global Financial Ledger**: Gorgeous tabular matrix displaying credit/debit transaction logs with text-search by name/email, currency filters (USD vs. NGN), transaction-type filters (CREDIT vs. DEBIT), and sorting. Includes a simulated "Export CSV Ledger" utility.
-    *   **🗺️ Ecosystem Application Hub**: Interactive cross-user applications directory displaying what status column every user's application is in, complete with search.
-    *   **👥 Candidate Directory**: Clean, high-density candidate register with inline expansion panels to view a candidate's complete list of generated cover letters/documents and transaction receipts directly, plus balance adjustment controls.
-    *   **⚙️ System Control Engine**: System configuration configurations (domains, referral economics, boolean scraper search templates).
+### 3. Nigerian / African Smart Female Voice Assistant
+*   **Web Speech Synthesis Integration**:
+    *   Query browser SpeechSynthesis voices dynamically via `window.speechSynthesis.getVoices()`.
+    *   Implement an optimized voice-selection heuristic to scan, identify, and select a **Nigerian female English voice** (`en-NG`), falling back gracefully to African English (`en-ZA` / `en-GH`), standard British/US female voices (`en-GB`/`en-US`), or standard Google natural female voices depending on OS and browser support.
+    *   **Acoustic Optimization**: Fine-tune the utterance parameters (`rate = 0.95` for clarity, `pitch = 1.05` for a warm, bright, professional female tone) to ensure premium auditory delivery of the compiled questions.
 
 ---
 
@@ -65,53 +53,42 @@ The frontend `App.tsx` and `App.css` will be modified to introduce a state-of-th
 
 ### 1. Backend (`wa-backend`)
 
-#### [MODIFY] [index.ts](file:///c:/Users/iYomi/Desktop/wa-ecosystem/wa-backend/src/index.ts)
-*   **Add Endpoints**:
-    *   `GET /api/users/:userId/tasks`, `POST /api/users/:userId/tasks`, `PUT /api/users/:userId/tasks/:taskId`, `DELETE /api/users/:userId/tasks/:taskId` to manage candidate task trackers.
-    *   `GET /api/admin/global-transactions` to fetch and compile global transaction logs.
-    *   `GET /api/admin/global-applications` to compile global cross-user application paths.
-*   **Ensure Proper Middleware/Role Validation**: Ensure admin routes check the auth payload or query for user roles.
+#### [MODIFY] [interview.ts](file:///c:/Users/iYomi/Desktop/wa-ecosystem/wa-backend/src/routes/interview.ts)
+*   Import `Type` from `@google/genai`.
+*   Refactor `/api/interview/generate-questions` to accept `customJob` details directly.
+*   Incorporate `tools: [{ googleSearch: {} }]` and specify `responseMimeType: 'application/json'` with the structured schema.
+*   Formulate a high-fidelity prompt instructing Gemini to scan the live web for actual, active interview questions related to the target job title, company, and work environment.
 
 ---
 
 ### 2. Frontend (`wa-frontend`)
 
-#### [MODIFY] [App.tsx](file:///c:/Users/iYomi/Desktop/wa-ecosystem/wa-frontend/src/App.tsx)
-*   **Add State Hooks**:
-    *   `adminTab: 'activities' | 'financials' | 'applications' | 'candidates' | 'settings'`
-    *   `globalTransactions: any[]`
-    *   `globalApplications: any[]`
-    *   `financialSearchQuery: string`, `financialCurrencyFilter: 'all' | 'USD' | 'NGN'`, `financialTypeFilter: 'all' | 'CREDIT' | 'DEBIT'`
-    *   `applicationSearchQuery: string`
-*   **Sync Logic**:
-    *   Create `fetchUserTasks()` and integrate it into login, signup, and app startup loops.
-    *   Update `handleCreateTask`, `handleDrop`, `moveTaskStatus`, `handleTogglePin`, and `handleRemoveTask` to dispatch PUT/POST/DELETE API requests to sync with Firestore.
-*   **Redesign Admin Rendering (Lines 6687-7010)**:
-    *   Implement Stats Dashboard Cards.
-    *   Implement premium side-scrolling navigation header with neon active states.
-    *   Build customized sub-views for each `adminTab` keeping the layout highly aligned with the glassmorphism design code (subtle shadows, borders, neon backglow, and interactive highlights).
-
-#### [MODIFY] [App.css](file:///c:/Users/iYomi/Desktop/wa-ecosystem/wa-frontend/src/App.css)
-*   **Add Style Utilities**:
-    *   `.admin-stats-grid`: Grid styles for the modern dashboard stats.
-    *   `.admin-stat-card`: Interactive glassmorphic statistic panel cards with glow borders.
-    *   `.admin-nav-tabs` and `.admin-tab-btn`: CSS styles for neon-active tab indicators.
-    *   Enhancements to table wraps and scroll views for unified financial tables and task matrices.
+#### [MODIFY] [MockInterviewRoom.tsx](file:///c:/Users/iYomi/Desktop/wa-ecosystem/wa-frontend/src/components/MockInterviewRoom.tsx)
+*   Introduce state hooks for:
+    -   `isCustomMode`: boolean (toggle between matched jobs or typing a custom role).
+    -   `customJobTitle`, `customCompany`, `customJobStyle`.
+    -   `isPrepExpanded`: boolean (for showing/hiding preparation guidance drawer).
+*   Add dynamic SpeechSynthesisVoice loading and integrate the **Nigerian Female voice** preference selection heuristic in `speakQuestion`.
+*   Update `generateCustomInterviewQuestions` to support compiling questions via custom typed parameters if in custom mode, passing `{ userId, customJob }` to the backend.
+*   Redesign the UI with:
+    -   Dual input toggle with smooth state transitions.
+    -   Expanded Question Terminal displaying Category, Focus Area, Key Points, and Communication Guidance in a sleek, glassmorphic dropdown list with micro-animations.
+    -   Clean layout improvements for high visual appeal.
 
 ---
 
 ## 🔬 Verification Plan
 
 ### Automated Tests
-*   Verify frontend and backend build success:
-    ```bash
-    cd wa-backend && npm run build
-    cd wa-frontend && npm run build
+*   Compile both frontend and backend modules to verify zero lint and type errors:
+    ```powershell
+    cd wa-backend; npm run build
+    cd ../wa-frontend; npm run build
     ```
 
 ### Manual Verification
-1.  **Kanban Persistence**: Log in as a candidate. Drag a task from Matched to Applied. Refresh the browser. Verify the task remains under the Applied column (proving active Firestore synchronization).
-2.  **Global Activities Board**: Access `/admin`. Confirm live agent validation and candidate activity logs load instantly.
-3.  **Unified Financial Ledger**: Confirm global transaction logs are loaded. Enter a candidate's name or toggle NGN/USD filter. Verify filtering and sorting operate correctly.
-4.  **Ecosystem Application Hub**: View global candidate application tracking boards. Confirm that candidate cards show up showing their name, company, and salary.
-5.  **CSV Ledger Export**: Click on "Export CSV Ledger". Confirm a simulated success notification is sent to the action ticker.
+1.  **Custom Role Selection**: Select "Type Custom Role" in the interview configurations, enter `LLM Fine-Tuning Specialist` and `Anthropic`. Click "Compile Track".
+2.  **Real-Time Google Grounding**: Check server logs to verify Gemini actively triggers Google Search to fetch actual questions from the internet. Verify that 5 questions are fetched and displayed in the terminal.
+3.  **Preparation Guidance Panel**: Expand the "Preparation & Guidance" drawer. Verify that the custom category, focus area, keywords, and tone recommendations are beautifully displayed.
+4.  **Nigerian Smart Female Voice**: Click "Read Aloud". Verify that the voice synthesizer picks the preferred African/Nigerian female accent and speaks with the configured rate and pitch adjustments.
+5.  **Scorecard Handshake**: Speak or type a custom answer and click "Analyze Answer". Confirm that Depth, Vocal, and ATS metrics are scored correctly, with keywords matched and model responses compiled.

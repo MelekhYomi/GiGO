@@ -2,7 +2,7 @@ const admin = require('firebase-admin');
 
 if (!admin.apps.length) {
   admin.initializeApp({
-    projectId: 'project-1827db43-f913-4a0e-978'
+    projectId: 'project-ce78d47a-1bfa-42ef-8ae'
   });
 }
 

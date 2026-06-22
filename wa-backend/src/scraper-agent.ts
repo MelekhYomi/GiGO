@@ -249,48 +249,48 @@ export async function executeAutonomousScraperPipeline(userId?: string) {
     const booleanQueryString = await generateTargetedBooleanQuery(ai, targetDemand, modelFlash);
     console.log(`Generated Boolean Directive: ${booleanQueryString}`);
     
-    // 3. Generate high-fidelity matching jobs tailored specifically to the candidate's skills and profile
-    const jobGenerationPrompt = `You are an advanced automated Boolean search scraping agent.
-    We simulated the execution of the Boolean search query: "${booleanQueryString}" on the open web, recruiting portals, and social channels.
-    Based on the query results and the following candidate profile, simulate the extraction of EXACTLY 4 active job vacancies that are an absolute perfect fit for this candidate.
+    // 3. Search and extract real, live matching jobs tailored specifically to the candidate's skills and profile using Google Search Grounding
+    const jobGenerationPrompt = `You are an advanced automated Live Boolean Search scraping agent.
+    Your Boolean query directive is: "${booleanQueryString}"
     
-    Candidate Profile:
+    Using your Google Search tool, perform a live web search to find active job listings posted within the last 7 days that are a perfect fit for this candidate:
     - Target Roles: [${targetDemand.join(', ')}]
     - Preferred Skills: [${userSpecificSkills.join(', ')}]
     - Preferred Domains: [${userSpecificDomains.join(', ')}]
     - Preferred Location: ${userSpecificLocation}
     - Allowed/Preferred Work Types: [${userPreferredWorkTypes.join(', ')}]
 
-    CRITICAL (DUPLICATE AVOIDANCE): To avoid spamming or showing duplicate job opportunities to this candidate, you MUST NOT generate any vacancy that matches these already discovered jobs: [${duplicateAvoidanceString || 'None'}]. Make sure your generated jobs are completely distinct from this list!
+    CRITICAL (DUPLICATE AVOIDANCE): To avoid spamming or showing duplicate job opportunities to this candidate, you MUST NOT generate or extract any vacancy that matches these already discovered jobs: [${duplicateAvoidanceString || 'None'}]. Make sure your extracted jobs are completely distinct from this list!
 
-    For each of the 4 job vacancies, you MUST generate realistic and complete fields:
-    1. companyName: A highly realistic, premium hiring company name (do not use generic placeholders like "Company A").
+    From the real, grounded search results, extract exactly 4 real active jobs. For each job, populate these fields accurately based on real grounded information:
+    1. companyName: The actual hiring company name.
     2. jobTitle: A clean job title matching candidate's target roles and level.
-    3. workType: One of the allowed work types [${userPreferredWorkTypes.join(', ')}] matching candidate requirements. Choose a balanced mix of Remote, Hybrid, or Onsite unless the user preferences strictly limit.
-    4. applicationLinkOrEmail: A realistic direct application link or contact email.
+    3. workType: One of the allowed work types [${userPreferredWorkTypes.join(', ')}] matching candidate requirements. Choose Remote, Hybrid, or Onsite.
+    4. applicationLinkOrEmail: A real direct application URL or contact email.
     5. sourcePlatform: A professional source platform matching candidate's domains (e.g. Greenhouse, Lever, LinkedIn, Company Portal).
-    6. keyRequirementsSummary: An array of 3 to 5 highly specific structured skills or criteria required for this role, matching the candidate's skills.
-    7. jobDescription: A detailed, highly premium job description paragraph (at least 2-3 sentences, 45-80 words) describing the role, daily duties, team context, and organizational impact. Do NOT use placeholder text.
-    8. applicationEmail: A direct, realistic recruiter contact email address.
-    9. applicationPhone: A direct recruitment team contact telephone number.
+    6. keyRequirementsSummary: An array of 3 to 5 highly specific structured skills or criteria required for this role.
+    7. jobDescription: A detailed, premium job description paragraph (at least 2-3 sentences, 45-80 words) describing the role and team context.
+    8. applicationEmail: A direct, real recruiter contact email address if available, or null.
+    9. applicationPhone: A direct recruitment team contact telephone number if available, or null.
     10. applicationLink: A direct URL to apply.
-    11. postedAt: A realistic, clean ISO string representing the date and time when this job was posted online (must be within the last 1-4 days relative to today).
-    12. applicationMethod: Choose the application method suitable for this job post. Must be one of: 'email', 'portal', 'google_form', 'unknown'. Choose a balanced variety across the 4 generated jobs (e.g. 2 with 'email', 1 with 'portal', 1 with 'google_form').
-    13. emailSubject: If applicationMethod is 'email', generate a recommended, highly professional email subject line (e.g. "Application for [Job Title] - [Candidate Name]"). For non-email roles, set this to null.
-    14. emailBodyRequirements: If applicationMethod is 'email', summarize specific directives for the cover email (e.g. "Applicant must state their availability and salary expectations", or "Applicant must list their main programming languages"). For non-email roles, set this to null.
-    15. attachmentsRequired: An array of required documents as attachments. Choose from: ['CV'], ['CV', 'Cover Letter'], ['CV', 'Cover Letter', 'Portfolio'], or [] (no attachments). Include CV for most roles.
+    11. postedAt: An ISO 8601 string of original online posting timestamp (must be within the last 7 days).
+    12. applicationMethod: One of: 'email', 'portal', 'google_form', 'unknown' based on how users apply.
+    13. emailSubject: If applicationMethod is 'email', generate a recommended professional email subject line (e.g. "Application for [Job Title] - [Candidate Name]"). For non-email roles, set this to null.
+    14. emailBodyRequirements: If applicationMethod is 'email', summarize specific directives for the cover email. For non-email roles, set this to null.
+    15. attachmentsRequired: An array of required documents chosen from: ['CV', 'Cover Letter', 'Portfolio'].
     
-    Return exactly 4 high-fidelity jobs in a JSON array matching the specified response schema.`;
+    Return exactly 4 real-world jobs in a JSON array matching the specified response schema.`;
 
-    console.log("Simulating high-fidelity scrap extraction using Gemini...");
+    console.log("Extracting real-world job postings using Gemini Google Search Grounding...");
     const response = await ai.models.generateContent({
       model: modelFlash,
       contents: jobGenerationPrompt,
       config: {
+        tools: [{ googleSearch: {} }],
         responseMimeType: 'application/json',
         responseSchema: {
           type: Type.ARRAY,
-          description: "List of cleanly extracted and verified active job targets.",
+          description: "List of cleanly extracted and verified active job targets from live search results.",
           items: {
             type: Type.OBJECT,
             properties: {
@@ -324,9 +324,88 @@ export async function executeAutonomousScraperPipeline(userId?: string) {
 
     let cleanJobsList: DiscoveredJob[] = [];
     if (response.text) {
-      cleanJobsList = JSON.parse(response.text) as DiscoveredJob[];
+      try {
+        cleanJobsList = JSON.parse(response.text) as DiscoveredJob[];
+      } catch (e) {
+        console.error("Failed to parse Gemini Search Grounding output in background scraper:", e);
+      }
     }
     console.log(`Successfully indexed ${cleanJobsList.length} structured records for the Live Matches Ticker.`);
+
+    let maxAffordable = cleanJobsList.length;
+    let isNINVerified = false;
+    let walletBalanceNGN = 0;
+    const costPerJob = 0.20; // 1 Token (₦0.20 NGN)
+
+    if (userId) {
+      try {
+        const userDoc = await db.collection('users').doc(userId).get();
+        if (userDoc.exists) {
+          const userData = userDoc.data() || {};
+          isNINVerified = !!userData.isNINVerified;
+          walletBalanceNGN = userData.financials?.walletBalanceNGN || 0;
+          const spendable = isNINVerified ? walletBalanceNGN : Math.max(0, walletBalanceNGN - 4000.00);
+          maxAffordable = Math.floor(spendable / costPerJob);
+        }
+      } catch (err) {
+        console.warn("Failed to check user balance for scraper run:", err);
+      }
+    }
+
+    if (userId && maxAffordable < cleanJobsList.length) {
+      console.log(`User ${userId} can only afford ${maxAffordable} jobs. Trimming results from ${cleanJobsList.length} to ${maxAffordable}...`);
+      cleanJobsList = cleanJobsList.slice(0, Math.max(0, maxAffordable));
+    }
+
+    if (userId && cleanJobsList.length > 0) {
+      const totalCost = cleanJobsList.length * costPerJob;
+      try {
+        const userRef = db.collection('users').doc(userId);
+        const transactionRef = `wa-scraped-debit-${Math.floor(100000 + Math.random() * 900000)}`;
+        const ledgerRef = userRef.collection('ledger').doc();
+
+        await db.runTransaction(async (transaction) => {
+          const freshUserDoc = await transaction.get(userRef);
+          const freshUserData = freshUserDoc.data() || {};
+          const freshIsNINVerified = !!freshUserData.isNINVerified;
+          const currentBalance = freshUserData.financials?.walletBalanceNGN || 0;
+          const freshSpendable = freshIsNINVerified ? currentBalance : Math.max(0, currentBalance - 4000.00);
+
+          if (freshSpendable < totalCost) {
+            throw new Error("INSUFFICIENT_FUNDS_OR_LOCKED");
+          }
+
+          const nextBalanceNGN = currentBalance - totalCost;
+          const nextBalanceUSD = nextBalanceNGN / 1500;
+
+          transaction.update(userRef, {
+            'financials.walletBalanceNGN': nextBalanceNGN,
+            'financials.walletBalanceUSD': nextBalanceUSD,
+            'financials.lastDebitTimestamp': new Date().toISOString()
+          });
+
+          transaction.set(ledgerRef, {
+            timestamp: new Date().toISOString(),
+            type: 'DEBIT',
+            purpose: 'AUTONOMOUS_SCRAPER_RECORD',
+            currency: 'NGN',
+            amount: totalCost,
+            paymentMethod: 'INTERNAL_WALLET',
+            status: 'SUCCESSFUL',
+            reconciliationId: transactionRef,
+            meta: {
+              itemsScrapedCount: cleanJobsList.length,
+              costPerItem: costPerJob
+            }
+          });
+        });
+        console.log(`Charged user ${userId} ₦${totalCost} NGN (${cleanJobsList.length * 1} GiGO tokens) for autonomous scraping records.`);
+      } catch (debitErr: any) {
+        console.error("Failed to debit user for scraper run:", debitErr.message);
+        // If debit fails, discard jobs to prevent bypasses
+        cleanJobsList = [];
+      }
+    }
     
     // 4. Store records to Cloud Firestore collection ('/discovered_jobs') with 3-Day Expiry Retention Logic
     for (const job of cleanJobsList) {

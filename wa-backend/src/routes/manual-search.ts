@@ -72,52 +72,56 @@ async function simulateSearchAndExtractJobs(
   booleanQuery: string,
   params: { jobTitle: string; location: string; jobType: string; salaryRange: string; customKeywords: string; targetDomain: string }
 ): Promise<DiscoveredJob[]> {
-  const prompt = `You are simulated running an Advanced Google Boolean search against the web index.
+  const prompt = `You are a Live Recruitment Search Agent executing an Advanced Google Boolean search on the active web index.
   Your Boolean query directive is: "${booleanQuery}"
   Target Domain/Platform Filter: "${params.targetDomain || 'all'}"
   
-  Generate 4 highly realistic, active, premium job listings that perfectly match these filters and correspond to the search target:
+  Using your Google Search tool, perform a live search to find active job listings posted recently (ideally within the last 7 days) that perfectly match these filters and correspond to the search target:
   - Target Role: "${params.jobTitle}"
   - Target Location: "${params.location || 'Remote/Any'}"
   - Arrangement: "${params.jobType}"
-  - Target Salary Target: "${params.salaryRange || '₦400,000 - ₦600,000 / Month'}"
+  - Target Salary: "${params.salaryRange || '₦400,000 - ₦600,000 / Month'}"
   - Additional requirements or keywords: "${params.customKeywords || 'None'}"
   
-  Each job should have:
-  - A real or highly realistic simulated landing page URL or application link.
-  - An extracted "applicationEmail" if applicable (e.g. careers@company.com, recruitment@company.com, or similar).
-  - An extracted "applicationPhone" if a contact phone number is provided (or simulate one in international format, e.g. +234-803-XXX-XXXX, +1-415-XXX-XXXX).
-  - An extracted "applicationLink" (direct link for applying, which could be the platform vacancy link or a specific form).
-  - Clean companyName, jobTitle, workType, sourcePlatform (e.g. LinkedIn, Twitter, Instagram, Company Site).
-  - Exactly 3 skills/requirements in keyRequirementsSummary.
-  - Correct workType (Remote, Hybrid, or Onsite).
+  From the actual search grounding results, extract exactly 4 real active jobs. For each job, populate these fields accurately based on real grounded information:
+  - companyName: The actual hiring company name.
+  - jobTitle: The real title of the role.
+  - workType: One of ['Remote', 'Hybrid', 'Onsite'] based on the posting.
+  - applicationLinkOrEmail: The real direct application URL or contact email.
+  - sourcePlatform: The source platform where found (e.g. Greenhouse, Lever, LinkedIn, Twitter, Company Site).
+  - keyRequirementsSummary: Exactly 3 real crucial requirements from the listing.
+  - salaryRange: Real salary specified or an estimated monthly range matching target.
+  - applicationEmail: Real recruiter email if found, or null.
+  - applicationPhone: Real contact phone if found, or null.
+  - applicationLink: Direct application URL.
   `;
 
   const response = await ai.models.generateContent({
     model: modelName,
     contents: prompt,
     config: {
+      tools: [{ googleSearch: {} }],
       responseMimeType: 'application/json',
       responseSchema: {
         type: Type.ARRAY,
-        description: "List of cleanly extracted and matched job targets.",
+        description: "List of cleanly extracted and matched real-world job targets from live search results.",
         items: {
           type: Type.OBJECT,
           properties: {
-            companyName: { type: Type.STRING, description: "Hiring company name." },
+            companyName: { type: Type.STRING, description: "Real hiring company name." },
             jobTitle: { type: Type.STRING, description: "Official title of the role." },
             workType: { type: Type.STRING, enum: ['Remote', 'Hybrid', 'Onsite'] },
-            applicationLinkOrEmail: { type: Type.STRING, description: "Simulated direct apply URL." },
-            sourcePlatform: { type: Type.STRING, description: "Greenhouse, Lever, LinkedIn, Twitter, Instagram, etc." },
+            applicationLinkOrEmail: { type: Type.STRING, description: "Real direct apply URL or contact email." },
+            sourcePlatform: { type: Type.STRING, description: "E.g., Greenhouse, Lever, LinkedIn, Company Portal." },
             keyRequirementsSummary: { 
               type: Type.ARRAY, 
               items: { type: Type.STRING },
               description: "List of top 3 skills required for this job."
             },
             salaryRange: { type: Type.STRING, description: "Compensation package range details." },
-            applicationEmail: { type: Type.STRING, description: "Extracted application email." },
-            applicationPhone: { type: Type.STRING, description: "Extracted contact phone number." },
-            applicationLink: { type: Type.STRING, description: "Extracted application link or URL." }
+            applicationEmail: { type: Type.STRING, description: "Extracted application email if available, or null." },
+            applicationPhone: { type: Type.STRING, description: "Extracted contact phone number if available, or null." },
+            applicationLink: { type: Type.STRING, description: "Extracted direct application link or URL." }
           },
           required: ['companyName', 'jobTitle', 'workType', 'applicationLinkOrEmail', 'sourcePlatform', 'keyRequirementsSummary']
         }
@@ -129,7 +133,7 @@ async function simulateSearchAndExtractJobs(
     try {
       return JSON.parse(response.text) as DiscoveredJob[];
     } catch (e) {
-      console.error("Failed to parse Gemini simulated search output:", e);
+      console.error("Failed to parse Gemini Search Grounding output:", e);
     }
   }
 
@@ -149,16 +153,40 @@ router.post('/manual-search', async (req: Request, res: Response) => {
   }
 
   const startTime = Date.now();
-  console.log(`Manual Search triggered by user ${userId || 'anonymous'} for role "${jobTitle}"...`);
-
   try {
-    // 1. Resolve custom key or fallback
+    // 1. Resolve custom key or fallback and check wallet balance and verification lock
     let userApiKey: string | undefined;
+    let isNINVerified = false;
+    let walletBalanceNGN = 0;
+    const cost = 2.00; // 10 Tokens (₦2.00 NGN)
 
     if (userId) {
-      const userDoc = await db.collection('users').doc(userId).get();
+      const userRef = db.collection('users').doc(userId);
+      const userDoc = await userRef.get();
       if (userDoc.exists) {
-        userApiKey = userDoc.data()?.geminiApiKey;
+        const userData = userDoc.data() || {};
+        userApiKey = userData.geminiApiKey;
+        isNINVerified = !!userData.isNINVerified;
+        walletBalanceNGN = userData.financials?.walletBalanceNGN || 0;
+
+        const spendableNGN = isNINVerified ? walletBalanceNGN : Math.max(0, walletBalanceNGN - 4000.00);
+
+        // Check if user has sufficient funds
+        if (spendableNGN < cost) {
+          if (!isNINVerified && walletBalanceNGN >= cost) {
+            res.status(403).json({ 
+              error: `Verification Required: Your remaining spendable balance is ₦${spendableNGN.toFixed(2)} NGN (${(spendableNGN * 5).toFixed(0)} GiGO Tokens). Under our viral onboarding promotion, 80% of your starting bonus (₦4,000.00 NGN / 20,000 GiGO Tokens) is temporarily locked. Please submit your NIN and clear verification in settings to unlock 100% of your benefits!`
+            });
+          } else {
+            res.status(402).json({ 
+              error: `Insufficient wallet balance. Executing a manual scraper sweep requires 10 GiGO Tokens (₦${cost.toFixed(2)} NGN). Your spendable balance is ${(spendableNGN * 5).toFixed(0)} GiGO Tokens (₦${spendableNGN.toFixed(2)} NGN).` 
+            });
+          }
+          return;
+        }
+      } else {
+        res.status(404).json({ error: "User profile not found. Please onboard first." });
+        return;
       }
     }
 
@@ -290,6 +318,52 @@ router.post('/manual-search', async (req: Request, res: Response) => {
       };
     });
 
+    // 5.5. Execute atomic wallet debit in transaction
+    if (userId) {
+      const userRef = db.collection('users').doc(userId);
+      const transactionRef = `wa-search-${Math.floor(100000 + Math.random() * 900000)}`;
+      const ledgerRef = userRef.collection('ledger').doc();
+
+      console.log(`Deducting ₦${cost} from user ${userId} for manual scraper sweep...`);
+
+      await db.runTransaction(async (transaction) => {
+        const freshUserDoc = await transaction.get(userRef);
+        const freshUserData = freshUserDoc.data() || {};
+        const freshIsNINVerified = !!freshUserData.isNINVerified;
+        const currentBalance = freshUserData.financials?.walletBalanceNGN || 0;
+        const freshSpendable = freshIsNINVerified ? currentBalance : Math.max(0, currentBalance - 4000.00);
+
+        if (freshSpendable < cost) {
+          throw new Error("INSUFFICIENT_FUNDS_OR_LOCKED");
+        }
+
+        const nextBalanceNGN = currentBalance - cost;
+        const nextBalanceUSD = nextBalanceNGN / 1500;
+
+        transaction.update(userRef, {
+          'financials.walletBalanceNGN': nextBalanceNGN,
+          'financials.walletBalanceUSD': nextBalanceUSD,
+          'financials.lastDebitTimestamp': new Date().toISOString()
+        });
+
+        transaction.set(ledgerRef, {
+          timestamp: new Date().toISOString(),
+          type: 'DEBIT',
+          purpose: 'MANUAL_SCRAPER_SWEEP',
+          currency: 'NGN',
+          amount: cost,
+          paymentMethod: 'INTERNAL_WALLET',
+          status: 'SUCCESSFUL',
+          reconciliationId: transactionRef,
+          meta: {
+            jobTitle,
+            locationPreference: location || 'Remote/Unfiltered',
+            resultsCount: matchedJobsList.length
+          }
+        });
+      });
+    }
+
     // 6. Step D: Write Administrative Activity Telemetry record
     const latencyMs = Date.now() - startTime;
     await db.collection('agent_execution_logs').add({
@@ -324,6 +398,11 @@ router.post('/manual-search', async (req: Request, res: Response) => {
 
   } catch (error: any) {
     console.error("Interactive manual scraper search failed:", error);
+    
+    if (error.message === "INSUFFICIENT_FUNDS_OR_LOCKED") {
+      res.status(403).json({ error: "Atomic validation checked: Wallet has insufficient spendable NGN balance or contains locked promotional funds." });
+      return;
+    }
     
     try {
       await db.collection('agent_execution_logs').add({

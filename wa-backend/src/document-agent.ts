@@ -19,9 +19,9 @@ export async function handleAssetGenerationRoute(req: Request, res: Response): P
     return;
   }
 
-  let cost = 400;
-  if (type === 'CV') cost = 500;
-  if (type === 'PORTFOLIO') cost = 600;
+  let cost = 0.40; // 2 Tokens
+  if (type === 'CV') cost = 1.20; // 6 Tokens
+  if (type === 'PORTFOLIO') cost = 0.60; // 3 Tokens
 
   try {
     const userRef = db.collection('users').doc(userId);
@@ -33,12 +33,22 @@ export async function handleAssetGenerationRoute(req: Request, res: Response): P
     }
 
     const userData = userDoc.data() || {};
+    const isNINVerified = !!userData.isNINVerified;
     const walletBalanceNGN = userData.financials?.walletBalanceNGN || 0;
+    const spendableNGN = isNINVerified ? walletBalanceNGN : Math.max(0, walletBalanceNGN - 4000.00);
 
     // Check if user has sufficient funds
-    if (walletBalanceNGN < cost) {
+    if (spendableNGN < cost) {
       const displayTypeName = type.replace('_', ' ');
-      res.status(402).json({ error: `Insufficient wallet balance. Generating a ${displayTypeName} requires ₦${cost} NGN. Your balance is ₦${walletBalanceNGN}.` });
+      if (!isNINVerified && walletBalanceNGN >= cost) {
+        res.status(403).json({ 
+          error: `Verification Required: Your remaining spendable balance is ₦${spendableNGN.toFixed(2)} NGN (${(spendableNGN * 5).toFixed(0)} GiGO Tokens). Under our viral onboarding promotion, 80% of your starting bonus (₦4,000.00 NGN / 20,000 GiGO Tokens) is temporarily locked. Please submit your NIN and clear verification in settings to unlock 100% of your benefits!`
+        });
+      } else {
+        res.status(402).json({ 
+          error: `Insufficient wallet balance. Generating a ${displayTypeName} requires ${cost * 5} GiGO Tokens (₦${cost.toFixed(2)} NGN). Your spendable balance is ${(spendableNGN * 5).toFixed(0)} GiGO Tokens (₦${spendableNGN.toFixed(2)} NGN).` 
+        });
+      }
       return;
     }
 
@@ -70,14 +80,20 @@ export async function handleAssetGenerationRoute(req: Request, res: Response): P
     await db.runTransaction(async (transaction) => {
       const freshUserDoc = await transaction.get(userRef);
       const freshUserData = freshUserDoc.data() || {};
+      const freshIsNINVerified = !!freshUserData.isNINVerified;
       const currentBalance = freshUserData.financials?.walletBalanceNGN || 0;
+      const freshSpendable = freshIsNINVerified ? currentBalance : Math.max(0, currentBalance - 4000.00);
 
-      if (currentBalance < cost) {
-        throw new Error("INSUFFICIENT_FUNDS");
+      if (freshSpendable < cost) {
+        throw new Error("INSUFFICIENT_FUNDS_OR_LOCKED");
       }
 
+      const nextBalanceNGN = currentBalance - cost;
+      const nextBalanceUSD = nextBalanceNGN / 1500;
+
       transaction.update(userRef, {
-        'financials.walletBalanceNGN': FieldValue.increment(-cost),
+        'financials.walletBalanceNGN': nextBalanceNGN,
+        'financials.walletBalanceUSD': nextBalanceUSD,
         'financials.lastDebitTimestamp': new Date().toISOString()
       });
 
@@ -239,6 +255,11 @@ export async function handleAssetGenerationRoute(req: Request, res: Response): P
 
   } catch (error: any) {
     console.error("Cover letter generation failed:", error);
+
+    if (error.message === "INSUFFICIENT_FUNDS_OR_LOCKED") {
+      res.status(403).json({ error: "Atomic validation checked: Wallet has insufficient spendable NGN balance or contains locked promotional funds." });
+      return;
+    }
 
     if (error.message === "INSUFFICIENT_FUNDS") {
       res.status(402).json({ error: "Atomic validation checked: Wallet has insufficient NGN balance." });

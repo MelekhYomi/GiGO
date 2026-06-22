@@ -8,6 +8,7 @@ interface MailroomTabProps {
   fetchMailThreads: () => Promise<void>;
   addLog: (log: string) => void;
   API_BASE_URL: string;
+  mailBackend?: 'gmail' | 'gigomail';
 }
 
 export const MailroomTab: React.FC<MailroomTabProps> = ({
@@ -18,6 +19,7 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
   fetchMailThreads,
   addLog,
   API_BASE_URL,
+  mailBackend = 'gigomail',
 }) => {
   // Local Mailroom States
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
@@ -133,7 +135,11 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
   const handleSyncMail = async (forceSimulate = false) => {
     if (!userId) return;
     setIsSyncingMail(true);
-    addLog(`Initiating Gmail Inbox Synchronization via Google Email API...`);
+    const isGigoMail = mailBackend === 'gigomail';
+    addLog(isGigoMail 
+      ? `Initiating GiGO Mail Sync & Simulated Recruiter Scan...` 
+      : `Initiating Gmail Inbox Synchronization via Google Email API...`
+    );
     try {
       const token = localStorage.getItem('wa_token');
       const response = await fetch(`${API_BASE_URL}/api/mail/sync`, {
@@ -149,7 +155,10 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
         addLog(`📬 ${data.message}`);
         await fetchMailThreads();
       } else {
-        addLog(`❌ Failed to sync Gmail inbox: ${data.error || 'Unknown error'}`);
+        addLog(isGigoMail 
+          ? `❌ Failed to sync GiGO mailroom: ${data.error || 'Unknown error'}`
+          : `❌ Failed to sync Gmail inbox: ${data.error || 'Unknown error'}`
+        );
       }
     } catch (err) {
       addLog(`❌ Error syncing inbox: ${err instanceof Error ? err.message : String(err)}`);
@@ -162,7 +171,11 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
   const handleSendReply = async () => {
     if (!userId || !selectedThreadId || !replyBody.trim()) return;
     setIsSendingReply(true);
-    addLog(`Dispatched email reply via synced Gmail profile...`);
+    const isGigoMail = mailBackend === 'gigomail';
+    addLog(isGigoMail
+      ? `Dispatched email reply via GiGO Virtual Mailroom Agent...`
+      : `Dispatched email reply via synced Gmail profile...`
+    );
     try {
       const token = localStorage.getItem('wa_token');
       const response = await fetch(`${API_BASE_URL}/api/mail/send-reply`, {
@@ -225,7 +238,11 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
   const handleSendFollowup = async () => {
     if (!userId || !selectedThreadId || !followupDraftText.trim()) return;
     setIsSendingReply(true);
-    addLog(`Dispatched AI-generated follow-up via synced Gmail profile...`);
+    const isGigoMail = mailBackend === 'gigomail';
+    addLog(isGigoMail
+      ? `Dispatched AI-generated follow-up via GiGO Virtual Mailroom Agent...`
+      : `Dispatched AI-generated follow-up via synced Gmail profile...`
+    );
     try {
       const token = localStorage.getItem('wa_token');
       const response = await fetch(`${API_BASE_URL}/api/mail/send-reply`, {
@@ -420,7 +437,9 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
               <span className="pulse-dot" style={{ width: '8px', height: '8px', background: activeMailFolder === 'trash' ? '#f87171' : '#d946ef', borderRadius: '50%', boxShadow: activeMailFolder === 'trash' ? '0 0 10px #f87171' : '0 0 10px #d946ef' }}></span>
               {activeMailFolder === 'inbox' ? 'INBOX' : activeMailFolder === 'sent' ? 'SENT MAIL' : activeMailFolder === 'all' ? 'ALL COMMUNICATIONS' : 'TRASH BIN'}
             </h2>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Synced to {userEmail || 'Gmail'}</span>
+            <span style={{ fontSize: '0.7rem', color: mailBackend === 'gigomail' ? 'var(--success)' : 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              {mailBackend === 'gigomail' ? '🤖' : '🔑'} Synced to {mailBackend === 'gigomail' ? `${userEmail ? userEmail.split('@')[0] : 'username'}@gigo-mail.com` : (userEmail || 'Gmail')}
+            </span>
           </div>
           <span className="badge badge-purple" style={{ fontSize: '0.7rem' }}>{filteredThreads.length}</span>
         </div>

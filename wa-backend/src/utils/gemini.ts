@@ -35,7 +35,7 @@ export function getGeminiClient(customApiKey?: string): { ai: GoogleGenAI; model
   return {
     ai: new GoogleGenAI({
       vertexai: true,
-      project: process.env.GOOGLE_CLOUD_PROJECT || 'project-1827db43-f913-4a0e-978',
+      project: process.env.GOOGLE_CLOUD_PROJECT || 'project-ce78d47a-1bfa-42ef-8ae',
       location: 'us-central1'
     }),
     modelFlash: 'gemini-2.5-flash',

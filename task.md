@@ -1,0 +1,36 @@
+# Task Checklist: Onboarding, Identity KYC, Referral Mechanics, & Unified Utility Tokenization
+
+- `[x]` **Phase 1: Signup Terms & Backend Referral Upgrades**
+  - `[x]` Inject mandatory Terms checkbox into `App.tsx` Signup Modal
+  - `[x]` Validate terms agreement state in `handleSignupSubmit`
+  - `[x]` Increase default `referralBonus` config to `5000` NGN in `index.ts`
+  - `[x]` Implement Referee registration credit of `5000` NGN and `REFEREE_BONUS` ledger inside signup route
+- `[x]` **Phase 2: NIN Interactive AI Scanner Suite**
+  - `[x]` Build stateful holographic laser scanner overlay `NINScanOverlay` in `App.tsx`
+  - `[x]` Embed NIN KYC details input card in "🔐 Security & Biometrics" Settings tab
+  - `[x]` Connect scanner trigger to call user profile update API with NIN metadata
+  - `[x]` Set up unverified warning alert banners on dashboard and settings views
+- `[x]` **Phase 3: Wallet Lock & Atomic Token Debits**
+  - `[x]` Enforce `!isNINVerified` ₦4,000 NGN balance freeze in `document-agent.ts` (CV compilation compile)
+  - `[x]` Enforce `!isNINVerified` freeze in `application-email.ts` (Application dispatch)
+  - `[x]` Enforce `!isNINVerified` freeze and charge ₦2.00 NGN (10 tokens) in `manual-search.ts` with transaction ledger
+  - `[x]` Implement slice calculation, results trimming, and 1 token per result billing in `scraper-agent.ts`
+- `[x]` **Phase 4: Token Display Refactoring & Admin KYC Audit**
+  - `[x]` Multiply all display balances by 5 to prioritize GiGO Tokens hero currency
+  - `[x]` Update Admin candidate rows with Verified Badge and 11-digit NIN display
+  - `[x]` Embed "View NIN Card" overlay popup dialog inside `AdminCockpit.tsx`
+- `[x]` **Phase 5: Viral Referrals Center & Lifecycles Highlight**
+  - `[x]` Build OPay/Temu-inspired "Refer & Win 25,000 Tokens" viral dashboard card in referrals tab
+  - `[x]` Design beautiful 4-stage Career Automation Lifecycle visual panel on dashboard
+- `[x]` **Phase 6: Redesign Landing Page**
+  - `[x]` Refactor `LandingPage.tsx` with glassmorphic sections and glowing grid designs
+  - `[x]` Illustrate Career Lifecycle, tokenization economics, and referral economics
+- `[x]` **Phase 7: Verification & Core Validation**
+  - `[x]` Validate backend build output (`npm run build`)
+  - `[x]` Validate frontend build output (`npm run build`)
+- `[x]` **Phase 8: Real-Time Google Scraped Bespoke AI Interview & Nigerian Voice Assistant**
+  - `[x]` Integrate Google Search tool grounding and JSON schema output in backend `/interview/generate-questions`
+  - `[x]` Enable custom typed target job & company inputs in frontend `MockInterviewRoom.tsx`
+  - `[x]` Implement voice-selection heuristic inside `speakQuestion` to prioritize Nigerian female (`en-NG`) or African voices
+  - `[x]` Enrich question terminal with category chips and expandable Preparation & Guidance drawers
+  - `[x]` Verify robust end-to-end question generation, live search grounding, and speech synthesis

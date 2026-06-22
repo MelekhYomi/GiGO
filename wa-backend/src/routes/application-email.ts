@@ -17,7 +17,7 @@ router.post('/send-application-email', async (req: Request, res: Response) => {
     return;
   }
 
-  const cost = 200; // Dispatching fee: ₦200 NGN
+  const cost = 0.40; // 2 Tokens
 
   try {
     const userRef = db.collection('users').doc(userId);
@@ -35,11 +35,21 @@ router.post('/send-application-email', async (req: Request, res: Response) => {
       return;
     }
 
+    const isNINVerified = !!userData.isNINVerified;
     const walletBalanceNGN = userData.financials?.walletBalanceNGN || 0;
+    const spendableNGN = isNINVerified ? walletBalanceNGN : Math.max(0, walletBalanceNGN - 4000.00);
 
     // Check if user has sufficient funds
-    if (walletBalanceNGN < cost) {
-      res.status(402).json({ error: `Insufficient wallet balance. Sending an application email requires ₦${cost} NGN. Your balance is ₦${walletBalanceNGN}.` });
+    if (spendableNGN < cost) {
+      if (!isNINVerified && walletBalanceNGN >= cost) {
+        res.status(403).json({ 
+          error: `Verification Required: Your remaining spendable balance is ₦${spendableNGN.toFixed(2)} NGN (${(spendableNGN * 5).toFixed(0)} GiGO Tokens). Under our viral onboarding promotion, 80% of your starting bonus (₦4,000.00 NGN / 20,000 GiGO Tokens) is temporarily locked. Please submit your NIN and clear verification in settings to unlock 100% of your benefits!`
+        });
+      } else {
+        res.status(402).json({ 
+          error: `Insufficient wallet balance. Sending an application email requires 2 GiGO Tokens (₦${cost.toFixed(2)} NGN). Your spendable balance is ${(spendableNGN * 5).toFixed(0)} GiGO Tokens (₦${spendableNGN.toFixed(2)} NGN).` 
+        });
+      }
       return;
     }
 
@@ -68,14 +78,20 @@ router.post('/send-application-email', async (req: Request, res: Response) => {
     await db.runTransaction(async (transaction) => {
       const freshUserDoc = await transaction.get(userRef);
       const freshUserData = freshUserDoc.data() || {};
+      const freshIsNINVerified = !!freshUserData.isNINVerified;
       const currentBalance = freshUserData.financials?.walletBalanceNGN || 0;
+      const freshSpendable = freshIsNINVerified ? currentBalance : Math.max(0, currentBalance - 4000.00);
 
-      if (currentBalance < cost) {
-        throw new Error("INSUFFICIENT_FUNDS");
+      if (freshSpendable < cost) {
+        throw new Error("INSUFFICIENT_FUNDS_OR_LOCKED");
       }
 
+      const nextBalanceNGN = currentBalance - cost;
+      const nextBalanceUSD = nextBalanceNGN / 1500;
+
       transaction.update(userRef, {
-        'financials.walletBalanceNGN': FieldValue.increment(-cost),
+        'financials.walletBalanceNGN': nextBalanceNGN,
+        'financials.walletBalanceUSD': nextBalanceUSD,
         'financials.lastDebitTimestamp': new Date().toISOString()
       });
 
@@ -120,12 +136,13 @@ Redundant Power & Fiber Enabled Remote Candidate.
     let mailInfo: any = {};
 
     // Standard SMTP fallbacks
+    const mailBackend = userData.mailBackend || 'gigomail';
     const smtpHost = userData.smtpSettings?.host || process.env.SMTP_HOST;
     const smtpPort = parseInt(userData.smtpSettings?.port || process.env.SMTP_PORT || '587');
     const smtpUser = userData.smtpSettings?.user || process.env.SMTP_USER;
     const smtpPass = userData.smtpSettings?.pass || process.env.SMTP_PASS;
 
-    if (smtpHost && smtpUser && smtpPass) {
+    if (mailBackend === 'gmail' && smtpHost && smtpUser && smtpPass) {
       isMock = false;
       try {
         const transporter = nodemailer.createTransport({
@@ -184,7 +201,9 @@ Redundant Power & Fiber Enabled Remote Candidate.
         `Extracted ${documentsContent.length} active documents from candiate profile subcollection.`,
         `Compiled direct application email and dispatched securely to HR Recipient: <${recipientEmail}>.`,
         isMock 
-          ? "No custom user SMTP configuration was found. Dispatched successfully via GiGO Platform Network Simulator."
+          ? (mailBackend === 'gigomail'
+              ? "GiGO Virtual Mailroom Agent mode active. Dispatched successfully via GiGO Platform Network Simulator."
+              : "No custom user SMTP configuration was found. Dispatched successfully via GiGO Platform Network Simulator.")
           : `Dispatched securely via candidate custom SMTP cluster: ${smtpHost}.`
       ]
     });
@@ -197,11 +216,16 @@ Redundant Power & Fiber Enabled Remote Candidate.
       const threadJobTitle = jobTitle || subject.replace(/^Re:\s*/i, '').replace(/^Fwd:\s*/i, '').split(' - ')[0] || 'Software Engineer';
       const threadCompanyName = companyName || 'Company Inc.';
       
+      const userEmailLocalPart = userData.email ? userData.email.split('@')[0] : 'username';
+      const senderEmailResolved = mailBackend === 'gigomail' 
+        ? `${userEmailLocalPart}@gigo-mail.com` 
+        : (userData.email || 'alex.carter@gmail.com');
+
       const firstMessage = {
         id: 'msg_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
         sender: 'user',
         senderName: userData.fullName || '[   ]',
-        senderEmail: userData.email || 'alex.carter@gmail.com',
+        senderEmail: senderEmailResolved,
         recipientEmail: recipientEmail,
         body: bodyText,
         timestamp: new Date().toISOString()
@@ -220,7 +244,7 @@ Redundant Power & Fiber Enabled Remote Candidate.
         messages: [firstMessage]
       });
 
-      console.log(`[Mailroom Integration] Successfully initialized thread ${threadId} for ${threadJobTitle} at ${threadCompanyName}.`);
+      console.log(`[Mailroom Integration] Successfully initialized thread ${threadId} for ${threadJobTitle} at ${threadCompanyName} (${mailBackend} mode).`);
     } catch (threadErr) {
       console.error("Failed to initialize mail thread in database:", threadErr);
     }
@@ -228,7 +252,9 @@ Redundant Power & Fiber Enabled Remote Candidate.
     res.status(200).json({
       success: true,
       message: isMock 
-        ? "Application dispatched successfully via GiGO Platform Network Simulator."
+        ? (mailBackend === 'gigomail'
+            ? "Application dispatched successfully via GiGO Mail Agent."
+            : "Application dispatched successfully via GiGO Platform Network Simulator.")
         : "Application email dispatched successfully via custom SMTP.",
       amountDeducted: cost,
       reconciliationId: transactionRef,
@@ -238,6 +264,11 @@ Redundant Power & Fiber Enabled Remote Candidate.
 
   } catch (error: any) {
     console.error("Application email dispatch failed:", error);
+
+    if (error.message === "INSUFFICIENT_FUNDS_OR_LOCKED") {
+      res.status(403).json({ error: "Atomic validation checked: Wallet has insufficient spendable NGN balance or contains locked promotional funds." });
+      return;
+    }
 
     if (error.message === "INSUFFICIENT_FUNDS") {
       res.status(402).json({ error: "Atomic validation checked: Wallet has insufficient NGN balance." });

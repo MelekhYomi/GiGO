@@ -8,7 +8,7 @@ export interface OnboardingCardProps {
 
 export const OnboardingCard: React.FC<OnboardingCardProps> = ({ onGetStarted }) => {
   // Configured with the actual live Google Cloud Run service endpoint
-  const LIVE_BACKEND_URL = 'https://wa-backend-536473631781.us-central1.run.app';
+  const LIVE_BACKEND_URL = 'https://wa-backend-937843145733.us-central1.run.app';
 
   const {
     isRecording,

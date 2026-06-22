@@ -34,7 +34,7 @@ router.post('/referrals/invite', async (req: Request, res: Response) => {
 
     // Fetch dynamic frontend domain and referral bonus with fallback defaults
     let frontendDomain = "https://wa-frontend-seven.vercel.app";
-    let referralBonus = 500.00;
+    let referralBonus = 5000.00;
     try {
       const systemDoc = await db.collection('system_configs').doc('global').get();
       if (systemDoc.exists) {
