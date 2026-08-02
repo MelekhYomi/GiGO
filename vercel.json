@@ -1,0 +1,12 @@
+{
+  "framework": "vite",
+  "installCommand": "npm --prefix gigo ci",
+  "buildCommand": "npm --prefix gigo run build",
+  "outputDirectory": "gigo/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix gigo run build",
+    "vercel-build": "npm --prefix gigo run build"
+  },
+  "engines": {
+    "node": "20.x"
+  }
+}
