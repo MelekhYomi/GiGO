@@ -1,94 +1,68 @@
-# Implementation Plan: Real-Time Google Scraped Bespoke AI Interview & Nigerian Voice Assistant
+# Implementation Plan: Custom Zapier Email Automation & Inbound Thread Matching
 
-We will upgrade the GiGO Mock Interview Suite into an elite, real-time-grounded, highly interactive simulator. The AI agent will perform real-time Google search sweeps to find actual, recent interview questions on the web for any selected or typed-in target job title and company. In addition, we will implement a beautiful Nigerian/African smart female voice assistant for the "Read Aloud" question-reading system, and enrich the interface with category-level preparation guidance, keyword mapping, and rigorous scorecard feedback.
+Integrate Zapier-based email routing seamlessly into both the **on-demand application dispatcher** and the **background autopilot scraper agent**, while optimizing the inbound mail webhook to allow automatic profile resolving by email address (eliminating the need to hardcode Firestore `userId`s inside Zapier).
 
 ---
 
-## 🛠️ Technical Design & Architecture
+## 🎯 Architectural Overview & Closed-Loop Email Automation
+
+With this design, **GiGO Mailroom becomes the candidate's real-world Gmail center**. They do not need to open Gmail or check their phone. All emails are sent from their real login email address via Zapier, and all recruiter replies are captured and brought directly into their GiGO cockpit.
 
 ```mermaid
-graph TD
-    A[🎨 MockInterviewRoom UI] -->|Select Job OR Type Custom Role| B(💻 Compile Track Action)
-    B -->|POST /api/interview/generate-questions| C[Backend interviewRouter]
-    C -->|Constructs Boolean Query & invokes Gemini| D[Gemini 2.5 Flash / Pro]
-    D -->|Tool: Google Search Grounding| E[🌐 Live Web Sweep: Glassdoor/LeetCode/LinkedIn]
-    E -->|Returns real interview questions| D
-    D -->|MIME Type: application/json| C
-    C -->|Returns structured 5-question set| A
-    A -->|Renders question terminal & Category Chips| F[💡 Expandable Prep Guidance Drawer]
-    A -->|Read Aloud Question| G[🎙️ SpeechSynthesis Utterance]
-    G -->|Nigerian/African Female Voice Heuristic| H[🔊 Smart Audio Output]
+sequenceDiagram
+    autonumber
+    participant AG as 🔍 GiGO Autopilot Scraper
+    participant DB as 🔥 Firestore DB
+    participant ZP as ⚡ Zapier Custom Zap
+    participant RC as 🏢 Recruiter Inbox
+    
+    %% Outbound
+    AG->>DB: Fetch Candidate Profile (mailBackend: 'zapier')
+    AG->>ZP: POST Webhook with profile email, resume, and recruiter address
+    Note over ZP: Custom Zap sends email from user's connected Gmail!
+    ZP->>RC: Dispatch Email (Real Gmail sending)
+    
+    %% Inbound
+    RC-->>ZP: Recruiter Replies directly to user's Gmail
+    ZP-->>AG: POST /api/zapier/inbound-reply (recipientEmail: user's login email)
+    Note over AG: Auto-resolves userId via candidate email query!
+    AG-->>DB: Update Thread, Classify Sentiment, & Auto-Trigger Practice Interview!
 ```
 
-### 1. Real-Time Google Search Grounding for Questions
-*   **Backend Endpoint**: `/api/interview/generate-questions`
-    *   **Google Search Grounding Tool**: Add `tools: [{ googleSearch: {} }]` to the Gemini model generation configuration inside `wa-backend/src/routes/interview.ts`.
-    *   **Scraping Real-Time Questions**: Update the prompt to direct Gemini to use Google Search to crawl Glassdoor, LeetCode, GitHub, corporate career pages, and LinkedIn in real time for popular and current interview questions matching the specific job title and company.
-    *   **Guaranteed JSON Output**: Enforce a strict JSON array schema structure via `responseMimeType: 'application/json'` and `responseSchema` parameters inside the GenAI SDK config. This eliminates syntax parsing failures.
-    *   **Custom Target Role Payload**: Accept a `customJob` object (`jobTitle`, `companyName`, `jobStyle`) from the request body to generate bespoke interview questions on-the-fly, even if the candidate hasn't loaded any discovered/matched jobs in their cockpit.
-
-### 2. High-Converting Interactive UI Redesign (MockInterviewRoom.tsx)
-*   **Dual-Option Job Input**:
-    *   Provide a toggle or clean selector to choose between:
-        1.  **💼 Active Matched Jobs** (dropdown of matched jobs populated from the dashboard).
-        2.  **✍️ Custom Target Role** (input text fields for custom Job Title, Company, and select dropdown for Job Style: Remote, Hybrid, or On-site).
-    *   This ensures "Compile Track" is fully functional and immediate, even if no matching jobs are present.
-*   **Stunning Preparation & Guidance Drawer**:
-    *   Render the active question's **Category** (e.g., Domain Competency, Workplace Adaptability, Behavioral, etc.) in a glowing neon badge.
-    *   Add an expandable/collapsible **💡 Preparation Guidance** panel directly on the Live Question Terminal containing:
-        -   **Focus Area**: Detailed recruiter expectations.
-        -   **Keywords to Mention**: Interactive checklist of recommended terminology.
-        -   **Communication Guide**: Actionable tone recommendations.
-    *   This provides standard prep utility to candidates before they record their verbal response.
-
-### 3. Nigerian / African Smart Female Voice Assistant
-*   **Web Speech Synthesis Integration**:
-    *   Query browser SpeechSynthesis voices dynamically via `window.speechSynthesis.getVoices()`.
-    *   Implement an optimized voice-selection heuristic to scan, identify, and select a **Nigerian female English voice** (`en-NG`), falling back gracefully to African English (`en-ZA` / `en-GH`), standard British/US female voices (`en-GB`/`en-US`), or standard Google natural female voices depending on OS and browser support.
-    *   **Acoustic Optimization**: Fine-tune the utterance parameters (`rate = 0.95` for clarity, `pitch = 1.05` for a warm, bright, professional female tone) to ensure premium auditory delivery of the compiled questions.
+1. **Send applications seamlessly**: When a user applies (or Autopilot applies on their behalf), GiGO POSTs the application metadata, tailored resume, cover letter, subject, and body to the user's **Zapier Catch Webhook URL**, capturing their registered login email as the sender key.
+2. **Real Gmail Dispatch**: Zapier triggers and dispatches the email using the user's connected Gmail/SMTP account. The email is sent from the user's actual email address.
+3. **Automated Recruiter Tracking**: Recruiter replies arrive in the user's real email inbox.
+4. **Instant Sync & AI Cockpit Trigger**: Zapier catches the reply and routes it to `/api/zapier/inbound-reply`. The backend resolves the candidate's profile by their email address, syncs the email thread inside Firestore, classifies recruiter sentiment, and automatically unlocks tailored Mock Interview practice prep!
 
 ---
 
 ## 📂 Proposed Changes
 
-### 1. Backend (`wa-backend`)
+We will execute changes in a highly cohesive, non-breaking manner across the backend.
 
-#### [MODIFY] [interview.ts](file:///c:/Users/iYomi/Desktop/wa-ecosystem/wa-backend/src/routes/interview.ts)
-*   Import `Type` from `@google/genai`.
-*   Refactor `/api/interview/generate-questions` to accept `customJob` details directly.
-*   Incorporate `tools: [{ googleSearch: {} }]` and specify `responseMimeType: 'application/json'` with the structured schema.
-*   Formulate a high-fidelity prompt instructing Gemini to scan the live web for actual, active interview questions related to the target job title, company, and work environment.
+### 1. Backend: Autopilot Agent
+#### [MODIFY] [scraper-agent.ts](file:///c:/Users/iYomi/Desktop/wa-ecosystem/gigo-backend/src/scraper-agent.ts)
+- Add complete support for `mailBackend === 'zapier'`.
+- Retrieve `userData.zapierWebhookUrl` or fall back to system defaults.
+- Issue an `axios.post` request dispatching high-fidelity email payloads (including tailored CV, cover letter, recruiter parameters, and candidate meta-variables) directly to the catch webhook.
+- Update internal state logging outputs to register successful Zapier autopilot dispatch.
 
----
-
-### 2. Frontend (`wa-frontend`)
-
-#### [MODIFY] [MockInterviewRoom.tsx](file:///c:/Users/iYomi/Desktop/wa-ecosystem/wa-frontend/src/components/MockInterviewRoom.tsx)
-*   Introduce state hooks for:
-    -   `isCustomMode`: boolean (toggle between matched jobs or typing a custom role).
-    -   `customJobTitle`, `customCompany`, `customJobStyle`.
-    -   `isPrepExpanded`: boolean (for showing/hiding preparation guidance drawer).
-*   Add dynamic SpeechSynthesisVoice loading and integrate the **Nigerian Female voice** preference selection heuristic in `speakQuestion`.
-*   Update `generateCustomInterviewQuestions` to support compiling questions via custom typed parameters if in custom mode, passing `{ userId, customJob }` to the backend.
-*   Redesign the UI with:
-    -   Dual input toggle with smooth state transitions.
-    -   Expanded Question Terminal displaying Category, Focus Area, Key Points, and Communication Guidance in a sleek, glassmorphic dropdown list with micro-animations.
-    -   Clean layout improvements for high visual appeal.
+### 2. Backend: Inbound Mailroom Webhook
+#### [MODIFY] [mailroom.ts](file:///c:/Users/iYomi/Desktop/wa-ecosystem/gigo-backend/src/routes/mailroom.ts)
+- Refactor `POST /api/zapier/inbound-reply` to support **dynamic candidate lookup**.
+- If `userId` is missing, the endpoint will query the Firestore `users` collection by the `recipientEmail` field (which represents the candidate's personal email).
+- This allows standard Zapier "New Email" triggers on Gmail/IMAP/Office365 to instantly route back recruiter replies to GiGO with zero customization or hardcoded account IDs.
 
 ---
 
 ## 🔬 Verification Plan
 
+We will perform comprehensive verification steps to ensure type-safety, correctness, and compilation excellence.
+
 ### Automated Tests
-*   Compile both frontend and backend modules to verify zero lint and type errors:
-    ```powershell
-    cd wa-backend; npm run build
-    cd ../wa-frontend; npm run build
-    ```
+- Run `npm run build` inside `gigo-backend` to ensure 100% typescript compliance and zero compilation errors.
+- Run a simulation script to verify that the email-based user lookup is functioning as expected in Firestore.
 
 ### Manual Verification
-1.  **Custom Role Selection**: Select "Type Custom Role" in the interview configurations, enter `LLM Fine-Tuning Specialist` and `Anthropic`. Click "Compile Track".
-2.  **Real-Time Google Grounding**: Check server logs to verify Gemini actively triggers Google Search to fetch actual questions from the internet. Verify that 5 questions are fetched and displayed in the terminal.
-3.  **Preparation Guidance Panel**: Expand the "Preparation & Guidance" drawer. Verify that the custom category, focus area, keywords, and tone recommendations are beautifully displayed.
-4.  **Nigerian Smart Female Voice**: Click "Read Aloud". Verify that the voice synthesizer picks the preferred African/Nigerian female accent and speaks with the configured rate and pitch adjustments.
-5.  **Scorecard Handshake**: Speak or type a custom answer and click "Analyze Answer". Confirm that Depth, Vocal, and ATS metrics are scored correctly, with keywords matched and model responses compiled.
+1. Setup a mock Zapier payload and submit a POST request to our `/api/zapier/inbound-reply` webhook using a simulated recruiter reply.
+2. Confirm the mailroom thread updates, classifies the sentiment, and triggers practice interview prep sessions successfully if the recruiter offers an interview.

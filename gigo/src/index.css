@@ -1,0 +1,358 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+
+  /* Premium LIGHT Theme Palette (Default) */
+  --bg-dark-base: #f8fafc;
+  --bg-dark-surface: rgba(255, 255, 255, 0.85);
+  --bg-dark-card: rgba(241, 245, 249, 0.95);
+  
+  --primary: #0284c7; /* Sky Blue */
+  --primary-glow: rgba(2, 132, 199, 0.12);
+  --secondary: #7c3aed; /* Purple */
+  --secondary-glow: rgba(124, 58, 237, 0.12);
+  
+  --emerald: #10b981;
+  --emerald-glow: rgba(16, 185, 129, 0.15);
+  --amber: #f59e0b;
+  --amber-glow: rgba(245, 158, 11, 0.15);
+  --rose: #f43f5e;
+  --rose-glow: rgba(244, 63, 94, 0.15);
+
+  --text-primary: #0f172a; /* Dark slate */
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  --border-glass: rgba(15, 23, 42, 0.08);
+  --border-glass-active: rgba(15, 23, 42, 0.15);
+  
+  --shadow-premium: 0 8px 32px 0 rgba(15, 23, 42, 0.06);
+  --shadow-glow-purple: 0 0 40px -5px rgba(124, 58, 237, 0.15);
+  --shadow-glow-pink: 0 0 40px -5px rgba(2, 132, 199, 0.15);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 30px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Calm DARK Theme Palette - Deep Slate, Sky Blue and Purple */
+    --bg-dark-base: #020817;
+    --bg-dark-surface: rgba(15, 23, 42, 0.75);
+    --bg-dark-card: rgba(15, 23, 42, 0.55);
+
+    --primary: #38bdf8; /* Vibrant Sky Blue */
+    --primary-glow: rgba(56, 189, 248, 0.1);
+    --secondary: #863bff; /* Vibrant Purple */
+    --secondary-glow: rgba(134, 59, 255, 0.1);
+
+    --text-primary: #f8fafc; /* Pure Off-white */
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+
+    --border-glass: rgba(255, 255, 255, 0.07);
+    --border-glass-active: rgba(255, 255, 255, 0.15);
+
+    --shadow-premium: 0 8px 32px 0 rgba(0, 0, 0, 0.55);
+    --shadow-glow-purple: 0 0 40px -5px rgba(134, 59, 255, 0.25);
+    --shadow-glow-pink: 0 0 40px -5px rgba(56, 189, 248, 0.25);
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-dark-base);
+  background-image: 
+    radial-gradient(circle at 10% 20%, var(--secondary-glow) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, var(--primary-glow) 0%, transparent 40%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(8, 7, 17, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(138, 92, 246, 0.3);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(138, 92, 246, 0.5);
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: var(--bg-dark-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-premium);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel-hover:hover {
+  border-color: var(--border-glass-active);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-premium), 0 10px 20px -10px rgba(138, 92, 246, 0.25);
+}
+
+.glass-card {
+  background: var(--bg-dark-card);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Text Gradient */
+.text-gradient-purple-pink {
+  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #f59e0b 0%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Animations */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes wave-bounce {
+  0%, 100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes scrollJobs {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Glass Buttons */
+.btn-glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-glass);
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  padding: 0.6rem 1.2rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-glass-active);
+  transform: translateY(-1px);
+}
+
+.btn-glass:active {
+  transform: translateY(1px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+  border: none;
+  box-shadow: 0 4px 14px 0 rgba(138, 92, 246, 0.4);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #9333ea 0%, #6d28d9 100%);
+  box-shadow: 0 6px 20px 0 rgba(138, 92, 246, 0.6);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--secondary) 0%, #db2777 100%);
+  border: none;
+  box-shadow: 0 4px 14px 0 rgba(217, 70, 239, 0.4);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #c026d3 0%, #be185d 100%);
+  box-shadow: 0 6px 20px 0 rgba(217, 70, 239, 0.6);
+}
+
+.badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.badge-purple {
+  background: rgba(138, 92, 246, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(138, 92, 246, 0.3);
+}
+
+.badge-emerald {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-pink {
+  background: rgba(217, 70, 239, 0.15);
+  color: #f472b6;
+  border: 1px solid rgba(217, 70, 239, 0.3);
+}
+
+.badge-amber {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* Futuristic Cyber Scanner Animations & Classes */
+@keyframes cyberScan {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+
+@keyframes pulseGlowRadar {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.95);
+    box-shadow: 0 0 10px rgba(138, 92, 246, 0.1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(217, 70, 239, 0.3);
+  }
+}
+
+.cyber-scanner-container {
+  position: relative;
+  overflow: hidden;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(138, 92, 246, 0.25);
+  background: rgba(10, 8, 25, 0.7);
+  box-shadow: inset 0 0 20px rgba(138, 92, 246, 0.15);
+}
+
+.cyber-scanner-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--primary), var(--secondary), var(--primary), transparent);
+  box-shadow: 0 0 15px var(--primary), 0 0 5px var(--secondary);
+  animation: cyberScan 3s linear infinite;
+  z-index: 2;
+}
+
+.cyber-scanner-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(138, 92, 246, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(138, 92, 246, 0.05) 1px, transparent 1px);
+  background-size: 15px 15px;
+  z-index: 1;
+}
+
+.cyber-scanner-radar {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  border: 2px solid rgba(138, 92, 246, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  animation: pulseGlowRadar 2.5s ease-in-out infinite;
+  margin-bottom: 0.4rem;
+  z-index: 1;
+}
+
+.cyber-scanner-radar::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 1px dashed rgba(217, 70, 239, 0.35);
+}
+

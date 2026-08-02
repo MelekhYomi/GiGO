@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GiGO Platform</title>
+    <!-- Tailwind CSS Play CDN for gorgeous landing page rendering -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'media',
+        theme: {
+          extend: {
+            colors: {
+              brandBg: 'var(--bg-dark-base)',
+              brandSurface: 'var(--bg-dark-surface)',
+              brandCard: 'var(--bg-dark-card)',
+              brandPrimary: 'var(--primary)',
+              brandSecondary: 'var(--secondary)',
+              brandTextPrimary: 'var(--text-primary)',
+              brandTextSecondary: 'var(--text-secondary)',
+              brandTextMuted: 'var(--text-muted)',
+              brandBorder: 'var(--border-glass)',
+              brandBorderActive: 'var(--border-glass-active)',
+            },
+            fontFamily: {
+              heading: ['Outfit', 'sans-serif'],
+              body: ['Plus Jakarta Sans', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- PWA & Apple iOS mobile capabilities -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="GiGO" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <meta name="theme-color" content="#863bff" />
+
+    <!-- Static manifest fallback link -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Service worker registration fallback script -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.getRegistrations().then((registrations) => {
+            if (registrations.length === 0) {
+              navigator.serviceWorker.register('/sw.js')
+                .then((reg) => console.log('Fallback SW registered:', reg.scope))
+                .catch((err) => console.warn('Fallback SW registration failed:', err));
+            } else {
+              console.log('Active SW found, skipping fallback registration');
+            }
+          });
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
