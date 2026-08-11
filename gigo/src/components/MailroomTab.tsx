@@ -307,130 +307,62 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
   const trashCount = mailThreads.filter(t => t.isTrash || t.folder === 'trash').length;
 
   return (
-    <main className="mailroom-container animate-fade-in" style={{ display: 'grid', gridTemplateColumns: '220px 340px 1fr', gap: '1.25rem', height: 'calc(100vh - 180px)', minHeight: '600px' }}>
-      
-      {/* COLUMN 1: FOLDER NAVIGATION SIDEBAR */}
-      <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', padding: '1.25rem', borderRight: '1px solid rgba(255, 255, 255, 0.05)' }}>
-        <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
-          <h3 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0, color: 'var(--text-secondary)' }}>
-            📂 Folders
-          </h3>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
-          {/* INBOX */}
-          <button
-            className="btn-glass"
-            style={{
-              justifyContent: 'space-between',
-              padding: '0.75rem 1rem',
-              fontSize: '0.85rem',
-              borderRadius: '8px',
-              background: activeMailFolder === 'inbox' ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(15, 13, 35, 0.4))' : 'rgba(15, 13, 35, 0.15)',
-              border: activeMailFolder === 'inbox' ? '1px solid var(--primary)' : '1px solid rgba(255, 255, 255, 0.05)',
-              boxShadow: activeMailFolder === 'inbox' ? '0 0 10px rgba(139, 92, 246, 0.15)' : 'none',
-              color: activeMailFolder === 'inbox' ? 'var(--text-primary)' : 'var(--text-secondary)'
-            }}
-            onClick={() => {
-              setActiveMailFolder('inbox');
-              setSelectedThreadId(null);
-            }}
-          >
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span>📥</span> Inbox
-            </span>
-            {inboxCount > 0 && (
-              <span className="badge badge-purple" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem' }}>{inboxCount}</span>
-            )}
-          </button>
-
-          {/* SENT */}
-          <button
-            className="btn-glass"
-            style={{
-              justifyContent: 'space-between',
-              padding: '0.75rem 1rem',
-              fontSize: '0.85rem',
-              borderRadius: '8px',
-              background: activeMailFolder === 'sent' ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(15, 13, 35, 0.4))' : 'rgba(15, 13, 35, 0.15)',
-              border: activeMailFolder === 'sent' ? '1px solid var(--primary)' : '1px solid rgba(255, 255, 255, 0.05)',
-              boxShadow: activeMailFolder === 'sent' ? '0 0 10px rgba(139, 92, 246, 0.15)' : 'none',
-              color: activeMailFolder === 'sent' ? 'var(--text-primary)' : 'var(--text-secondary)'
-            }}
-            onClick={() => {
-              setActiveMailFolder('sent');
-              setSelectedThreadId(null);
-            }}
-          >
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span>📤</span> Sent Mail
-            </span>
-            {sentCount > 0 && (
-              <span className="badge badge-purple" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>{sentCount}</span>
-            )}
-          </button>
-
-          {/* ALL MAIL */}
-          <button
-            className="btn-glass"
-            style={{
-              justifyContent: 'space-between',
-              padding: '0.75rem 1rem',
-              fontSize: '0.85rem',
-              borderRadius: '8px',
-              background: activeMailFolder === 'all' ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(15, 13, 35, 0.4))' : 'rgba(15, 13, 35, 0.15)',
-              border: activeMailFolder === 'all' ? '1px solid var(--primary)' : '1px solid rgba(255, 255, 255, 0.05)',
-              boxShadow: activeMailFolder === 'all' ? '0 0 10px rgba(139, 92, 246, 0.15)' : 'none',
-              color: activeMailFolder === 'all' ? 'var(--text-primary)' : 'var(--text-secondary)'
-            }}
-            onClick={() => {
-              setActiveMailFolder('all');
-              setSelectedThreadId(null);
-            }}
-          >
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span>📨</span> All Mail
-            </span>
-            {allCount > 0 && (
-              <span className="badge badge-purple" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>{allCount}</span>
-            )}
-          </button>
-
-          {/* TRASH */}
-          <button
-            className="btn-glass"
-            style={{
-              justifyContent: 'space-between',
-              padding: '0.75rem 1rem',
-              fontSize: '0.85rem',
-              borderRadius: '8px',
-              background: activeMailFolder === 'trash' ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(15, 13, 35, 0.4))' : 'rgba(15, 13, 35, 0.15)',
-              border: activeMailFolder === 'trash' ? '1px solid rgba(239, 68, 68, 0.5)' : '1px solid rgba(255, 255, 255, 0.05)',
-              boxShadow: activeMailFolder === 'trash' ? '0 0 10px rgba(239, 68, 68, 0.1)' : 'none',
-              color: activeMailFolder === 'trash' ? '#f87171' : 'var(--text-secondary)'
-            }}
-            onClick={() => {
-              setActiveMailFolder('trash');
-              setSelectedThreadId(null);
-            }}
-          >
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span>🗑️</span> Trash
-            </span>
-            {trashCount > 0 && (
-              <span className="badge" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem', color: '#f87171', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>{trashCount}</span>
-            )}
-          </button>
-        </div>
-
-        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.06)', paddingTop: '1rem', marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Email Connection:</div>
-          <div style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-            <span style={{ width: '6px', height: '6px', background: '#10b981', borderRadius: '50%' }}></span>
-            Connected Securely
+    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      {/* Page header — matches the header pattern used across GiGO Brain / AI Coach / Resume Builder */}
+      <div className="glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{
+            width: '44px', height: '44px', borderRadius: '12px',
+            background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem'
+          }}>📬</div>
+          <div>
+            <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Mailroom</h2>
+            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{allCount} thread{allCount === 1 ? '' : 's'} · {inboxCount} in inbox</p>
           </div>
         </div>
+        <span className="badge badge-purple" style={{ fontSize: '0.65rem', textTransform: 'capitalize' }}>{mailBackend === 'gigomail' ? 'GiGO Mail' : mailBackend}</span>
       </div>
+
+      {/* Segmented folder control — replaces the old vertical sidebar so the thread list gets more room */}
+      <div className="glass-panel" style={{ display: 'flex', gap: '0.35rem', padding: '0.35rem' }}>
+        {([
+          { id: 'inbox', label: 'Inbox', count: inboxCount },
+          { id: 'sent', label: 'Sent', count: sentCount },
+          { id: 'all', label: 'All', count: allCount },
+          { id: 'trash', label: 'Trash', count: trashCount }
+        ] as const).map(folder => (
+          <button
+            key={folder.id}
+            className="btn-glass"
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              gap: '0.4rem',
+              padding: '0.55rem 0.5rem',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              borderRadius: '10px',
+              border: 'none',
+              background: activeMailFolder === folder.id ? 'var(--primary)' : 'transparent',
+              color: activeMailFolder === folder.id ? '#001018' : 'var(--text-secondary)'
+            }}
+            onClick={() => { setActiveMailFolder(folder.id); setSelectedThreadId(null); }}
+          >
+            {folder.label}
+            {folder.count > 0 && (
+              <span style={{
+                fontSize: '0.65rem', padding: '0.05rem 0.4rem', borderRadius: '999px',
+                background: activeMailFolder === folder.id ? 'rgba(0,16,24,0.2)' : 'rgba(255,255,255,0.08)'
+              }}>{folder.count}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      <main className="mailroom-container" style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '1.25rem', height: 'calc(100vh - 320px)', minHeight: '560px' }}>
+
+      {/* Folder sidebar removed in favor of the segmented control above; email-connection status moved into the thread list header. */}
 
       {/* COLUMN 2: THREAD LIST */}
       <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', padding: '1rem' }}>
@@ -534,61 +466,58 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
                 statusBg = 'rgba(239, 68, 68, 0.15)';
               }
 
+              const isUnread = thread.status === 'replied' || thread.status === 'interview_offered';
+              const initials = (thread.companyName || '?').split(/\s+/).slice(0, 2).map((w: string) => w[0]).join('').toUpperCase();
+              const avatarGradients = ['linear-gradient(135deg,#38bdf8,#0284c7)', 'linear-gradient(135deg,#863bff,#6d28d9)', 'linear-gradient(135deg,#10b981,#047857)', 'linear-gradient(135deg,#f59e0b,#b45309)'];
+              const avatarGradient = avatarGradients[Math.abs((thread.companyName || '').split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0)) % avatarGradients.length];
+
               return (
                 <div
                   key={thread.id}
-                  className={`glass-card ${isSelected ? 'active' : ''}`}
                   onClick={() => setSelectedThreadId(thread.id)}
                   style={{
-                    padding: '1rem',
+                    display: 'flex',
+                    gap: '0.7rem',
+                    alignItems: 'flex-start',
+                    padding: '0.85rem',
                     cursor: 'pointer',
-                    border: isSelected ? '1px solid #8b5cf6' : '1px solid rgba(255, 255, 255, 0.06)',
-                    boxShadow: isSelected ? '0 0 12px rgba(139, 92, 246, 0.2)' : 'none',
-                    background: isSelected ? 'rgba(139, 92, 246, 0.08)' : 'rgba(15, 13, 35, 0.3)',
+                    border: isSelected ? '1px solid var(--primary)' : '1px solid rgba(255, 255, 255, 0.06)',
+                    boxShadow: isSelected ? '0 0 12px rgba(56, 189, 248, 0.15)' : 'none',
+                    background: isSelected ? 'rgba(56, 189, 248, 0.06)' : 'rgba(15, 13, 35, 0.3)',
                     transition: 'all 0.2s ease',
-                    borderRadius: '8px',
-                    position: 'relative'
+                    borderRadius: '12px'
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.35rem' }}>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '180px' }}>
-                      {thread.companyName}
-                    </span>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-                      {thread.updatedAt ? new Date(thread.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : ''}
-                    </span>
+                  <div className="avatar-badge" style={{ width: '38px', height: '38px', borderRadius: '11px', background: avatarGradient, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.78rem', color: '#fff', flexShrink: 0 }}>
+                    {initials}
                   </div>
-
-                  <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f3e8ff', marginBottom: '0.5rem' }}>
-                    {thread.jobTitle}
-                  </div>
-
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', marginBottom: '0.65rem' }}>
-                    {thread.subject}
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span 
-                      style={{ 
-                        fontSize: '0.65rem', 
-                        fontWeight: 600, 
-                        color: statusColor, 
-                        background: statusBg, 
-                        padding: '0.15rem 0.5rem', 
-                        borderRadius: '10px', 
-                        border: `1px solid ${statusColor}33`,
-                        boxShadow: `0 0 8px ${statusColor}1A`
-                      }}
-                    >
-                      {statusText}
-                    </span>
-                    
-                    {lastMessage && (
-                      <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
-                        {lastMessage.sender === 'user' ? 'You sent reply' : 'Received reply'}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {thread.companyName}
                       </span>
-                    )}
+                      <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', flexShrink: 0 }}>
+                        {thread.updatedAt ? new Date(thread.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : ''}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', fontWeight: 600, marginTop: '0.15rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {thread.jobTitle}
+                    </div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.15rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {thread.subject}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.4rem' }}>
+                      <span style={{ fontSize: '0.6rem', fontWeight: 700, color: statusColor, background: statusBg, padding: '0.12rem 0.45rem', borderRadius: '999px', border: `1px solid ${statusColor}33` }}>
+                        {statusText}
+                      </span>
+                      {lastMessage && (
+                        <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>
+                          {lastMessage.sender === 'user' ? 'You replied' : 'They replied'}
+                        </span>
+                      )}
+                    </div>
                   </div>
+                  {isUnread && <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--primary)', flexShrink: 0, marginTop: '0.3rem' }} />}
                 </div>
               );
             })
@@ -860,6 +789,7 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
         </div>
       )}
 
-    </main>
+      </main>
+    </div>
   );
 };

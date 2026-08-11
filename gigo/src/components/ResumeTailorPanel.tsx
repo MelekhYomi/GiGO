@@ -1968,7 +1968,27 @@ export default function ResumeTailorPanel({
           {/* Gap Analysis Scorecard */}
           {gapAnalysis ? (
             <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', border: '1px solid rgba(138, 92, 246, 0.2)' }}>
-              
+
+              {/* Compact stat row */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem' }}>
+                <div style={{ textAlign: 'center', padding: '0.5rem 0.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '0.58rem', color: 'var(--text-muted)' }}>Match</div>
+                  <div style={{ fontSize: '1rem', fontWeight: 800 }}>{gapAnalysis.score}</div>
+                </div>
+                <div style={{ textAlign: 'center', padding: '0.5rem 0.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '0.58rem', color: 'var(--text-muted)' }}>Keywords</div>
+                  <div style={{ fontSize: '1rem', fontWeight: 800 }}>{gapAnalysis.matchingSkills.length}</div>
+                </div>
+                <div style={{ textAlign: 'center', padding: '0.5rem 0.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '0.58rem', color: 'var(--text-muted)' }}>Gaps</div>
+                  <div style={{ fontSize: '1rem', fontWeight: 800 }}>{gapAnalysis.missingSkills.length}</div>
+                </div>
+                <div style={{ textAlign: 'center', padding: '0.5rem 0.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '0.58rem', color: 'var(--text-muted)' }}>ATS</div>
+                  <div style={{ fontSize: '1rem', fontWeight: 800, color: gapAnalysis.score > 80 ? 'var(--emerald)' : '#f59e0b' }}>{gapAnalysis.score}</div>
+                </div>
+              </div>
+
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
                 <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-primary)' }}>📊 ATS Alignment Score</span>
                 <span style={{ fontSize: '1.5rem', fontWeight: 900, color: gapAnalysis.score > 80 ? 'var(--emerald)' : '#f59e0b' }}>

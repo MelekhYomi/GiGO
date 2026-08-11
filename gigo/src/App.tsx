@@ -456,6 +456,7 @@ export default function App() {
   const [ninInput, setNinInput] = useState<string>('');
   const [ninImageBase64, setNinImageBase64] = useState<string>('');
   const [showCalibrationDrawer, setShowCalibrationDrawer] = useState<boolean>(false);
+  const [showNavDrawer, setShowNavDrawer] = useState<boolean>(false);
 
   // User Profile Info
   const [profile, setProfile] = useState<{
@@ -504,6 +505,11 @@ export default function App() {
     isNINVerified?: boolean;
     ninValue?: string;
     ninCardImage?: string;
+    phoneNumber?: string;
+    targetIndustry?: string;
+    salaryExpectationMin?: string;
+    salaryExpectationMax?: string;
+    careerGoalsNote?: string;
   }>({
     name: '[   ]',
     role: '[   ]',
@@ -637,6 +643,24 @@ export default function App() {
   const [wizardTeamworkExperience, setWizardTeamworkExperience] = useState<string>('');
   const [wizardConflictResolution, setWizardConflictResolution] = useState<string>('');
   const [isSavingProfileVault, setIsSavingProfileVault] = useState<boolean>(false);
+
+  // Career Profile onboarding sub-wizard (Step 1 of the pipeline, form-based
+  // alternative that collects the same data voice onboarding would extract)
+  const [careerProfileSubStep, setCareerProfileSubStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [wizardTargetIndustry, setWizardTargetIndustry] = useState<string>('');
+  const [wizardSalaryMin, setWizardSalaryMin] = useState<string>('');
+  const [wizardSalaryMax, setWizardSalaryMax] = useState<string>('');
+  const [wizardCareerGoalsNote, setWizardCareerGoalsNote] = useState<string>('');
+  const [newWizardJobCompany, setNewWizardJobCompany] = useState<string>('');
+  const [newWizardJobRole, setNewWizardJobRole] = useState<string>('');
+  const [newWizardJobStart, setNewWizardJobStart] = useState<string>('');
+  const [newWizardJobEnd, setNewWizardJobEnd] = useState<string>('');
+  const [newWizardJobAchievements, setNewWizardJobAchievements] = useState<string>('');
+  const [newWizardSchoolName, setNewWizardSchoolName] = useState<string>('');
+  const [newWizardSchoolDegree, setNewWizardSchoolDegree] = useState<string>('');
+  const [newWizardSchoolField, setNewWizardSchoolField] = useState<string>('');
+  const [newWizardSchoolYear, setNewWizardSchoolYear] = useState<string>('');
+  const [newWizardSkill, setNewWizardSkill] = useState<string>('');
 
 
   const scrollingTickerJobs = useMemo(() => {
@@ -1171,8 +1195,23 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
   // DYNAMIC AESTHETIC STYLE & THEME CONTROLLER
   // ----------------------------------------------------
   useEffect(() => {
+    // Every "Style" variant is a dark theme (only the accent/background hue changes) —
+    // text and border tokens are set explicitly here rather than left to
+    // `prefers-color-scheme`, since that media query reflects the user's OS/browser
+    // preference and was silently falling back to light-mode (dark-gray) text colors
+    // on top of these forced-dark backgrounds for anyone without a dark system theme,
+    // making labels/captions unreadable regardless of which Style was active.
+    const darkTextTokens = {
+      '--text-primary': '#f8fafc',
+      '--text-secondary': '#cbd5e1',
+      '--text-muted': '#94a3b8',
+      '--border-glass': 'rgba(255, 255, 255, 0.07)',
+      '--border-glass-active': 'rgba(255, 255, 255, 0.15)'
+    };
+
     const themeConfigs = {
       obsidian: {
+        ...darkTextTokens,
         '--primary': '#8a5cf6',
         '--secondary': '#d946ef',
         '--bg-dark-base': '#080711',
@@ -1182,6 +1221,7 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
         '--shadow-glow-pink': '0 0 40px -5px rgba(217, 70, 239, 0.3)'
       },
       emerald: {
+        ...darkTextTokens,
         '--primary': '#10b981',
         '--secondary': '#06b6d4',
         '--bg-dark-base': '#040b08',
@@ -1191,6 +1231,7 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
         '--shadow-glow-pink': '0 0 40px -5px rgba(6, 182, 212, 0.3)'
       },
       sunset: {
+        ...darkTextTokens,
         '--primary': '#f59e0b',
         '--secondary': '#ec4899',
         '--bg-dark-base': '#0f0506',
@@ -1200,6 +1241,7 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
         '--shadow-glow-pink': '0 0 40px -5px rgba(236, 72, 153, 0.3)'
       },
       ocean: {
+        ...darkTextTokens,
         '--primary': '#0ea5e9',
         '--secondary': '#2dd4bf',
         '--bg-dark-base': '#030c14',
@@ -1421,10 +1463,9 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
       setSignupVoiceStatus("Listening... Say your full name, email, and phone number.");
     } catch (err) {
       console.warn("Microphone not allowed or not found during signup voice:", err);
-      // Fallback synthetic simulator
-      setIsSignupVoiceRecording(true);
-      setSignupWaveActive(true);
-      setSignupVoiceStatus("Simulator: Say your credentials now (Mock Voice active)...");
+      setIsSignupVoiceRecording(false);
+      setSignupWaveActive(false);
+      setSignupVoiceStatus("⚠️ Microphone unavailable. Please type your details below instead.");
     }
   };
 
@@ -1435,16 +1476,7 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
     if (signupMediaRecorderRef.current && signupMediaRecorderRef.current.state !== 'inactive') {
       signupMediaRecorderRef.current.stop();
     } else {
-      // Simulate synthetic fallback
-      setIsAnalyzingSignupVoice(true);
-      setSignupVoiceStatus("GiGO AI parsing simulated voice input...");
-      setTimeout(() => {
-        setAuthFullName("Abayomi Dele-Ale");
-        setAuthEmail("abayomi.deleale@gmail.com");
-        setAuthPhone("+2348011223344");
-        setSignupVoiceStatus("✨ Simulator Extracted! Please type your password to register.");
-        setIsAnalyzingSignupVoice(false);
-      }, 2500);
+      setSignupVoiceStatus("⚠️ No active voice recording found. Please type your details below.");
     }
 
     if (signupStreamRef.current) {
@@ -1466,7 +1498,34 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
     // Handle the Google OAuth redirect landing here (?code=...) — completes the
     // Gmail connect flow started by handleConnectGmailOAuth below.
     const oauthCode = params.get('code');
-    if (oauthCode) {
+    const ssoPath = window.location.pathname;
+    if (oauthCode && (ssoPath === '/sso-callback/google' || ssoPath === '/sso-callback/linkedin')) {
+      const provider = ssoPath === '/sso-callback/google' ? 'google' : 'linkedin';
+      (async () => {
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/auth/${provider}/callback`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: oauthCode })
+          });
+          const data = await res.json();
+          if (res.ok && data.userId && data.token) {
+            localStorage.setItem('gigo_userId', data.userId);
+            localStorage.setItem('gigo_token', data.token);
+            setUserId(data.userId);
+            addLog(`✅ Signed in with ${provider === 'google' ? 'Google' : 'LinkedIn'}.`);
+          } else {
+            setAuthError(data.error || `${provider === 'google' ? 'Google' : 'LinkedIn'} sign-in failed.`);
+            setShowAuthModal(true);
+          }
+        } catch (err: any) {
+          setAuthError(`${provider === 'google' ? 'Google' : 'LinkedIn'} sign-in failed: ${err.message}`);
+          setShowAuthModal(true);
+        } finally {
+          window.history.replaceState({}, '', '/');
+        }
+      })();
+    } else if (oauthCode) {
       (async () => {
         try {
           const res = await fetch(`${API_BASE_URL}/api/mail/google-oauth-callback`, {
@@ -1490,6 +1549,20 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
       })();
     }
   }, []);
+
+  const handleSSOLogin = async (provider: 'google' | 'linkedin' | 'apple') => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/${provider}/url`);
+      const data = await res.json();
+      if (res.ok && data.url) {
+        window.location.href = data.url;
+      } else {
+        setAuthError(data.error || `${provider} sign-in is not available yet.`);
+      }
+    } catch (err: any) {
+      setAuthError(`Could not reach ${provider} sign-in: ${err.message}`);
+    }
+  };
 
   const handleConnectGmailOAuth = async () => {
     setIsConnectingGmailOAuth(true);
@@ -2358,6 +2431,44 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
 
     return () => clearInterval(intervalId);
   }, [hasVoiceOnboarded, userId, feedRefreshInterval]);
+
+  // 3. Global Mailroom background sync — keeps mail threads fresh app-wide, not just
+  // while the Mailroom tab is open, so new recruiter replies surface as an in-app
+  // notification (Recent AI Activity) no matter which screen the user is on.
+  useEffect(() => {
+    if (!hasVoiceOnboarded || !userId) return;
+
+    const pollMail = async () => {
+      try {
+        const token = localStorage.getItem('gigo_token');
+        const response = await fetch(`${API_BASE_URL}/api/mail/threads`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+
+        setMailThreads(prev => {
+          if (prev.length > 0) {
+            const prevSignatures = new Set(prev.map((t: any) => `${t.id}:${t.messages?.length || 0}`));
+            const newArrivals = data.filter((t: any) =>
+              !prevSignatures.has(`${t.id}:${t.messages?.length || 0}`) &&
+              t.messages?.some((m: any) => m.sender === 'recruiter')
+            );
+            newArrivals.forEach((t: any) => {
+              addLog(`📬 New reply from ${t.companyName || 'a recruiter'} — ${t.jobTitle || 'your application'}`);
+            });
+          }
+          return data;
+        });
+      } catch (err) {
+        console.error("Background mail sync failed:", err);
+      }
+    };
+
+    pollMail();
+    const mailIntervalId = setInterval(pollMail, 30000);
+    return () => clearInterval(mailIntervalId);
+  }, [hasVoiceOnboarded, userId]);
 
   const fetchSystemConfig = async () => {
     try {
@@ -4364,6 +4475,24 @@ ${profile.name || '[   ]'}`;
                   <button type="submit" className="btn-glass btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: '0.5rem', fontWeight: 700 }} disabled={isSubmittingAuth}>
                     {isSubmittingAuth ? 'Handshaking...' : 'Login to Workspace'}
                   </button>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: '0.25rem 0' }}>
+                    <div style={{ flex: 1, height: '1px', background: 'var(--border-glass)' }} />
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>or continue with</span>
+                    <div style={{ flex: 1, height: '1px', background: 'var(--border-glass)' }} />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <button type="button" className="btn-glass" style={{ width: '100%', justifyContent: 'center', fontWeight: 700 }} onClick={() => handleSSOLogin('google')}>
+                      Continue with Google
+                    </button>
+                    <button type="button" className="btn-glass" style={{ width: '100%', justifyContent: 'center', fontWeight: 700 }} onClick={() => handleSSOLogin('linkedin')}>
+                      Continue with LinkedIn
+                    </button>
+                    <button type="button" className="btn-glass" style={{ width: '100%', justifyContent: 'center', fontWeight: 700 }} onClick={() => handleSSOLogin('apple')}>
+                      Continue with Apple
+                    </button>
+                  </div>
                   {localStorage.getItem('gigo_biometrics_enrolled') === 'true' && (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem', padding: '0.5rem', borderTop: '1px dashed var(--border-glass)' }}>
                       <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>Or Bypass with Biometrics</span>
@@ -4590,72 +4719,9 @@ ${profile.name || '[   ]'}`;
           </div>
         </div>
 
-        {/* Dash/Admin Mode Switcher & User Profiler Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-          
-          {/* Dynamic Theme & Vocal Customization Selector Panel */}
-          <div className="theme-selector-panel glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', padding: '0.25rem 0.6rem', borderRadius: 'var(--radius-md)', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-              🎨 Style:
-            </span>
-            <button 
-              className={`theme-dot obsidian-dot`}
-              title="Obsidian Purple"
-              onClick={() => setActiveTheme('obsidian')}
-              style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#8a5cf6', border: activeTheme === 'obsidian' ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', outline: 'none', padding: 0 }}
-            />
-            <button 
-              className={`theme-dot emerald-dot`}
-              title="Emerald Green"
-              onClick={() => setActiveTheme('emerald')}
-              style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#10b981', border: activeTheme === 'emerald' ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', outline: 'none', padding: 0 }}
-            />
-            <button 
-              className={`theme-dot sunset-dot`}
-              title="Sunset Orange"
-              onClick={() => setActiveTheme('sunset')}
-              style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#f59e0b', border: activeTheme === 'sunset' ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', outline: 'none', padding: 0 }}
-            />
-            <button 
-              className={`theme-dot ocean-dot`}
-              title="Ocean Blue"
-              onClick={() => setActiveTheme('ocean')}
-              style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#0ea5e9', border: activeTheme === 'ocean' ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', outline: 'none', padding: 0 }}
-            />
-            <button 
-              type="button"
-              className="btn-glass" 
-              onClick={handleVoiceStyleCommand}
-              title="Speak Style Command (e.g. 'sunset')"
-              style={{ padding: '0.15rem 0.4rem', fontSize: '0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', border: 'none', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }}
-            >
-              🎙️ Speak
-            </button>
-          </div>
-          
-          {(userEmail === 'admin@gigo.com' || userRole === 'admin') && (
-            <div className="toggle-switch-panel glass-panel">
-              <button 
-                className={`btn-glass btn-tab ${!isAdminMode ? 'active-tab' : ''}`}
-                onClick={() => setIsAdminMode(false)}
-              >
-                Dashboard
-              </button>
-              <button 
-                className={`btn-glass btn-tab ${isAdminMode ? 'active-tab' : ''}`}
-                onClick={() => {
-                  setIsAdminMode(true);
-                }}
-              >
-                Admin Console
-              </button>
-            </div>
-          )}
-
-          <div className="user-profile-badge" style={{ cursor: 'pointer' }} onClick={() => {
-            setSettingsActiveTab('profile');
-            setShowSettingsModal(true);
-          }}>
+        {/* User + Menu Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <div className="user-profile-badge" style={{ cursor: 'pointer' }} onClick={() => setShowNavDrawer(true)}>
             {renderUserAvatar(profile.profilePic, '28px', { marginRight: '4px' })}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.1 }}>
               <span style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center' }}>
@@ -4673,364 +4739,153 @@ ${profile.name || '[   ]'}`;
             </div>
           </div>
 
-          <button className="btn-glass" style={{ padding: '0.5rem 0.8rem', fontSize: '0.8rem', fontWeight: 700, borderColor: 'rgba(239, 68, 68, 0.35)', color: '#fca5a5' }} onClick={handleLogout}>
-            Logout
+          {/* Hamburger menu trigger — opens the nav drawer with status, quick links, theme, and account controls */}
+          <button
+            aria-label="Open menu"
+            onClick={() => setShowNavDrawer(true)}
+            style={{
+              width: '38px', height: '38px', borderRadius: '10px',
+              background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px',
+              cursor: 'pointer', flexShrink: 0
+            }}
+          >
+            <span style={{ width: '18px', height: '2px', borderRadius: '2px', background: 'var(--text-primary)' }} />
+            <span style={{ width: '18px', height: '2px', borderRadius: '2px', background: 'var(--text-primary)' }} />
+            <span style={{ width: '18px', height: '2px', borderRadius: '2px', background: 'var(--text-primary)' }} />
           </button>
         </div>
       </header>
 
+      {/* ---------------------------------------------------- */}
+      {/* SLIDE-IN NAV DRAWER — replaces the old inline status bar / workspace tabs / dropdown cluster */}
+      {/* ---------------------------------------------------- */}
+      {showNavDrawer && (
+        <div
+          onClick={() => setShowNavDrawer(false)}
+          style={{ position: 'fixed', inset: 0, zIndex: 1200, background: 'rgba(2, 8, 23, 0.6)', backdropFilter: 'blur(4px)' }}
+          className="animate-fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'absolute', top: 0, right: 0, height: '100%', width: 'min(340px, 88vw)',
+              background: 'var(--bg-dark-surface)', borderLeft: '1px solid var(--border-glass)',
+              boxShadow: '-20px 0 50px rgba(0,0,0,0.4)', display: 'flex', flexDirection: 'column',
+              overflowY: 'auto'
+            }}
+          >
+            {/* User card */}
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-glass)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              {renderUserAvatar(profile.profilePic, '46px', {})}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '0.95rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{userFullName || 'Vocal Identity Pending'}</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{profile.role}</div>
+              </div>
+              <button onClick={() => setShowNavDrawer(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.4rem', cursor: 'pointer', lineHeight: 1 }}>&times;</button>
+            </div>
+
+            {/* Assistant status */}
+            {userId && userRole !== 'admin' && (
+              <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                <div style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>Assistant Status</div>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                  onClick={() => { handleSetWorkspaceTab('radar'); setShowNavDrawer(false); }}
+                >
+                  <div className={`status-indicator-dot ${hasVoiceOnboarded ? 'green' : 'orange'}`} />
+                  <span style={{ fontSize: '0.78rem' }}>🎙️ Voice profile: {hasVoiceOnboarded ? 'Verified' : 'Setup required'}</span>
+                </div>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                  onClick={() => { setSettingsActiveTab('keys'); setShowSettingsModal(true); setShowNavDrawer(false); }}
+                >
+                  <div className={`status-indicator-dot ${settingsMailBackend === 'gigomail' || (settingsMailBackend === 'zapier' && settingsZapierWebhookUrl) || (settingsSmtpHost && settingsSmtpUser) ? 'green' : 'orange'}`} />
+                  <span style={{ fontSize: '0.78rem' }}>📧 Email: {settingsMailBackend === 'gigomail' ? 'GiGO Inbox' : (settingsMailBackend === 'zapier' ? 'Zapier Active' : (settingsSmtpHost ? 'Gmail Connected' : 'Setup Required'))}</span>
+                </div>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                  onClick={runInfrastructureDiagnostics}
+                >
+                  <div className={`status-indicator-dot ${isUptimeVerified ? 'green' : 'orange'}`} />
+                  <span style={{ fontSize: '0.78rem' }}>📡 Backup setup: {isUptimeVerified ? 'Verified' : 'Needs check'}</span>
+                </div>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                  onClick={() => { handleSetWorkspaceTab('wallets'); setShowNavDrawer(false); }}
+                >
+                  <div className="status-indicator-dot green" />
+                  <span style={{ fontSize: '0.78rem' }}>💳 {((walletNGN * 5) / 100).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 1 })} Pace</span>
+                </div>
+              </div>
+            )}
+
+            {/* Quick links */}
+            <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+              <div style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>Quick Links</div>
+              {[
+                { icon: '🚀', label: 'Autopilot Dashboard', onClick: () => handleSetWorkspaceTab('copilot') },
+                { icon: '📝', label: 'Interview & CV Prep', onClick: () => handleSetWorkspaceTab('career_prep') },
+                { icon: '📬', label: 'AI Inbox', onClick: () => handleSetWorkspaceTab('mailroom'), badge: mailThreads.filter((t: any) => t.status === 'replied' || t.status === 'interview_offered').length },
+                { icon: '💳', label: 'Wallet & Pace', onClick: () => handleSetWorkspaceTab('wallets') },
+                { icon: '🧠', label: 'GiGO Brain', onClick: () => handleSetWorkspaceTab('brain') },
+                { icon: '⚙️', label: 'Settings', onClick: () => { setSettingsActiveTab('profile'); setShowSettingsModal(true); } }
+              ].map(item => (
+                <button
+                  key={item.label}
+                  onClick={() => { item.onClick(); setShowNavDrawer(false); }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.65rem 0.5rem',
+                    background: 'none', border: 'none', borderRadius: '8px', cursor: 'pointer',
+                    fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', textAlign: 'left'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                >
+                  <span style={{ fontSize: '1.1rem' }}>{item.icon}</span>
+                  <span style={{ flex: 1 }}>{item.label}</span>
+                  {!!item.badge && (
+                    <span style={{ minWidth: '18px', height: '18px', padding: '0 4px', borderRadius: '999px', background: 'var(--rose, #f43f5e)', color: '#fff', fontSize: '0.65rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{item.badge}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Theme + admin toggle */}
+            <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              <div>
+                <div style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Style</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <button className="theme-dot obsidian-dot" title="Obsidian Purple" onClick={() => setActiveTheme('obsidian')} style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#8a5cf6', border: activeTheme === 'obsidian' ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', padding: 0 }} />
+                  <button className="theme-dot emerald-dot" title="Emerald Green" onClick={() => setActiveTheme('emerald')} style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#10b981', border: activeTheme === 'emerald' ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', padding: 0 }} />
+                  <button className="theme-dot sunset-dot" title="Sunset Orange" onClick={() => setActiveTheme('sunset')} style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#f59e0b', border: activeTheme === 'sunset' ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', padding: 0 }} />
+                  <button className="theme-dot ocean-dot" title="Ocean Blue" onClick={() => setActiveTheme('ocean')} style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#0ea5e9', border: activeTheme === 'ocean' ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', padding: 0 }} />
+                  <button type="button" className="btn-glass" onClick={handleVoiceStyleCommand} title="Speak Style Command" style={{ padding: '0.3rem 0.5rem', fontSize: '0.7rem', border: 'none', background: 'rgba(255,255,255,0.05)', borderRadius: '6px' }}>🎙️</button>
+                </div>
+              </div>
+
+              {(userEmail === 'admin@gigo.com' || userRole === 'admin') && (
+                <div className="toggle-switch-panel glass-panel" style={{ width: '100%' }}>
+                  <button className={`btn-glass btn-tab ${!isAdminMode ? 'active-tab' : ''}`} onClick={() => { setIsAdminMode(false); setShowNavDrawer(false); }}>Dashboard</button>
+                  <button className={`btn-glass btn-tab ${isAdminMode ? 'active-tab' : ''}`} onClick={() => { setIsAdminMode(true); setShowNavDrawer(false); }}>Admin Console</button>
+                </div>
+              )}
+            </div>
+
+            <div style={{ padding: '1.25rem 1.5rem', marginTop: 'auto' }}>
+              <button className="btn-glass" style={{ width: '100%', justifyContent: 'center', padding: '0.65rem', fontSize: '0.85rem', fontWeight: 700, borderColor: 'rgba(239, 68, 68, 0.35)', color: '#fca5a5' }} onClick={handleLogout}>
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* DASHBOARD VIEW OR ADMINISTRATIVE PORTAL DISPLAY GRID */}
       {(!isAdminMode || (userEmail !== 'admin@gigo.com' && userRole !== 'admin')) ? (
         <>
-          {/* UNIFIED ECOSYSTEM STATUS COMMAND BAR (PHASE 2) — Home page only */}
-          {userId && userRole !== 'admin' && activeWorkspaceTab === 'copilot' && copilotSubTab === 'dashboard' && (
-            <>
-              <div className="ecosystem-status-bar animate-fade-in">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-muted)' }}>⚙️ ASSISTANT STATUS:</span>
-                  <div className="status-pills-container">
-                    {/* Pill 1: Vocal Identity */}
-                    <div 
-                      className={`status-pill ${hasVoiceOnboarded ? 'active' : 'warning'}`}
-                      onClick={() => {
-                        handleSetWorkspaceTab('radar');
-                        setShowCalibrationDrawer(true);
-                      }}
-                      title={hasVoiceOnboarded ? "Voice profile verified" : "Action Required: Record voice profile to start matching"}
-                    >
-                      <div className={`status-indicator-dot ${hasVoiceOnboarded ? 'green' : 'orange'}`} />
-                      <span>🎙️ Profile: {hasVoiceOnboarded ? 'Verified' : 'Setup Required'}</span>
-                    </div>
-
-                    {/* Pill 2: Outward Mailroom */}
-                    <div 
-                      className={`status-pill ${settingsMailBackend === 'gigomail' || settingsMailBackend === 'zapier' || (settingsSmtpHost && settingsSmtpUser) ? 'active' : 'warning'}`}
-                      onClick={() => {
-                        setSettingsActiveTab('keys');
-                        setShowSettingsModal(true);
-                      }}
-                      title={settingsMailBackend === 'gigomail' ? "GiGO AI Mailbox Active" : (settingsMailBackend === 'zapier' ? "Zapier Automation Active" : "Gmail Connected")}
-                    >
-                      <div className={`status-indicator-dot ${settingsMailBackend === 'gigomail' || (settingsMailBackend === 'zapier' && settingsZapierWebhookUrl) || (settingsSmtpHost && settingsSmtpUser) ? 'green' : 'orange'}`} />
-                      <span>📧 Email: {settingsMailBackend === 'gigomail' ? 'GiGO Inbox' : (settingsMailBackend === 'zapier' ? 'Zapier Active' : (settingsSmtpHost ? 'Gmail Connected' : 'Setup Required'))}</span>
-                    </div>
-
-                    {/* Pill 3: Redundant Infrastructure */}
-                    <div 
-                      className={`status-pill ${isUptimeVerified ? 'active' : 'warning'}`}
-                      onClick={() => {
-                        handleSetWorkspaceTab('copilot');
-                        setShowCalibrationDrawer(true);
-                      }}
-                      title={isUptimeVerified ? "Backup internet and power systems verified" : "Action Required: Verify backup power & internet"}
-                    >
-                      <div className={`status-indicator-dot ${isUptimeVerified ? 'green' : 'orange'}`} />
-                      <span>📡 Backup Setup: {isUptimeVerified ? 'Verified' : 'Needs Check'}</span>
-                    </div>
-
-                    {/* Pill 4: Currency Wallets */}
-                    <div 
-                      className="status-pill active"
-                      onClick={() => handleSetWorkspaceTab('wallets')}
-                      title="My wallet (Click to manage)"
-                    >
-                      <div className="status-indicator-dot green" />
-                      <span>💳 {((walletNGN * 5) / 100).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 1 })} Pace</span>
-                    </div>
-                  </div>
-                </div>
-
-                <button 
-                  onClick={() => setShowCalibrationDrawer(!showCalibrationDrawer)}
-                  className="btn-glass"
-                  style={{ 
-                    padding: '0.35rem 0.85rem', 
-                    fontSize: '0.75rem', 
-                    fontWeight: 700, 
-                    borderColor: showCalibrationDrawer ? 'var(--primary)' : 'rgba(255,255,255,0.1)', 
-                    color: showCalibrationDrawer ? '#fff' : 'var(--text-secondary)',
-                    background: showCalibrationDrawer ? 'rgba(138, 92, 246, 0.1)' : 'rgba(255,255,255,0.02)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.35rem'
-                  }}
-                >
-                  ⚡ {showCalibrationDrawer ? 'Hide Settings' : 'Assistant Settings'} 
-                  <span style={{ transition: 'transform 0.2s ease', display: 'inline-block', transform: showCalibrationDrawer ? 'rotate(180deg)' : 'none' }}>▼</span>
-                </button>
-              </div>
-
-              {/* Collapsible calibration drawer panel (Phase 2) */}
-              <div className={`calibration-drawer ${showCalibrationDrawer ? 'open' : ''}`}>
-                <div className="calibration-drawer-content">
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
-                    
-                    {/* Card 1: Identity Calibration */}
-                    <div className="glass-card" style={{ padding: '1rem', background: 'rgba(255, 255, 255, 0.01)', border: '1px solid rgba(255, 255, 255, 0.03)', borderRadius: '10px' }}>
-                      <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <span>🎙️</span> Voice Profile & Match Settings
-                      </h4>
-                      {hasVoiceOnboarded ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>
-                            Candidate: <strong style={{ color: '#fff' }}>{userFullName || profile.name}</strong>
-                          </p>
-                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>
-                            Target: <strong style={{ color: '#fff' }}>{profile.role || 'Unspecified'}</strong> • {profile.location}
-                          </p>
-                          <button 
-                            className="btn-glass"
-                            style={{ padding: '0.3rem 0.6rem', fontSize: '0.7rem', width: 'fit-content', marginTop: '0.5rem' }}
-                            onClick={() => {
-                              handleSetWorkspaceTab('brain');
-                              setShowCalibrationDrawer(false);
-                            }}
-                          >
-                            Update Profile & Voice 🧠
-                          </button>
-                        </div>
-                      ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>
-                            Your automatic job search is paused. Upload a resume or record a voice intro to begin matching.
-                          </p>
-                          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                            <button 
-                              className="btn-glass btn-primary"
-                              style={{ padding: '0.35rem 0.65rem', fontSize: '0.7rem' }}
-                              onClick={() => {
-                                handleSetWorkspaceTab('radar');
-                                setShowCalibrationDrawer(false);
-                              }}
-                            >
-                              🎤 Record Voice Intro
-                            </button>
-                            <button 
-                              className="btn-glass btn-secondary"
-                              style={{ padding: '0.35rem 0.65rem', fontSize: '0.7rem' }}
-                              onClick={async () => {
-                                // Jump directly to matcher stream and trigger quick CV calibration sync
-                                handleSetWorkspaceTab('copilot');
-                                setShowCalibrationDrawer(false);
-                                // Focus on matches ticker scroll
-                                const el = document.querySelector('.jobs-sidebar');
-                                if (el) el.scrollIntoView({ behavior: 'smooth' });
-                              }}
-                            >
-                              💼 Upload Resume
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Card 2: Mailing System Calibration */}
-                    <div className="glass-card" style={{ padding: '1rem', background: 'rgba(255, 255, 255, 0.01)', border: '1px solid rgba(255, 255, 255, 0.03)', borderRadius: '10px' }}>
-                      <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <span>📧</span> Outgoing Email Setup
-                      </h4>
-                      <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', margin: '0 0 0.5rem 0' }}>
-                        Active: <strong>{settingsMailBackend === 'gigomail' ? 'GiGO Automatic Mailbox' : (settingsMailBackend === 'zapier' ? 'Zapier Automation' : 'Custom Gmail Setup')}</strong>
-                      </p>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button 
-                          className="btn-glass"
-                          style={{ padding: '0.35rem 0.65rem', fontSize: '0.7rem', flex: 1, borderColor: settingsMailBackend === 'gigomail' ? 'var(--success)' : 'rgba(255,255,255,0.1)' }}
-                          onClick={async () => {
-                            setSettingsMailBackend('gigomail');
-                            // Trigger inline API call to update mailBackend to gigomail instantly
-                            try {
-                              await fetch(`${API_BASE_URL}/api/users/${currentUserId}/update`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ mailBackend: 'gigomail' })
-                              });
-                              await fetchUserProfile();
-                              addLog("[Assistant] Switched to AI-Powered GiGO Automatic Mailbox.");
-                            } catch (err) {}
-                          }}
-                        >
-                          Use GiGO Mail
-                        </button>
-                        {systemConfig.allowAlternateMailBackends && (
-                          <button
-                            className="btn-glass"
-                            style={{ padding: '0.35rem 0.65rem', fontSize: '0.7rem', flex: 1, borderColor: settingsMailBackend === 'gmail' ? 'var(--primary)' : 'rgba(255,255,255,0.1)' }}
-                            onClick={() => {
-                              setSettingsActiveTab('keys');
-                              setShowSettingsModal(true);
-                              setShowCalibrationDrawer(false);
-                            }}
-                          >
-                            Configure SMTP
-                          </button>
-                        )}
-                      </div>
-                      {!systemConfig.allowAlternateMailBackends && (
-                        <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', margin: '0.5rem 0 0 0' }}>
-                          GiGO Mail sends on your behalf automatically — no setup required. Custom SMTP/Zapier are currently disabled by the platform.
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Card 3: Remote backup infrastructure verifier */}
-                    <div className="glass-card" style={{ padding: '1rem', background: 'rgba(255, 255, 255, 0.01)', border: '1px solid rgba(255, 255, 255, 0.03)', borderRadius: '10px' }}>
-                      <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <span>📡</span> Internet & Power Backup
-                      </h4>
-                      <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', margin: '0 0 0.5rem 0' }}>
-                        Status: <strong>{isUptimeVerified ? 'Setup Ready' : 'Check Required'}</strong>
-                      </p>
-                      <button 
-                        className={`btn-glass ${isRunningUptimeAudit ? 'btn-secondary' : 'btn-primary'}`}
-                        style={{ padding: '0.35rem 0.8rem', fontSize: '0.7rem', width: '100%' }}
-                        disabled={isRunningUptimeAudit}
-                        onClick={runInfrastructureDiagnostics}
-                      >
-                        {isRunningUptimeAudit ? '⚡ Checking Setup...' : '🔍 Check Backup Systems'}
-                      </button>
-                    </div>
-
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* WORKSPACE SELECTION TABS (PHASE 12 CONSOLIDATED) — Home page only */}
-          {activeWorkspaceTab === 'copilot' && copilotSubTab === 'dashboard' && (
-          <nav className="workspace-nav-bar animate-fade-in">
-            <button 
-              className={`workspace-tab-btn ${activeWorkspaceTab === 'copilot' ? 'active' : ''}`}
-              onClick={() => handleSetWorkspaceTab('copilot')}
-            >
-              <span style={{ fontSize: '1.1rem' }}>🚀</span> Autopilot Dashboard
-            </button>
-            <button
-              className={`workspace-tab-btn ${(activeWorkspaceTab as string) === 'career_prep' ? 'active' : ''}`}
-              onClick={() => handleSetWorkspaceTab('career_prep')}
-            >
-              <span style={{ fontSize: '1.1rem' }}>📝</span> Interview & CV Prep
-            </button>
-            <button
-              className={`workspace-tab-btn ${(activeWorkspaceTab as string) === 'mailroom' ? 'active' : ''}`}
-              onClick={() => handleSetWorkspaceTab('mailroom')}
-            >
-              <span style={{ fontSize: '1.1rem' }}>📬</span> AI Inbox
-            </button>
-            <button
-              className={`workspace-tab-btn ${(activeWorkspaceTab as string) === 'wallets' ? 'active' : ''}`}
-              onClick={() => handleSetWorkspaceTab('wallets')}
-            >
-              <span style={{ fontSize: '1.1rem' }}>💳</span> Wallet & Pace
-            </button>
-            <button 
-              className="workspace-tab-btn"
-              onClick={() => {
-                setSettingsActiveTab('keys');
-                setShowSettingsModal(true);
-              }}
-              style={{
-                background: 'rgba(138, 92, 246, 0.1)',
-                border: '1px solid rgba(138, 92, 246, 0.3)',
-                color: '#c4b5fd'
-              }}
-            >
-              <span style={{ fontSize: '1.1rem' }}>⚙️</span> Settings
-            </button>
-          </nav>
-          )}
-
           {activeWorkspaceTab === 'copilot' && (
             <div className="copilot-container animate-fade-in" style={{ width: '100%' }}>
-              {/* Premium Consolidated Dropdown Navigation (Phase 12 Space Savings) */}
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center',
-                justifyContent: 'center', 
-                margin: '0.75rem auto 1.25rem auto', 
-                gap: '0.75rem',
-                zIndex: 100
-              }}>
-                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>
-                  ACTIVE COPILOT VIEWER:
-                </span>
-                <div style={{ position: 'relative', display: 'inline-block' }}>
-                  {copilotDropdownOpen && (
-                    <div 
-                      onClick={() => setCopilotDropdownOpen(false)}
-                      style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        zIndex: 998,
-                        background: 'transparent'
-                      }}
-                    />
-                  )}
-                  <button 
-                    onClick={() => setCopilotDropdownOpen(!copilotDropdownOpen)}
-                    className="subnav-dropdown-trigger"
-                    style={{ zIndex: 999, position: 'relative' }}
-                  >
-                    {copilotSubTab === 'dashboard' && (
-                      <>
-                        <span style={{ fontSize: '1.1rem' }}>⚡</span> Overview
-                      </>
-                    )}
-                    {copilotSubTab === 'radar' && (
-                      <>
-                        <span style={{ fontSize: '1.1rem' }}>📡</span> Job Matcher
-                      </>
-                    )}
-                    {copilotSubTab === 'brain' && (
-                      <>
-                        <span style={{ fontSize: '1.1rem' }}>🧠</span> Voice Profile
-                      </>
-                    )}
-                    <span className={`dropdown-arrow ${copilotDropdownOpen ? 'open' : ''}`}>▼</span>
-                  </button>
-
-                  {copilotDropdownOpen && (
-                    <div className="subnav-dropdown-menu open" style={{ zIndex: 999 }}>
-                      <button 
-                        className={`subnav-dropdown-item ${copilotSubTab === 'dashboard' ? 'active' : ''}`}
-                        onClick={() => {
-                          setCopilotSubTab('dashboard');
-                          setCopilotDropdownOpen(false);
-                        }}
-                      >
-                        <span style={{ fontSize: '1.1rem' }}>⚡</span> Overview
-                        {copilotSubTab === 'dashboard' && <span className="checkmark">✓</span>}
-                      </button>
-                      <button 
-                        className={`subnav-dropdown-item ${copilotSubTab === 'radar' ? 'active' : ''}`}
-                        onClick={() => {
-                          setCopilotSubTab('radar');
-                          setCopilotDropdownOpen(false);
-                        }}
-                      >
-                        <span style={{ fontSize: '1.1rem' }}>📡</span> Job Matcher
-                        {copilotSubTab === 'radar' && <span className="checkmark">✓</span>}
-                      </button>
-                      <button 
-                        className={`subnav-dropdown-item ${copilotSubTab === 'brain' ? 'active' : ''}`}
-                        onClick={() => {
-                          setCopilotSubTab('brain');
-                          setActiveLeftTab('brain');
-                          setCopilotDropdownOpen(false);
-                        }}
-                      >
-                        <span style={{ fontSize: '1.1rem' }}>🧠</span> Voice Profile
-                        {copilotSubTab === 'brain' && <span className="checkmark">✓</span>}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-
               {copilotSubTab === 'dashboard' && (
                 !hasVoiceOnboarded ? (
                   <main className="onboarding-pipeline-container animate-fade-in">
@@ -5082,154 +4937,346 @@ ${profile.name || '[   ]'}`;
                       </div>
                     </div>
 
-                    {/* STEP 1: CAREER PROFILE COORDINATES */}
+                    {/* STEP 1: CAREER PROFILE — 5-part sub-wizard (Personal Info, Education, Experience, Skills, Goals) */}
                     {activePipelineStep === 1 && (
                       <div className="pipeline-card animate-fade-in">
-                        <h3>📁 Step 1: Deep Profile Coordinates</h3>
-                        <p className="subtitle">
-                          Paste your resume or CV summary below. Our Gemini-powered agent will parse your professional coordinates in real time.
-                        </p>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                          <h3 style={{ margin: 0 }}>📁 Step 1 of 5 — {
+                            careerProfileSubStep === 1 ? 'Personal Info' :
+                            careerProfileSubStep === 2 ? 'Education' :
+                            careerProfileSubStep === 3 ? 'Experience' :
+                            careerProfileSubStep === 4 ? 'Skills' : 'Career Goals'
+                          }</h3>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>{careerProfileSubStep} / 5</span>
+                        </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Paste CV or Career Summary</label>
-                            <textarea
-                              rows={5}
-                              className="input-glass"
-                              style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', fontSize: '0.85rem', resize: 'vertical' }}
-                              placeholder="e.g., Senior Full-Stack Engineer with 5 years of experience specializing in React, Node.js, and Cloud Infrastructure..."
-                              value={pipelineRawResume}
-                              onChange={(e) => setPipelineRawResume(e.target.value)}
+                        {/* Sub-step dots */}
+                        <div style={{ display: 'flex', gap: '0.35rem', marginBottom: '1.25rem' }}>
+                          {[1, 2, 3, 4, 5].map(step => (
+                            <div
+                              key={step}
+                              onClick={() => { if (step < careerProfileSubStep) setCareerProfileSubStep(step as 1 | 2 | 3 | 4 | 5); }}
+                              style={{
+                                flex: 1,
+                                height: '4px',
+                                borderRadius: '2px',
+                                background: step <= careerProfileSubStep ? 'var(--primary)' : 'rgba(255,255,255,0.08)',
+                                cursor: step < careerProfileSubStep ? 'pointer' : 'default',
+                                transition: 'background 0.2s ease'
+                              }}
                             />
-                          </div>
+                          ))}
+                        </div>
 
-                          <button
-                            className="btn-glass"
-                            style={{
-                              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%)',
-                              border: '1px solid var(--primary)',
-                              color: '#fff',
-                              fontWeight: 700,
-                              padding: '0.75rem',
-                              borderRadius: '12px',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              gap: '0.5rem',
-                              transition: 'all 0.3s ease'
-                            }}
-                            disabled={isParsingPipelineResume || !pipelineRawResume.trim()}
-                            onClick={handlePipelineParseResume}
-                          >
-                            {isParsingPipelineResume ? (
-                              <>
-                                <div className="spinner-micro" style={{ width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-                                <span>Parsing via Gemini... ({pipelineParsingProgress}%)</span>
-                              </>
-                            ) : (
-                              <>
-                                <span>⚡ Parse & Extract Profile</span>
-                              </>
-                            )}
-                          </button>
-
-                          {isParsingPipelineResume && (
-                            <div style={{ width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', height: '6px', overflow: 'hidden' }}>
-                              <div style={{ height: '100%', width: `${pipelineParsingProgress}%`, background: 'linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%)', transition: 'width 0.3s ease' }}></div>
+                        {/* SUB-STEP 1: PERSONAL INFO */}
+                        {careerProfileSubStep === 1 && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                            <p className="subtitle">
+                              Paste your resume to auto-fill everything below, or just type your details directly.
+                            </p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Paste CV or Career Summary (optional)</label>
+                              <textarea
+                                rows={4}
+                                className="input-glass"
+                                style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', fontSize: '0.85rem', resize: 'vertical' }}
+                                placeholder="e.g., Senior Full-Stack Engineer with 5 years of experience specializing in React, Node.js, and Cloud Infrastructure..."
+                                value={pipelineRawResume}
+                                onChange={(e) => setPipelineRawResume(e.target.value)}
+                              />
+                              <button
+                                className="btn-glass"
+                                style={{
+                                  background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%)',
+                                  border: '1px solid var(--primary)', color: '#fff', fontWeight: 700, padding: '0.65rem',
+                                  borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem'
+                                }}
+                                disabled={isParsingPipelineResume || !pipelineRawResume.trim()}
+                                onClick={handlePipelineParseResume}
+                              >
+                                {isParsingPipelineResume ? (
+                                  <>
+                                    <div className="spinner-micro" style={{ width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                                    <span>Parsing via Gemini... ({pipelineParsingProgress}%)</span>
+                                  </>
+                                ) : <span>⚡ Parse & Auto-Fill</span>}
+                              </button>
+                              {pipelineParsingStatus && (
+                                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'center', fontStyle: 'italic' }}>{pipelineParsingStatus}</div>
+                              )}
                             </div>
-                          )}
 
-                          {pipelineParsingStatus && (
-                            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'center', fontStyle: 'italic' }}>
-                              {pipelineParsingStatus}
-                            </div>
-                          )}
-
-                          {/* Editable profile fields */}
-                          <div className="glass-panel" style={{ padding: '1.25rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
-                            <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
-                              📍 Extracted Coordinates
-                            </h4>
-                            
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                                 <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Full Name</label>
-                                <input
-                                  type="text"
-                                  className="input-glass"
-                                  style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}
-                                  value={profile?.name || ''}
-                                  onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
-                                />
+                                <input type="text" className="input-glass" style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}
+                                  value={profile?.name || ''} onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))} />
                               </div>
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                                 <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Target Role / Title</label>
-                                <input
-                                  type="text"
-                                  className="input-glass"
-                                  style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}
-                                  value={profile?.role || ''}
-                                  placeholder="e.g. Lead React Developer"
-                                  onChange={(e) => setProfile(prev => ({ ...prev, role: e.target.value }))}
-                                />
+                                <input type="text" className="input-glass" style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}
+                                  value={profile?.role || ''} placeholder="e.g. Lead React Developer" onChange={(e) => setProfile(prev => ({ ...prev, role: e.target.value }))} />
                               </div>
                             </div>
-
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Years of Experience</label>
-                                <input
-                                  type="number"
-                                  className="input-glass"
-                                  style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}
-                                  value={profile?.yearsOfExperience || ''}
-                                  onChange={(e) => setProfile(prev => ({ ...prev, yearsOfExperience: Number(e.target.value) }))}
-                                />
+                                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Phone Number</label>
+                                <input type="text" className="input-glass" style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}
+                                  value={profile?.phoneNumber || ''} placeholder="+234 801 234 5678" onChange={(e) => setProfile(prev => ({ ...prev, phoneNumber: e.target.value }))} />
                               </div>
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Location</label>
-                                <input
-                                  type="text"
-                                  className="input-glass"
-                                  style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}
-                                  value={profile?.location || ''}
-                                  onChange={(e) => setProfile(prev => ({ ...prev, location: e.target.value }))}
-                                />
+                                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Location / City</label>
+                                <input type="text" className="input-glass" style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}
+                                  value={profile?.location || ''} onChange={(e) => setProfile(prev => ({ ...prev, location: e.target.value }))} />
                               </div>
                             </div>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Core Skills (Comma separated)</label>
-                              <input
-                                type="text"
-                                className="input-glass"
-                                style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}
-                                value={profile?.skills ? profile.skills.join(', ') : ''}
-                                onChange={(e) => setProfile(prev => ({ ...prev, skills: e.target.value.split(',').map(s => s.trim()) }))}
-                              />
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.25rem' }}>
+                              <button className="btn-glass" style={{ background: 'var(--primary)', color: '#fff', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }}
+                                disabled={!profile?.name || !profile?.role}
+                                onClick={() => setCareerProfileSubStep(2)}
+                              >
+                                Continue to Education →
+                              </button>
                             </div>
                           </div>
+                        )}
 
-                          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
-                            <button
-                              className="btn-glass"
-                              style={{
-                                background: 'var(--primary)',
-                                color: '#fff',
-                                fontWeight: 700,
-                                padding: '0.6rem 1.5rem',
-                                borderRadius: '10px',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease'
-                              }}
-                              disabled={!profile?.role}
-                              onClick={() => setActivePipelineStep(2)}
-                            >
-                              Continue to Vocal Calibration →
-                            </button>
+                        {/* SUB-STEP 2: EDUCATION */}
+                        {careerProfileSubStep === 2 && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <p className="subtitle">Add your highest degree first — this helps tailor your resume later.</p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '160px', overflowY: 'auto' }}>
+                              {wizardEducationList.length === 0 ? (
+                                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>No education added yet.</span>
+                              ) : (
+                                wizardEducationList.map((edu, i) => (
+                                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.6rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <div>
+                                      <div style={{ fontSize: '0.82rem', fontWeight: 700 }}>{edu.degree} in {edu.fieldOfStudy}</div>
+                                      <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{edu.institution} · {edu.gradYear}</div>
+                                    </div>
+                                    <button onClick={() => setWizardEducationList(wizardEducationList.filter((_, idx) => idx !== i))}
+                                      style={{ border: 'none', background: 'rgba(239,68,68,0.1)', color: '#ef4444', fontSize: '0.68rem', fontWeight: 700, padding: '0.25rem 0.5rem', borderRadius: '6px', cursor: 'pointer' }}>Delete</button>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                            <div className="glass-panel" style={{ padding: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                                <input type="text" placeholder="School / University" value={newWizardSchoolName} onChange={e => setNewWizardSchoolName(e.target.value)} className="input-glass" style={{ padding: '0.5rem', fontSize: '0.78rem', borderRadius: '6px' }} />
+                                <input type="text" placeholder="Degree (e.g. B.Sc.)" value={newWizardSchoolDegree} onChange={e => setNewWizardSchoolDegree(e.target.value)} className="input-glass" style={{ padding: '0.5rem', fontSize: '0.78rem', borderRadius: '6px' }} />
+                              </div>
+                              <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '0.5rem' }}>
+                                <input type="text" placeholder="Field of Study" value={newWizardSchoolField} onChange={e => setNewWizardSchoolField(e.target.value)} className="input-glass" style={{ padding: '0.5rem', fontSize: '0.78rem', borderRadius: '6px' }} />
+                                <input type="text" placeholder="Grad Year" value={newWizardSchoolYear} onChange={e => setNewWizardSchoolYear(e.target.value)} className="input-glass" style={{ padding: '0.5rem', fontSize: '0.78rem', borderRadius: '6px' }} />
+                              </div>
+                              <button
+                                onClick={() => {
+                                  if (!newWizardSchoolName || !newWizardSchoolDegree) { alert("Institution and Degree are required."); return; }
+                                  setWizardEducationList(prev => [...prev, { institution: newWizardSchoolName, degree: newWizardSchoolDegree, fieldOfStudy: newWizardSchoolField, gradYear: newWizardSchoolYear }]);
+                                  setNewWizardSchoolName(''); setNewWizardSchoolDegree(''); setNewWizardSchoolField(''); setNewWizardSchoolYear('');
+                                }}
+                                className="btn-glass" style={{ padding: '0.4rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)', border: '1px solid rgba(138,92,246,0.3)', cursor: 'pointer' }}
+                              >+ Add Education</button>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem' }}>
+                              <button className="btn-glass" style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', fontSize: '0.85rem', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(1)}>← Back</button>
+                              <button className="btn-glass" style={{ background: 'var(--primary)', color: '#fff', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(3)}>Continue to Experience →</button>
+                            </div>
                           </div>
-                        </div>
+                        )}
+
+                        {/* SUB-STEP 3: EXPERIENCE */}
+                        {careerProfileSubStep === 3 && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <p className="subtitle">Add roles that shape your AI interviews and resume tailoring.</p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '160px', overflowY: 'auto' }}>
+                              {wizardWorkHistory.length === 0 ? (
+                                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>No experience added yet.</span>
+                              ) : (
+                                wizardWorkHistory.map((job, i) => (
+                                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.6rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <div>
+                                      <div style={{ fontSize: '0.82rem', fontWeight: 700 }}>{job.role} @ {job.company}</div>
+                                      <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{job.startDate} – {job.endDate}</div>
+                                    </div>
+                                    <button onClick={() => setWizardWorkHistory(wizardWorkHistory.filter((_, idx) => idx !== i))}
+                                      style={{ border: 'none', background: 'rgba(239,68,68,0.1)', color: '#ef4444', fontSize: '0.68rem', fontWeight: 700, padding: '0.25rem 0.5rem', borderRadius: '6px', cursor: 'pointer' }}>Delete</button>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                            <div className="glass-panel" style={{ padding: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                                <input type="text" placeholder="Company" value={newWizardJobCompany} onChange={e => setNewWizardJobCompany(e.target.value)} className="input-glass" style={{ padding: '0.5rem', fontSize: '0.78rem', borderRadius: '6px' }} />
+                                <input type="text" placeholder="Job Title" value={newWizardJobRole} onChange={e => setNewWizardJobRole(e.target.value)} className="input-glass" style={{ padding: '0.5rem', fontSize: '0.78rem', borderRadius: '6px' }} />
+                              </div>
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                                <input type="text" placeholder="Start (e.g. Jan 2021)" value={newWizardJobStart} onChange={e => setNewWizardJobStart(e.target.value)} className="input-glass" style={{ padding: '0.5rem', fontSize: '0.78rem', borderRadius: '6px' }} />
+                                <input type="text" placeholder="End (e.g. Present)" value={newWizardJobEnd} onChange={e => setNewWizardJobEnd(e.target.value)} className="input-glass" style={{ padding: '0.5rem', fontSize: '0.78rem', borderRadius: '6px' }} />
+                              </div>
+                              <input type="text" placeholder="Key achievements (comma separated)" value={newWizardJobAchievements} onChange={e => setNewWizardJobAchievements(e.target.value)} className="input-glass" style={{ padding: '0.5rem', fontSize: '0.78rem', borderRadius: '6px' }} />
+                              <button
+                                onClick={() => {
+                                  if (!newWizardJobCompany || !newWizardJobRole) { alert("Company and Job Title are required."); return; }
+                                  setWizardWorkHistory(prev => [...prev, { company: newWizardJobCompany, role: newWizardJobRole, startDate: newWizardJobStart, endDate: newWizardJobEnd, achievements: newWizardJobAchievements }]);
+                                  setNewWizardJobCompany(''); setNewWizardJobRole(''); setNewWizardJobStart(''); setNewWizardJobEnd(''); setNewWizardJobAchievements('');
+                                }}
+                                className="btn-glass" style={{ padding: '0.4rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)', border: '1px solid rgba(138,92,246,0.3)', cursor: 'pointer' }}
+                              >+ Add Experience</button>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem' }}>
+                              <button className="btn-glass" style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', fontSize: '0.85rem', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(2)}>← Back</button>
+                              <button className="btn-glass" style={{ background: 'var(--primary)', color: '#fff', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(4)}>Continue to Skills →</button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* SUB-STEP 4: SKILLS */}
+                        {careerProfileSubStep === 4 && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <p className="subtitle">Search, type, or add skills to build a stronger profile.</p>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                              <input
+                                type="text" placeholder="Type a skill and press Enter" value={newWizardSkill}
+                                onChange={e => setNewWizardSkill(e.target.value)}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter' && newWizardSkill.trim()) {
+                                    e.preventDefault();
+                                    setProfile(prev => ({ ...prev, skills: [...(prev.skills || []), newWizardSkill.trim()] }));
+                                    setNewWizardSkill('');
+                                  }
+                                }}
+                                className="input-glass" style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem', borderRadius: '8px' }}
+                              />
+                              <button
+                                onClick={() => {
+                                  if (!newWizardSkill.trim()) return;
+                                  setProfile(prev => ({ ...prev, skills: [...(prev.skills || []), newWizardSkill.trim()] }));
+                                  setNewWizardSkill('');
+                                }}
+                                className="btn-glass" style={{ padding: '0.6rem 1rem', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}
+                              >Add</button>
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                              {(profile?.skills || []).length === 0 ? (
+                                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>Add your first skill to get started.</span>
+                              ) : (
+                                (profile.skills || []).map((sk: string, i: number) => (
+                                  <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', fontWeight: 700, padding: '0.3rem 0.6rem', borderRadius: '999px', background: 'rgba(138,92,246,0.12)', border: '1px solid rgba(138,92,246,0.25)', color: 'var(--primary)' }}>
+                                    {sk}
+                                    <span style={{ cursor: 'pointer', opacity: 0.7 }} onClick={() => setProfile(prev => ({ ...prev, skills: prev.skills.filter((_: string, idx: number) => idx !== i) }))}>×</span>
+                                  </span>
+                                ))
+                              )}
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem' }}>
+                              <button className="btn-glass" style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', fontSize: '0.85rem', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(3)}>← Back</button>
+                              <button className="btn-glass" style={{ background: 'var(--primary)', color: '#fff', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }}
+                                disabled={(profile?.skills || []).length === 0}
+                                onClick={() => setCareerProfileSubStep(5)}
+                              >Continue to Goals →</button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* SUB-STEP 5: CAREER GOALS */}
+                        {careerProfileSubStep === 5 && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <p className="subtitle">Tell GiGO what you want next so matches and prep feel personal.</p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Target Industry</label>
+                              <input type="text" className="input-glass" style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}
+                                placeholder="e.g. Technology / SaaS" value={wizardTargetIndustry} onChange={(e) => setWizardTargetIndustry(e.target.value)} />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Preferred Work Type</label>
+                              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                {['Remote', 'Hybrid', 'Onsite'].map(type => (
+                                  <button
+                                    key={type}
+                                    type="button"
+                                    onClick={() => setWorkTypePreferences(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])}
+                                    className="btn-glass"
+                                    style={{
+                                      padding: '0.4rem 0.9rem', fontSize: '0.78rem', fontWeight: 700, borderRadius: '999px', cursor: 'pointer',
+                                      background: workTypePreferences.includes(type) ? 'var(--primary)' : 'rgba(255,255,255,0.02)',
+                                      color: workTypePreferences.includes(type) ? '#fff' : 'var(--text-secondary)',
+                                      border: workTypePreferences.includes(type) ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.08)'
+                                    }}
+                                  >{type}</button>
+                                ))}
+                              </div>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Salary Expectation (min)</label>
+                                <input type="text" className="input-glass" style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}
+                                  placeholder="$80k" value={wizardSalaryMin} onChange={(e) => setWizardSalaryMin(e.target.value)} />
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Salary Expectation (max)</label>
+                                <input type="text" className="input-glass" style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}
+                                  placeholder="$120k" value={wizardSalaryMax} onChange={(e) => setWizardSalaryMax(e.target.value)} />
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Describe your ideal next role (optional)</label>
+                              <textarea rows={3} className="input-glass" style={{ width: '100%', padding: '0.65rem', borderRadius: '10px', fontSize: '0.85rem', resize: 'vertical' }}
+                                value={wizardCareerGoalsNote} onChange={(e) => setWizardCareerGoalsNote(e.target.value)} />
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem' }}>
+                              <button className="btn-glass" style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', fontSize: '0.85rem', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(4)}>← Back</button>
+                              <button
+                                className="btn-glass"
+                                style={{ background: 'var(--primary)', color: '#fff', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }}
+                                disabled={!profile?.role}
+                                onClick={async () => {
+                                  setProfile(prev => ({
+                                    ...prev,
+                                    targetRoles: prev.role ? [prev.role] : prev.targetRoles,
+                                    workTypePreferences,
+                                    targetIndustry: wizardTargetIndustry,
+                                    salaryExpectationMin: wizardSalaryMin,
+                                    salaryExpectationMax: wizardSalaryMax,
+                                    careerGoalsNote: wizardCareerGoalsNote,
+                                    workHistory: wizardWorkHistory,
+                                    educationList: wizardEducationList
+                                  }));
+                                  try {
+                                    await fetch(`${API_BASE_URL}/api/users/${currentUserId}/update`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({
+                                        fullName: profile?.name,
+                                        role: profile?.role,
+                                        phoneNumber: profile?.phoneNumber,
+                                        location: profile?.location,
+                                        skills: profile?.skills || [],
+                                        targetRoles: profile?.role ? [profile.role] : [],
+                                        workTypePreferences,
+                                        targetIndustry: wizardTargetIndustry,
+                                        salaryExpectationMin: wizardSalaryMin,
+                                        salaryExpectationMax: wizardSalaryMax,
+                                        careerGoalsNote: wizardCareerGoalsNote,
+                                        workHistory: wizardWorkHistory,
+                                        educationList: wizardEducationList
+                                      })
+                                    });
+                                    addLog("✅ Career profile saved via form onboarding.");
+                                  } catch (err: any) {
+                                    addLog(`⚠️ Failed to save career profile: ${err.message}`);
+                                  }
+                                  setActivePipelineStep(2);
+                                }}
+                              >
+                                ✨ Finish Setup →
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -6201,67 +6248,105 @@ ${profile.name || '[   ]'}`;
                   <h2 style={{ fontSize: '1.15rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
                     <WalletIcon /> Wallet & Pace
                   </h2>
-                  <span className="badge badge-emerald">Secure Paystack Link</span>
+                  <span className="badge badge-emerald">● Secure Paystack Link</span>
                 </div>
-                
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
-                  <div className="glass-card" style={{ 
-                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(139, 92, 246, 0.15), rgba(15, 13, 35, 0.5))',
-                    border: '1px solid rgba(16, 185, 129, 0.25)',
-                    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
-                    padding: '1.75rem'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                      <div>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Unified Career Wallet</span>
-                        <div style={{ fontSize: '0.75rem', color: '#10b981', marginTop: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }}></span>
-                          Base Unit: Pace (Career Momentum Ledger)
-                        </div>
+
+                {/* Balance hero + real trend sparkline (reconstructed from the actual transaction ledger) */}
+                {(() => {
+                  const paceNow = walletNGN / 20;
+                  // Reconstruct a running balance trend by walking transactions backwards from
+                  // the current balance — real data, not synthetic.
+                  const sortedTx = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                  let running = paceNow;
+                  const points: number[] = [running];
+                  for (let i = sortedTx.length - 1; i >= 0; i--) {
+                    const tx = sortedTx[i];
+                    const paceAmt = tx.currency === 'USD' ? (tx.amount * 1500 / 20) : (tx.amount / 20);
+                    running -= paceAmt;
+                    points.unshift(Math.max(0, running));
+                  }
+                  const trend = points.slice(-8);
+                  const maxVal = Math.max(...trend, 1);
+                  const minVal = Math.min(...trend, 0);
+                  const range = Math.max(maxVal - minVal, 1);
+                  const W = 300, H = 46;
+                  const coords = trend.map((v, i) => {
+                    const x = trend.length > 1 ? (i / (trend.length - 1)) * W : W;
+                    const y = H - ((v - minVal) / range) * (H - 6) - 3;
+                    return `${x.toFixed(1)},${y.toFixed(1)}`;
+                  });
+                  const linePath = `M${coords.join(' L')}`;
+                  const fillPath = `${linePath} L${W},${H} L0,${H} Z`;
+                  const monthAgoPace = trend[0];
+                  const deltaThisMonth = Math.round(paceNow - monthAgoPace);
+
+                  return (
+                    <div className="glass-card" style={{
+                      background: 'linear-gradient(160deg, rgba(56, 189, 248, 0.14), rgba(134, 59, 255, 0.10) 60%, rgba(15, 13, 35, 0.5))',
+                      border: '1px solid rgba(56, 189, 248, 0.25)',
+                      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
+                      padding: '1.5rem',
+                      marginBottom: '1.5rem'
+                    }}>
+                      <div style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-secondary)' }}>Pace Balance</div>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.6rem', marginTop: '0.3rem', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '2.4rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>⚡ {paceNow.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                        {deltaThisMonth !== 0 && (
+                          <span className="badge badge-emerald" style={{ fontSize: '0.65rem' }}>{deltaThisMonth > 0 ? '+' : ''}{deltaThisMonth} this month</span>
+                        )}
                       </div>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <span className="badge badge-emerald">Momentum</span>
-                        <span className="badge badge-purple" style={{ opacity: 0.85 }}>Pace</span>
-                      </div>
+                      {trend.length > 1 && (
+                        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', height: '46px', marginTop: '0.75rem', display: 'block' }}>
+                          <defs>
+                            <linearGradient id="walletSparkFill" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.35" />
+                              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0" />
+                            </linearGradient>
+                          </defs>
+                          <path d={fillPath} fill="url(#walletSparkFill)" />
+                          <path d={linePath} fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                      <p style={{ fontSize: '0.72rem', color: 'rgba(248, 250, 252, 0.7)', lineHeight: '1.4', margin: '0.75rem 0 0 0' }}>
+                        Pace is consumed to power automated career operations. <a href="https://docs.gigo.network/pace-guide" target="_blank" rel="noopener noreferrer" style={{ color: '#38bdf8', fontWeight: 700, textDecoration: 'underline' }}>Pace Value Guide</a>
+                      </p>
                     </div>
-                    
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '1rem 0' }}>
-                      <div style={{ fontSize: '3rem', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.02em', textShadow: '0 2px 10px rgba(139, 92, 246, 0.4)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span>⚡ {(walletNGN / 20).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</span>
-                        <span style={{ fontSize: '1.25rem', fontWeight: 700, color: '#a78bfa', background: 'rgba(139, 92, 246, 0.15)', padding: '0.2rem 0.6rem', borderRadius: '6px', border: '1px solid rgba(139, 92, 246, 0.25)' }}>Pace</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-                        <p style={{ fontSize: '0.8rem', color: 'rgba(248, 250, 252, 0.8)', lineHeight: '1.45', margin: 0 }}>
-                          Career Momentum: Pace is consumed to power your high-value automated career operations. Learn more:
-                          <a 
-                            href="https://docs.gigo.network/pace-guide" 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            style={{ color: '#fd9c51', marginLeft: '0.35rem', fontWeight: 700, textDecoration: 'underline' }}
-                          >
-                            ℹ️ Pace Value Guide
-                          </a>
-                        </p>
-                      </div>
-                    </div>
- 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', marginTop: '1.5rem' }}>
-                      <button 
-                        className="btn-glass btn-secondary" 
-                        style={{ justifyContent: 'center', fontSize: '0.85rem', padding: '0.75rem', border: '1px solid rgba(16, 185, 129, 0.3)' }}
-                        onClick={() => { setTopUpCurrency('NGN'); setTopUpAmount('5000'); setShowTopUpModal(true); }}
-                      >
-                        <PlusIcon /> Refuel Pace Wallet
-                      </button>
-                    </div>
-                  </div>
+                  );
+                })()}
+
+                {/* Quick actions */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                  <button
+                    className="btn-glass"
+                    style={{ flexDirection: 'column', gap: '0.4rem', padding: '0.85rem 0.5rem', border: '1px solid var(--border-glass)' }}
+                    onClick={() => { setTopUpCurrency('NGN'); setTopUpAmount('5000'); setShowTopUpModal(true); }}
+                  >
+                    <span style={{ fontSize: '1.1rem' }}>⚡</span>
+                    <span style={{ fontSize: '0.68rem', fontWeight: 700 }}>Refuel</span>
+                  </button>
+                  <button
+                    className="btn-glass"
+                    style={{ flexDirection: 'column', gap: '0.4rem', padding: '0.85rem 0.5rem', border: '1px solid var(--border-glass)' }}
+                    onClick={() => document.getElementById('wallet-ledger-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  >
+                    <span style={{ fontSize: '1.1rem' }}>📜</span>
+                    <span style={{ fontSize: '0.68rem', fontWeight: 700 }}>History</span>
+                  </button>
+                  <button
+                    className="btn-glass"
+                    style={{ flexDirection: 'column', gap: '0.4rem', padding: '0.85rem 0.5rem', border: '1px solid var(--border-glass)' }}
+                    onClick={() => document.getElementById('wallet-referral-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  >
+                    <span style={{ fontSize: '1.1rem' }}>🎁</span>
+                    <span style={{ fontSize: '0.68rem', fontWeight: 700 }}>Invite</span>
+                  </button>
                 </div>
               </div>
 
               {/* Bottom Row: Side-by-side Payment Transaction ledger list, and Full referral center form/invitations console */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }} className="wallets-details-row">
                 {/* Column 1: Payment Ledger */}
-                <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div id="wallet-ledger-section" className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <h2 style={{ fontSize: '1.15rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
                     <HistoryIcon /> Payment Ledger History
                   </h2>
@@ -6294,7 +6379,7 @@ ${profile.name || '[   ]'}`;
               </div>
 
               {/* Column 2: Referral Center */}
-              <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', boxShadow: '0 8px 32px 0 rgba(0,0,0,0.25)' }}>
+              <div id="wallet-referral-section" className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', boxShadow: '0 8px 32px 0 rgba(0,0,0,0.25)' }}>
                 <h2 style={{ fontSize: '1.25rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }} className="text-gradient-orange-yellow">
                   <span>👥</span> Referral & Bounty Hub
                 </h2>
@@ -8804,103 +8889,59 @@ ${profile.name || '[   ]'}`;
             </div>
 
             {/* Cockpit Workspace */}
-            <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-              {/* Sidebar Navigation */}
-              <div style={{
-                width: '280px',
-                borderRight: '1px solid var(--border-glass)',
-                padding: '1.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.75rem',
-                background: 'rgba(0,0,0,0.15)',
-                justifyContent: 'space-between'
-              }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <button
-                    type="button"
-                    className="btn-glass"
-                    style={{
-                      width: '100%',
-                      justifyContent: 'flex-start',
-                      background: settingsActiveTab === 'profile' ? 'var(--primary)' : 'rgba(255,255,255,0.02)',
-                      borderColor: settingsActiveTab === 'profile' ? 'var(--primary)' : 'var(--border-glass)',
-                      color: '#fff',
-                      fontWeight: 700
-                    }}
-                    onClick={() => setSettingsActiveTab('profile')}
-                  >
-                    👤 Profile & Career Spec
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-glass"
-                    style={{
-                      width: '100%',
-                      justifyContent: 'flex-start',
-                      background: settingsActiveTab === 'scan' ? 'var(--primary)' : 'rgba(255,255,255,0.02)',
-                      borderColor: settingsActiveTab === 'scan' ? 'var(--primary)' : 'var(--border-glass)',
-                      color: '#fff',
-                      fontWeight: 700
-                    }}
-                    onClick={() => setSettingsActiveTab('scan')}
-                  >
-                    ⏱️ Scan Rates & Tickers
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-glass"
-                    style={{
-                      width: '100%',
-                      justifyContent: 'flex-start',
-                      background: settingsActiveTab === 'keys' ? 'var(--primary)' : 'rgba(255,255,255,0.02)',
-                      borderColor: settingsActiveTab === 'keys' ? 'var(--primary)' : 'var(--border-glass)',
-                      color: '#fff',
-                      fontWeight: 700
-                    }}
-                    onClick={() => setSettingsActiveTab('keys')}
-                  >
-                    🔑 SMTP & API Relays
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-glass"
-                    style={{
-                      width: '100%',
-                      justifyContent: 'flex-start',
-                      background: settingsActiveTab === 'security' ? 'var(--primary)' : 'rgba(255,255,255,0.02)',
-                      borderColor: settingsActiveTab === 'security' ? 'var(--primary)' : 'var(--border-glass)',
-                      color: '#fff',
-                      fontWeight: 700
-                    }}
-                    onClick={() => setSettingsActiveTab('security')}
-                  >
-                    🔐 Security & Biometrics
-                  </button>
+            <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+              {/* Segmented Navigation — grouped-settings style instead of a fixed sidebar */}
+              <div style={{ padding: '1rem 2rem 0 2rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                <div style={{ display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '12px', padding: '0.3rem', overflowX: 'auto' }}>
+                  {([
+                    { id: 'profile', label: '👤 Profile & Career Spec' },
+                    { id: 'scan', label: '⏱️ Scan Rates & Tickers' },
+                    { id: 'keys', label: '🔑 SMTP & API Relays' },
+                    { id: 'security', label: '🔐 Security & Biometrics' }
+                  ] as const).map(tab => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      style={{
+                        flex: 1,
+                        whiteSpace: 'nowrap',
+                        padding: '0.55rem 0.75rem',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        borderRadius: '9px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        background: settingsActiveTab === tab.id ? 'var(--primary)' : 'transparent',
+                        color: settingsActiveTab === tab.id ? '#001018' : 'var(--text-secondary)',
+                        transition: 'all 0.15s ease'
+                      }}
+                      onClick={() => setSettingsActiveTab(tab.id)}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
                 </div>
 
-                {/* Local Telemetry Diagnostics Box */}
+                {/* Account Settings Summary strip */}
                 <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                  gap: '0.5rem',
                   background: 'rgba(255, 255, 255, 0.02)',
                   border: '1px solid var(--border-glass)',
                   borderRadius: 'var(--radius-sm)',
-                  padding: '1rem'
+                  padding: '0.75rem 1rem'
                 }}>
-                  <h5 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 0.5rem 0', color: 'var(--primary)', fontWeight: 700 }}>
-                    📊 Account Settings Summary
-                  </h5>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.65rem', color: 'var(--text-secondary)' }}>
-                    <div>Candidate: <strong style={{ color: '#fff' }}>{settingsName || profile?.name || '[   ]'}</strong></div>
-                    <div>Scraping: <strong style={{ color: '#fff' }}>Every {settingsScanInterval}m</strong></div>
-                    <div>Feed Sync: <strong style={{ color: '#fff' }}>Every {settingsFeedRefreshInterval}m</strong></div>
-                    <div>Active Assets: <strong style={{ color: '#fff' }}>{compiledDocuments.length} compiled</strong></div>
-                    <div>Wallet Bal: <strong style={{ color: '#10b981' }}>{((walletNGN * 5) / 100).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 1 })} Pace</strong></div>
-                  </div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Candidate: <strong style={{ color: '#fff' }}>{settingsName || profile?.name || '[   ]'}</strong></div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Scraping: <strong style={{ color: '#fff' }}>Every {settingsScanInterval}m</strong></div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Feed Sync: <strong style={{ color: '#fff' }}>Every {settingsFeedRefreshInterval}m</strong></div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Assets: <strong style={{ color: '#fff' }}>{compiledDocuments.length} compiled</strong></div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Wallet: <strong style={{ color: '#10b981' }}>{((walletNGN * 5) / 100).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 1 })} Pace</strong></div>
                 </div>
               </div>
 
               {/* Tab Content Panel */}
-              <div style={{ flex: 1, padding: '2rem', overflowY: 'auto', background: 'rgba(255, 255, 255, 0.005)' }}>
+              <div style={{ flex: 1, padding: '1.5rem 2rem 2rem 2rem', overflowY: 'auto', background: 'rgba(255, 255, 255, 0.005)' }}>
                 <form onSubmit={handleSaveSettings} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                   <div style={{ flex: 1 }}>
                     {settingsActiveTab === 'profile' && (

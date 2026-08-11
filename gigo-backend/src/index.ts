@@ -14,6 +14,7 @@ import referralsRouter from './routes/referrals';
 import mailroomRouter from './routes/mailroom';
 import interviewRouter from './routes/interview';
 import aiChatRouter from './routes/ai-chat';
+import ssoAuthRouter from './routes/sso-auth';
 import axios from 'axios';
 import { Type } from '@google/genai';
 import { getGeminiClient } from './utils/gemini';
@@ -137,7 +138,8 @@ app.post('/api/users/:userId/update', authenticateToken, async (req: Request, re
     strengths, softSkills, teamworkExperience, conflictResolution, calibrationAxes, calibrationHistory,
     applyMode,
     isNINVerified, ninValue, ninCardImage,
-    mailBackend, zapierWebhookUrl
+    mailBackend, zapierWebhookUrl,
+    targetIndustry, salaryExpectationMin, salaryExpectationMax, careerGoalsNote
   } = req.body;
   try {
     const userRef = db.collection('users').doc(userId);
@@ -238,6 +240,10 @@ app.post('/api/users/:userId/update', authenticateToken, async (req: Request, re
     if (ninCardImage !== undefined) updatePayload.ninCardImage = ninCardImage;
     if (mailBackend !== undefined) updatePayload.mailBackend = mailBackend;
     if (zapierWebhookUrl !== undefined) updatePayload.zapierWebhookUrl = zapierWebhookUrl;
+    if (targetIndustry !== undefined) updatePayload.targetIndustry = targetIndustry;
+    if (salaryExpectationMin !== undefined) updatePayload.salaryExpectationMin = salaryExpectationMin;
+    if (salaryExpectationMax !== undefined) updatePayload.salaryExpectationMax = salaryExpectationMax;
+    if (careerGoalsNote !== undefined) updatePayload.careerGoalsNote = careerGoalsNote;
 
     await userRef.set(updatePayload, { merge: true });
     
@@ -3081,6 +3087,7 @@ app.use('/api', referralsRouter);
 app.use('/api', mailroomRouter);
 app.use('/api', interviewRouter);
 app.use('/api', aiChatRouter);
+app.use('/api', ssoAuthRouter);
 app.use('/api/test', testAudioRouter);
 
 const PORT = process.env.PORT || 8080;

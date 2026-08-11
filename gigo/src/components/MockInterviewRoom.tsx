@@ -432,6 +432,22 @@ export default function MockInterviewRoom({
             </p>
           </div>
 
+          {/* Session stat row */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.6rem' }}>
+            <div style={{ padding: '0.55rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '8px' }}>
+              <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>Track</div>
+              <div style={{ fontSize: '0.78rem', fontWeight: 800, textTransform: 'capitalize' }}>{selectedDomain}</div>
+            </div>
+            <div style={{ padding: '0.55rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '8px' }}>
+              <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>Question</div>
+              <div style={{ fontSize: '0.78rem', fontWeight: 800 }}>{questionsList.length > 0 ? `${activeQuestionIndex + 1} / ${questionsList.length}` : '—'}</div>
+            </div>
+            <div style={{ padding: '0.55rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '8px' }}>
+              <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>Last score</div>
+              <div style={{ fontSize: '0.78rem', fontWeight: 800, color: scorecard ? '#10b981' : 'var(--text-primary)' }}>{scorecard ? `${scorecard.score}%` : '—'}</div>
+            </div>
+          </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
             <button 
               className={`domain-btn ${selectedDomain === 'react' ? 'active' : ''}`}

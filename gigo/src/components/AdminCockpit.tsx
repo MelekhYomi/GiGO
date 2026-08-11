@@ -420,22 +420,22 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
         className="admin-tabs-scroller"
         style={{
           display: 'flex',
-          gap: '0.75rem',
+          gap: '1.5rem',
           overflowX: 'auto',
-          paddingBottom: '0.5rem',
+          paddingBottom: '0',
           borderBottom: '1px solid var(--border-glass)',
           scrollbarWidth: 'none',
         }}
       >
         {([
-          { id: 'activities', label: '📊 Activity Stream', color: '#8b5cf6', shadow: 'rgba(139, 92, 246, 0.4)' },
-          { id: 'financials', label: '💳 Financial Ledger', color: '#10b981', shadow: 'rgba(16, 185, 129, 0.4)' },
-          { id: 'applications', label: '💼 Application Hub', color: '#0ea5e9', shadow: 'rgba(14, 165, 233, 0.4)' },
-          { id: 'candidates', label: '👥 Candidate Directory', color: '#ec4899', shadow: 'rgba(236, 72, 153, 0.4)' },
-          { id: 'settings', label: '⚙️ System Control', color: '#f59e0b', shadow: 'rgba(245, 158, 11, 0.4)' },
-          { id: 'orchestrator', label: '🤖 Orchestrator', color: '#a78bfa', shadow: 'rgba(167, 139, 250, 0.4)' },
-          { id: 'observability', label: '📈 Observability', color: '#34d399', shadow: 'rgba(52, 211, 153, 0.4)' },
-          { id: 'sandbox', label: '🧪 Recruiter Sandbox', color: '#38bdf8', shadow: 'rgba(56, 189, 248, 0.4)' }
+          { id: 'activities', label: '📊 Activity Stream' },
+          { id: 'financials', label: '💳 Financial Ledger' },
+          { id: 'applications', label: '💼 Application Hub' },
+          { id: 'candidates', label: '👥 Candidate Directory' },
+          { id: 'settings', label: '⚙️ System Control' },
+          { id: 'orchestrator', label: '🤖 Orchestrator' },
+          { id: 'observability', label: '📈 Observability' },
+          { id: 'sandbox', label: '🧪 Recruiter Sandbox' }
         ] as const).map((t) => {
           const isActive = adminTab === t.id;
           return (
@@ -444,16 +444,16 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               onClick={() => selectAdminTab(t.id)}
               style={{
                 whiteSpace: 'nowrap',
-                padding: '0.6rem 1.15rem',
-                borderRadius: '10px',
-                border: isActive ? `1px solid ${t.color}` : '1px solid var(--border-glass)',
-                background: isActive ? `${t.shadow.replace('0.4', '0.12')}` : 'rgba(255,255,255,0.02)',
+                padding: '0.6rem 0.2rem',
+                borderRadius: 0,
+                border: 'none',
+                borderBottom: isActive ? '2px solid var(--primary)' : '2px solid transparent',
+                background: 'none',
                 color: isActive ? '#fff' : 'var(--text-secondary)',
                 fontWeight: isActive ? 700 : 500,
                 fontSize: '0.8rem',
                 cursor: 'pointer',
-                boxShadow: isActive ? `0 0 12px ${t.shadow}` : 'none',
-                transition: 'all 0.25s ease',
+                transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
@@ -1145,8 +1145,8 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                                 </tbody>
                               </table>
                               <div style={{ display: 'flex', justifyContent: 'center', padding: '0.65rem', background: '#0b1329', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                                <span style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 700, letterSpacing: '0.05em' }}>
-                                  Build with Gemini XPRIZE  |  Managed by Devpost  |  CONFIDENTIAL
+                                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em' }}>
+                                  GiGO Financial Ledger  |  Internal Use Only  |  CONFIDENTIAL
                                 </span>
                               </div>
                             </div>
