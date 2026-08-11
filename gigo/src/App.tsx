@@ -364,6 +364,8 @@ export default function App() {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [authEmail, setAuthEmail] = useState<string>('');
   const [authPassword, setAuthPassword] = useState<string>('');
+  const [showLoginPassword, setShowLoginPassword] = useState<boolean>(false);
+  const [showSignupPassword, setShowSignupPassword] = useState<boolean>(false);
   const [authFullName, setAuthFullName] = useState<string>('');
   const [authPhone, setAuthPhone] = useState<string>('');
   const [authError, setAuthError] = useState<string>('');
@@ -4422,17 +4424,25 @@ ${profile.name || '[   ]'}`;
   if (!userId) {
     return (
       <div style={{ position: 'relative' }}>
-        <LandingPage 
-          onSignIn={() => { 
+        <LandingPage
+          onSignIn={() => {
             setAuthError('');
-            setAuthMode('login'); 
-            setShowAuthModal(true); 
-          }} 
-          onSignUp={() => { 
+            setAuthEmail('');
+            setAuthPassword('');
+            setShowLoginPassword(false);
+            setAuthMode('login');
+            setShowAuthModal(true);
+          }}
+          onSignUp={() => {
             setAuthError('');
-            setAuthMode('signup'); 
-            setShowAuthModal(true); 
-          }} 
+            setAuthEmail('');
+            setAuthPassword('');
+            setAuthFullName('');
+            setAuthPhone('');
+            setShowSignupPassword(false);
+            setAuthMode('signup');
+            setShowAuthModal(true);
+          }}
         />
         
         {showAuthModal && (
@@ -4451,25 +4461,39 @@ ${profile.name || '[   ]'}`;
                   {authError && <div className="auth-error-badge">{authError}</div>}
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Email Address</label>
-                    <input 
-                      type="email" 
-                      className="form-control" 
+                    <input
+                      type="email"
+                      className="form-control"
                       placeholder="you@domain.com"
                       value={authEmail}
                       onChange={(e) => setAuthEmail(e.target.value)}
+                      autoComplete="off"
                       required
                     />
                   </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Password</label>
-                    <input 
-                      type="password" 
-                      className="form-control" 
-                      placeholder="••••••••"
-                      value={authPassword}
-                      onChange={(e) => setAuthPassword(e.target.value)}
-                      required
-                    />
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type={showLoginPassword ? 'text' : 'password'}
+                        className="form-control"
+                        placeholder="••••••••"
+                        value={authPassword}
+                        onChange={(e) => setAuthPassword(e.target.value)}
+                        autoComplete="off"
+                        style={{ paddingRight: '2.5rem' }}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowLoginPassword(v => !v)}
+                        aria-label={showLoginPassword ? 'Hide password' : 'Show password'}
+                        title={showLoginPassword ? 'Hide password' : 'Show password'}
+                        style={{ position: 'absolute', right: '0.6rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', padding: '0.25rem', lineHeight: 1, color: 'var(--text-secondary)' }}
+                      >
+                        {showLoginPassword ? '🙈' : '👁️'}
+                      </button>
+                    </div>
                   </div>
                   <button type="submit" className="btn-glass btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: '0.5rem', fontWeight: 700 }} disabled={isSubmittingAuth}>
                     {isSubmittingAuth ? 'Handshaking...' : 'Login to Workspace'}
@@ -4530,7 +4554,7 @@ ${profile.name || '[   ]'}`;
                     </div>
                   )}
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'center', marginTop: '0.5rem' }}>
-                    New to the platform? <span onClick={() => { setAuthMode('signup'); setAuthError(''); }} style={{ color: 'var(--secondary)', cursor: 'pointer', fontWeight: 700 }}>Create Live Profile</span>
+                    New to the platform? <span onClick={() => { setAuthMode('signup'); setAuthError(''); setAuthEmail(''); setAuthPassword(''); setShowSignupPassword(false); }} style={{ color: 'var(--secondary)', cursor: 'pointer', fontWeight: 700 }}>Create Live Profile</span>
                   </p>
                 </form>
               ) : (
@@ -4598,20 +4622,21 @@ ${profile.name || '[   ]'}`;
                   </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Email Address</label>
-                    <input 
-                      type="email" 
-                      className="form-control" 
+                    <input
+                      type="email"
+                      className="form-control"
                       placeholder="you@domain.com"
                       value={authEmail}
                       onChange={(e) => setAuthEmail(e.target.value)}
+                      autoComplete="off"
                       required
                     />
                   </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Phone Number</label>
-                    <input 
-                      type="tel" 
-                      className="form-control" 
+                    <input
+                      type="tel"
+                      className="form-control"
                       placeholder="e.g. 2348011223344"
                       value={authPhone}
                       onChange={(e) => setAuthPhone(e.target.value)}
@@ -4619,14 +4644,27 @@ ${profile.name || '[   ]'}`;
                   </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Password</label>
-                    <input 
-                      type="password" 
-                      className="form-control" 
-                      placeholder="Create secure password"
-                      value={authPassword}
-                      onChange={(e) => setAuthPassword(e.target.value)}
-                      required
-                    />
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type={showSignupPassword ? 'text' : 'password'}
+                        className="form-control"
+                        placeholder="Create secure password"
+                        value={authPassword}
+                        onChange={(e) => setAuthPassword(e.target.value)}
+                        autoComplete="off"
+                        style={{ paddingRight: '2.5rem' }}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSignupPassword(v => !v)}
+                        aria-label={showSignupPassword ? 'Hide password' : 'Show password'}
+                        title={showSignupPassword ? 'Hide password' : 'Show password'}
+                        style={{ position: 'absolute', right: '0.6rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', padding: '0.25rem', lineHeight: 1, color: 'var(--text-secondary)' }}
+                      >
+                        {showSignupPassword ? '🙈' : '👁️'}
+                      </button>
+                    </div>
                   </div>
                   <div className="form-group" style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'flex-start', gap: '0.5rem', userSelect: 'none' }}>
                     <input 
@@ -4645,7 +4683,7 @@ ${profile.name || '[   ]'}`;
                     {isSubmittingAuth ? 'Initializing Profile...' : 'Sign Up & Claim 250 Pace'}
                   </button>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'center', marginTop: '0.5rem' }}>
-                    Already registered? <span onClick={() => { setAuthMode('login'); setAuthError(''); }} style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: 700 }}>Sign In</span>
+                    Already registered? <span onClick={() => { setAuthMode('login'); setAuthError(''); setAuthEmail(''); setAuthPassword(''); setShowLoginPassword(false); }} style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: 700 }}>Sign In</span>
                   </p>
                 </form>
               )}
