@@ -138,7 +138,7 @@ export default function VoiceAssistantCopilot({
 
       const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://localhost:8080'
-        : (import.meta.env.VITE_API_BASE_URL || 'https://gigo-backend.example.com');
+        : (import.meta.env.VITE_API_BASE_URL || 'https://gigo-fego.onrender.com');
 
       const token = localStorage.getItem('gigo_token');
       const userId = localStorage.getItem('gigo_userId') || 'user_1780714671963_281';

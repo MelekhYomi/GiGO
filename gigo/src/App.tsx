@@ -127,17 +127,16 @@ interface AgentLog {
   meta?: any;
 }
 
-// Smart API url resolver (localhost vs production cloud run).
-// Production URL is read from VITE_API_BASE_URL (set in the hosting provider's
-// env config once gigo-backend is deployed) rather than hardcoded, since the
-// Cloud Run URL is only known after deploy.
+// Smart API url resolver (localhost vs deployed backend).
+// VITE_API_BASE_URL (if set in the hosting provider's env config) always wins,
+// so a staging/alternate backend can override this without a code change.
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:8080'
-  : (import.meta.env.VITE_API_BASE_URL || 'https://gigo-backend.example.com');
+  : (import.meta.env.VITE_API_BASE_URL || 'https://gigo-fego.onrender.com');
 
 // Default production frontend domain (used for referral/share links) — same
 // deferred-until-deploy pattern as API_BASE_URL above.
-const DEFAULT_FRONTEND_DOMAIN = import.meta.env.VITE_FRONTEND_DOMAIN || 'https://gigo.example.com';
+const DEFAULT_FRONTEND_DOMAIN = import.meta.env.VITE_FRONTEND_DOMAIN || 'https://gigo-omega.vercel.app';
 
 // Custom designed premium vector SVGs for cybernetic tech disciplines (5 gorgeous avatars)
 const CyberAvatars: Record<string, (props?: React.SVGProps<SVGSVGElement>) => React.ReactElement> = {

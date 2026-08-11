@@ -27,7 +27,7 @@ app.use(express.json());
 // Default production frontend domain (referral links, sign-in emails, admin
 // config defaults) — read from env since the real Vercel domain is only known
 // post-deploy, rather than hardcoding a stale placeholder.
-const DEFAULT_FRONTEND_DOMAIN = process.env.FRONTEND_DOMAIN || 'https://gigo.example.com';
+const DEFAULT_FRONTEND_DOMAIN = process.env.FRONTEND_DOMAIN || 'https://gigo-omega.vercel.app';
 
 // Custom Zero-Dependency CORS middleware to allow localhost:5173 and external endpoints
 app.use((req, res, next) => {

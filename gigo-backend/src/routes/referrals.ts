@@ -33,7 +33,7 @@ router.post('/referrals/invite', async (req: Request, res: Response) => {
     const { ai, modelFlash } = getGeminiClient();
 
     // Fetch dynamic frontend domain and referral bonus with fallback defaults
-    let frontendDomain = process.env.FRONTEND_DOMAIN || "https://gigo.example.com";
+    let frontendDomain = process.env.FRONTEND_DOMAIN || "https://gigo-omega.vercel.app";
     let referralBonus = 5000.00;
     try {
       const systemDoc = await db.collection('system_configs').doc('global').get();
