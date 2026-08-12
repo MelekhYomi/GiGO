@@ -6,7 +6,7 @@ import webhookRouter, { executeWalletCreditTransaction } from './transaction-rou
 import { db, FieldValue } from './firebase-config';
 import { processVoiceOnboarding } from './voice-agent';
 import { handleAssetGenerationRoute } from './document-agent';
-import { executeAutonomousScraperPipeline, runGlobalJobDiscoverySweep, runAutoApplyMatchingSweep, computeMatchScore } from './scraper-agent';
+import { executeAutonomousScraperPipeline, runGlobalJobDiscoverySweep, runAutoApplyMatchingSweep, computeMatchScore, fetchRemoteOKJobs } from './scraper-agent';
 import testAudioRouter from './routes/testAudioRouter';
 import manualSearchRouter from './routes/manual-search';
 import emailRouter from './routes/application-email';
@@ -3039,13 +3039,28 @@ async function scheduledScraperTick() {
     console.warn("[SCHEDULER] Failed to read scraperIntervalMinutes, using default:", err);
   }
 
+  // Each source runs in its own try/catch so a Gemini quota failure doesn't
+  // block the no-AI RemoteOK feed (or vice versa) — real jobs keep flowing
+  // into discovered_jobs from whichever source is currently working.
+  try {
+    console.log(`[SCHEDULER] Fetching real listings from RemoteOK's public feed...`);
+    await fetchRemoteOKJobs();
+  } catch (err) {
+    console.error("[SCHEDULER] RemoteOK feed failed:", err);
+  }
+
   try {
     console.log(`[SCHEDULER] Running scheduled global job discovery sweep...`);
     await runGlobalJobDiscoverySweep();
+  } catch (err) {
+    console.error("[SCHEDULER] Global discovery sweep failed:", err);
+  }
+
+  try {
     console.log(`[SCHEDULER] Running scheduled matching & auto-apply sweep...`);
     await runAutoApplyMatchingSweep();
   } catch (err) {
-    console.error("[SCHEDULER] Scheduled scraper tick failed:", err);
+    console.error("[SCHEDULER] Auto-apply matching sweep failed:", err);
   }
 
   setTimeout(scheduledScraperTick, intervalMinutes * 60 * 1000);

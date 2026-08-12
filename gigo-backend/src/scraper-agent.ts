@@ -76,105 +76,93 @@ export function computeMatchScore(job: { jobTitle?: string; keyRequirementsSumma
 }
 
 /**
- * Step A: Ask Gemini to design a highly optimized, precise Google Boolean search string
- * based on what real users are actively looking for on GiGO right now.
+ * Real, no-AI job source: RemoteOK's public JSON API (no key required, no
+ * scraping/anti-bot concerns — it's a documented public feed). Runs
+ * independently of the Gemini-based discovery sweep, so discovered_jobs
+ * keeps getting real listings even when the Gemini quota is exhausted.
+ * Relevance filtering happens downstream via computeMatchScore at read
+ * time, same as Gemini-sourced jobs.
  */
-async function generateTargetedBooleanQuery(ai: GoogleGenAI, activeUserCategories: string[], modelName: string): Promise<string> {
-  const rolesList = activeUserCategories.join(', ');
-  
-  let adminTemplate = '';
+export async function fetchRemoteOKJobs(): Promise<number> {
+  let storedCount = 0;
   try {
-    const configDoc = await db.collection('system_configs').doc('global').get();
-    if (configDoc.exists) {
-      adminTemplate = configDoc.data()?.booleanSearchTemplate || '';
-    }
-  } catch (e) {
-    console.warn("Could not load global booleanSearchTemplate in background scraper:", e);
-  }
+    const response = await axios.get('https://remoteok.com/api', {
+      headers: { 'User-Agent': 'GiGO-CareerPlatform/1.0 (+https://gigo-omega.vercel.app)' },
+      timeout: 15000
+    });
 
-  const prompt = `You are the lead recruitment market intelligence agent for GiGO.
-  Our real users are looking for roles in these exact industries/titles: [${rolesList}].
-  
-  Generate a single, powerful Google Advanced Search Boolean query string that searches the internet 
-  specifically for open vacancies or application portals. 
-  Instead of limiting to job boards, focus heavily on wide web searches including professional socials (Twitter, Instagram, LinkedIn), career pages, and modern announcements.
-  Ensure you limit results to recently published links using current syntax for the year 2026.
-  
-  Reference Admin-designed Search Query Structure / Template:
-  "${adminTemplate || '"Job role/title" (onsite OR "in-office" OR "remote") (site:google.com OR inurl:careers OR inurl:job-openings OR inurl:open-positions) after:2026-01-01 before:2026-12-31"'}"
+    const rawJobs: any[] = Array.isArray(response.data) ? response.data.slice(1) : []; // index 0 is a legal notice, not a job
+    const recentJobs = rawJobs.slice(0, 20);
 
-  Instructions for Query Engineering:
-  1. Substitute the appropriate target roles/industries from [${rolesList}] into the query structured like the Admin template above.
-  2. Synthesize a unified search query that leverages advanced Google Search Boolean syntax (proper capitalization of OR, AND, double quotes for exact phrases, and parentheses for grouping).
-  3. Ensure it targets the broad web, recruiting portals, and/or social announcements.
-  
-  Respond ONLY with the raw query string inside your text. Do not provide commentary or markdown blocks.`;
+    for (const job of recentJobs) {
+      if (!job.company || !job.position) continue;
 
-  const response = await ai.models.generateContent({
-    model: modelName, // Using dynamic Flash model
-    contents: prompt,
-  });
+      const dedupKey = `${job.company}::${job.position}`.toLowerCase().replace(/[^a-z0-9:]/g, '_');
+      const docId = `discovered_${dedupKey.substring(0, 120)}`;
+      const docRef = db.collection('discovered_jobs').doc(docId);
+      const existingDoc = await docRef.get();
 
-  return response.text ? response.text.trim() : `site:boards.greenhouse.io OR site:jobs.lever.co "Remote" ("Virtual Assistant" OR "Data Analyst") after:2026-05-01`;
-}
-
-/**
- * Step B: Take the unstructured search snippets retrieved from the live web and use 
- * Gemini to structurally audit, cleanse, extract, and categorize valid targets.
- */
-async function extractStructuredJobsFromRawData(ai: GoogleGenAI, rawSearchResults: string, modelName: string): Promise<DiscoveredJob[]> {
-  const extractionPrompt = `Analyze the following raw internet search results and extract valid active job listings.
-  Discard any irrelevant links, forum discussions, blog commentary, or clearly expired roles.
-  
-  Identify how the applicant is expected to apply (email, external portal/link, or google form) and capture detailed instructions.
-
-  Raw Input:
-  ${rawSearchResults}`;
-
-  const response = await ai.models.generateContent({
-    model: modelName,
-    contents: extractionPrompt,
-    config: {
-      responseMimeType: 'application/json',
-      responseSchema: {
-        type: Type.ARRAY,
-        description: "List of cleanly extracted and verified active job targets.",
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            companyName: { type: Type.STRING, description: "Extracted hiring company name." },
-            jobTitle: { type: Type.STRING, description: "Official clean title of the role." },
-            workType: { type: Type.STRING, enum: ['Remote', 'Hybrid', 'Onsite'] },
-            applicationLinkOrEmail: { type: Type.STRING, description: "Direct apply link URL or contact email address." },
-            sourcePlatform: { type: Type.STRING, description: "E.g., Greenhouse, Lever, LinkedIn, Company Portal, Twitter, Instagram" },
-            keyRequirementsSummary: { 
-              type: Type.ARRAY, 
-              items: { type: Type.STRING },
-              description: "Top 3 crucial skills or criteria required for this role."
-            },
-            applicationEmail: { type: Type.STRING, description: "Extracted direct recruitment/application email address." },
-            applicationPhone: { type: Type.STRING, description: "Extracted application contact telephone number." },
-            applicationLink: { type: Type.STRING, description: "Extracted direct link to apply." },
-            jobDescription: { type: Type.STRING, description: "Detailed description of the role, responsibilities, and team." },
-            applicationMethod: { type: Type.STRING, enum: ['email', 'portal', 'google_form', 'unknown'], description: "Primary application path." },
-            emailSubject: { type: Type.STRING, description: "If email-based, recommended subject line." },
-            emailBodyRequirements: { type: Type.STRING, description: "If email-based, list specific guidelines/criteria for the body of the application." },
-            attachmentsRequired: { 
-              type: Type.ARRAY, 
-              items: { type: Type.STRING }, 
-              description: "Documents expected as attachments, chosen from: ['CV', 'Cover Letter', 'Portfolio']." 
-            }
-          },
-          required: ['companyName', 'jobTitle', 'workType', 'applicationLinkOrEmail', 'jobDescription', 'applicationMethod', 'attachmentsRequired']
+      let scrapedAt = new Date().toISOString();
+      if (existingDoc.exists) {
+        const existingData = existingDoc.data();
+        if (existingData && existingData.scrapedAt) {
+          scrapedAt = existingData.scrapedAt;
         }
       }
-    }
-  });
 
-  if (response.text) {
-    return JSON.parse(response.text) as DiscoveredJob[];
+      const plainDescription = (job.description || '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 600);
+
+      await docRef.set({
+        id: docId,
+        userId: null,
+        companyName: job.company,
+        jobTitle: job.position,
+        workType: 'Remote',
+        applicationLinkOrEmail: job.apply_url || job.url || '',
+        sourcePlatform: 'RemoteOK',
+        keyRequirementsSummary: Array.isArray(job.tags) ? job.tags.slice(0, 5) : [],
+        scrapedAt,
+        postedAt: job.date || new Date().toISOString(),
+        applicationDeadline: null,
+        jobDescription: plainDescription,
+        applicationEmail: null,
+        applicationPhone: null,
+        applicationLink: job.apply_url || job.url || null,
+        applicationMethod: 'portal',
+        emailSubject: null,
+        emailBodyRequirements: null,
+        attachmentsRequired: [],
+      }, { merge: true });
+      storedCount++;
+    }
+
+    await db.collection('agent_execution_logs').add({
+      timestamp: new Date().toISOString(),
+      agentName: 'RemoteOKDirectFeed',
+      status: 'COMPLETED',
+      metrics: { fetchedCount: recentJobs.length, storedCount }
+    });
+
+    console.log(`RemoteOK direct feed: stored ${storedCount} real listings.`);
+    return storedCount;
+  } catch (error: any) {
+    console.error('RemoteOK direct feed failed:', error.message);
+    try {
+      await db.collection('agent_execution_logs').add({
+        timestamp: new Date().toISOString(),
+        agentName: 'RemoteOKDirectFeed',
+        status: 'FAILED',
+        metrics: { error: error.message }
+      });
+    } catch (logErr) {
+      console.error('Failed to write RemoteOK feed error log:', logErr);
+    }
+    return 0;
   }
-  return [];
 }
 
 /**
@@ -551,7 +539,13 @@ export async function executeAutonomousScraperPipeline(userId?: string) {
     let activeUserRoles: string[] = [];
     let userSpecificRole = "Lead AI Engineer";
     let userSpecificSkills = ["React", "TypeScript", "Node.js", "AI Integration"];
-    let userSpecificDomains = ["greenhouse.io", "lever.co", "linkedin.com"];
+    let userSpecificDomains = [
+      "linkedin.com", "indeed.com", "glassdoor.com", "flexjobs.com",
+      "weworkremotely.com", "remote.com", "upwork.com", "freelancer.com",
+      "toptal.com", "angel.co", "simplyhired.com", "remotive.com",
+      "virtualvocations.com", "workingnomads.com", "remoteok.io",
+      "jooble.org", "themuse.com", "greenhouse.io", "lever.co"
+    ];
     let userSpecificLocation = "Lagos, Nigeria";
     let userPreferredWorkTypes: string[] = ['Remote', 'Hybrid', 'Onsite'];
 
@@ -635,15 +629,36 @@ export async function executeAutonomousScraperPipeline(userId?: string) {
 
     console.log(`Dynamic real user target roles mapped for scraper:`, targetDemand);
 
-    // 2. Generate the strategic Boolean string via Gemini based on active user demand
-    const booleanQueryString = await generateTargetedBooleanQuery(ai, targetDemand, modelFlash);
-    console.log(`Generated Boolean Directive: ${booleanQueryString}`);
-    
-    // 3. Search and extract real, live matching jobs tailored specifically to the candidate's skills and profile using Google Search Grounding
+    // 2. Load the admin-configurable Boolean query template (plain Firestore read,
+    // no Gemini call needed for this part).
+    let adminTemplate = '';
+    try {
+      const configDoc = await db.collection('system_configs').doc('global').get();
+      if (configDoc.exists) {
+        adminTemplate = configDoc.data()?.booleanSearchTemplate || '';
+      }
+    } catch (e) {
+      console.warn("Could not load global booleanSearchTemplate in background scraper:", e);
+    }
+    const boolQueryTemplate = adminTemplate || '"Job role/title" (onsite OR "in-office" OR "remote") (site:google.com OR inurl:careers OR inurl:job-openings OR inurl:open-positions) after:2026-01-01 before:2026-12-31';
+
+    // 3. Search and extract real, live matching jobs in a single Gemini call — the
+    // model designs its own Boolean query and executes the grounded search itself,
+    // rather than a separate round-trip to pre-generate the query string. This
+    // halves the scraper's Gemini call volume per sweep (was 2 calls, now 1),
+    // which matters on a free-tier quota.
     const jobGenerationPrompt = `You are an advanced automated Live Boolean Search scraping agent.
-    Your Boolean query directive is: "${booleanQueryString}"
-    
-    Using your Google Search tool, perform a live web search to find active job listings posted within the last 7 days that are a perfect fit for this candidate:
+
+    First, internally design a single, powerful Google Advanced Search Boolean query
+    string (proper capitalization of OR, AND, double quotes for exact phrases,
+    parentheses for grouping) targeting these industries/titles: [${targetDemand.join(', ')}].
+    Focus heavily on wide web searches including professional socials (Twitter,
+    Instagram, LinkedIn), career pages, and modern announcements — not just job
+    boards. Limit to recently published links using current syntax for 2026.
+    Reference query structure/template: "${boolQueryTemplate}"
+
+    Then, using your Google Search tool, execute that query to find active job
+    listings posted within the last 7 days that are a perfect fit for this candidate:
     - Target Roles: [${targetDemand.join(', ')}]
     - Preferred Skills: [${userSpecificSkills.join(', ')}]
     - Preferred Domains: [${userSpecificDomains.join(', ')}]
@@ -777,7 +792,7 @@ export async function executeAutonomousScraperPipeline(userId?: string) {
       metrics: {
         seedUserId: userId || "global",
         targetDemandAnalyzed: targetDemand,
-        generatedBoolean: booleanQueryString,
+        boolQueryTemplateUsed: boolQueryTemplate,
         extractedJobCount: cleanJobsList.length,
         storedCount
       },

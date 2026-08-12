@@ -43,6 +43,8 @@ ui-debug.log
 scratch/
 **/scratch/
 deployment_backups/
+hackathon-submission/
+go-to-market/
 *.tgz
 *.zip
 *.tar.gz
