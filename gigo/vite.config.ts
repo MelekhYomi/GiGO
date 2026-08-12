@@ -12,6 +12,14 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       manifestFilename: 'manifest.json',
+      // Without these, a new deploy's service worker sits in "waiting" until every
+      // open tab of the old version is closed, so returning visitors (and we,
+      // testing right after a deploy) keep getting served the stale cached build.
+      // skipWaiting + clientsClaim make the new worker take over immediately.
+      workbox: {
+        skipWaiting: true,
+        clientsClaim: true
+      },
       manifest: {
         name: 'GiGO Platform',
         short_name: 'GiGO',
