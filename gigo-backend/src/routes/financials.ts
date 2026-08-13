@@ -313,54 +313,81 @@ function round2(n: number): number {
 // Formatting requests (colors + number format) matching the official template's
 // cell styles exactly, built from the same ROW map used for values/formulas.
 function buildFormatRequests(sheetId: number) {
-  const bandRow = (rowNum: number, color: any, textColor?: any) => ({
-    repeatCell: {
-      range: { sheetId, startRowIndex: rowNum - 1, endRowIndex: rowNum, startColumnIndex: 0, endColumnIndex: 6 },
-      cell: { userEnteredFormat: { backgroundColor: color, ...(textColor ? { textFormat: { foregroundColor: textColor, bold: true } } : {}) } },
-      fields: 'userEnteredFormat.backgroundColor' + (textColor ? ',userEnteredFormat.textFormat' : '')
-    }
-  });
+  type TextOpts = { color?: any; bold?: boolean; italic?: boolean; fontSize?: number };
+
+  const cellRange = (rowNum: number, startCol = 0, endCol = 6) =>
+    ({ sheetId, startRowIndex: rowNum - 1, endRowIndex: rowNum, startColumnIndex: startCol, endColumnIndex: endCol });
+
+  const bandRow = (rowNum: number, bg: any, text?: TextOpts, startCol = 0, endCol = 6) => {
+    const textFormat = text ? {
+      ...(text.color ? { foregroundColor: text.color } : {}),
+      ...(text.bold !== undefined ? { bold: text.bold } : {}),
+      ...(text.italic !== undefined ? { italic: text.italic } : {}),
+      ...(text.fontSize ? { fontSize: text.fontSize } : {}),
+    } : undefined;
+    return {
+      repeatCell: {
+        range: cellRange(rowNum, startCol, endCol),
+        cell: { userEnteredFormat: { backgroundColor: bg, ...(textFormat ? { textFormat } : {}) } },
+        fields: 'userEnteredFormat.backgroundColor' + (textFormat ? ',userEnteredFormat.textFormat' : '')
+      }
+    };
+  };
   const currencyRow = (rowNum: number, color: any) => ({
     repeatCell: {
-      range: { sheetId, startRowIndex: rowNum - 1, endRowIndex: rowNum, startColumnIndex: 1, endColumnIndex: 6 },
+      range: cellRange(rowNum, 1),
       cell: { userEnteredFormat: { backgroundColor: color, numberFormat: { type: 'CURRENCY', pattern: CURRENCY_FORMAT } } },
       fields: 'userEnteredFormat.backgroundColor,userEnteredFormat.numberFormat'
     }
   });
-  // Thick double-border above/below total rows, matching standard financial-statement styling.
+  // Thin accent border above/below total rows, matching the template's understated rule line.
   const totalBorders = (rowNum: number) => ({
     updateBorders: {
-      range: { sheetId, startRowIndex: rowNum - 1, endRowIndex: rowNum, startColumnIndex: 0, endColumnIndex: 6 },
-      top: { style: 'DOUBLE', color: COLOR_NAVY },
-      bottom: { style: 'DOUBLE', color: COLOR_NAVY }
+      range: cellRange(rowNum),
+      top: { style: 'SOLID', width: 1, color: COLOR_ORANGE },
+      bottom: { style: 'SOLID', width: 1, color: COLOR_ORANGE }
     }
   });
 
   const white = COLOR_WHITE;
-  const whiteRows = [
-    ROW.cogsLabel, ROW.cogsPersonnel, ROW.cogsSoftware, ROW.cogsTokens,
-    ROW.sgaLabel, ROW.sgaPersonnel, ROW.sgaSoftware, ROW.sgaTokens,
-    ROW.otherLabel, ROW.otherExpenses, ROW.revIndependent, ROW.revRelated
+  const boldLabelRows = [ROW.cogsLabel, ROW.sgaLabel, ROW.otherLabel];
+  const italicLineRows = [
+    ROW.revIndependent, ROW.revRelated,
+    ROW.cogsPersonnel, ROW.cogsSoftware, ROW.cogsTokens,
+    ROW.sgaPersonnel, ROW.sgaSoftware, ROW.sgaTokens, ROW.otherExpenses
   ];
+  const currencyLineRows = [...boldLabelRows, ...italicLineRows];
 
   return [
-    bandRow(ROW.title, COLOR_NAVY, COLOR_WHITE),
-    bandRow(ROW.plBanner, COLOR_ORANGE, COLOR_WHITE),
-    bandRow(ROW.period, COLOR_LIGHT_GRAY),
+    // Title banner — large, bold, matching the template's oversized "Build with Gemini XPRIZE" header.
+    bandRow(ROW.title, COLOR_NAVY, { color: COLOR_WHITE, bold: true, fontSize: 22 }),
+    bandRow(ROW.plBanner, COLOR_ORANGE, { color: COLOR_WHITE, bold: true, fontSize: 13 }),
+    bandRow(ROW.period, COLOR_LIGHT_GRAY, { bold: true }),
     bandRow(ROW.accentBar, COLOR_GREEN),
-    bandRow(ROW.colHeaders, COLOR_NAVY, COLOR_WHITE),
-    bandRow(ROW.revenueHeader, COLOR_NAVY, COLOR_WHITE),
-    bandRow(ROW.expensesHeader, COLOR_NAVY, COLOR_WHITE),
-    ...whiteRows.map(r => bandRow(r, white)),
-    ...whiteRows.map(r => currencyRow(r, white)),
-    bandRow(ROW.totalRevenue, COLOR_LIGHT_GRAY, COLOR_NAVY), currencyRow(ROW.totalRevenue, COLOR_LIGHT_GRAY), totalBorders(ROW.totalRevenue),
-    bandRow(ROW.totalExpenses, COLOR_LIGHT_GRAY, COLOR_NAVY), currencyRow(ROW.totalExpenses, COLOR_LIGHT_GRAY), totalBorders(ROW.totalExpenses),
-    bandRow(ROW.profitLoss, COLOR_GREEN, COLOR_WHITE), currencyRow(ROW.profitLoss, COLOR_GREEN), totalBorders(ROW.profitLoss),
-    bandRow(ROW.footer, COLOR_NAVY, COLOR_WHITE),
+    // Column header row: "Description"/"Full 90 Days" in white, May-Aug in orange — matches the template.
+    bandRow(ROW.colHeaders, COLOR_NAVY, { color: COLOR_WHITE, bold: true }, 0, 1),
+    bandRow(ROW.colHeaders, COLOR_NAVY, { color: COLOR_ORANGE, bold: true }, 1, 5),
+    bandRow(ROW.colHeaders, COLOR_NAVY, { color: COLOR_WHITE, bold: true }, 5, 6),
+    bandRow(ROW.revenueHeader, COLOR_NAVY, { color: COLOR_WHITE, bold: true }),
+    bandRow(ROW.expensesHeader, COLOR_NAVY, { color: COLOR_WHITE, bold: true }),
+    ...boldLabelRows.map(r => bandRow(r, white, { bold: true })),
+    ...italicLineRows.map(r => bandRow(r, white, { italic: true })),
+    ...currencyLineRows.map(r => currencyRow(r, white)),
+    bandRow(ROW.totalRevenue, COLOR_LIGHT_GRAY, { color: COLOR_NAVY, bold: true }), currencyRow(ROW.totalRevenue, COLOR_LIGHT_GRAY), totalBorders(ROW.totalRevenue),
+    bandRow(ROW.totalExpenses, COLOR_LIGHT_GRAY, { color: COLOR_NAVY, bold: true }), currencyRow(ROW.totalExpenses, COLOR_LIGHT_GRAY), totalBorders(ROW.totalExpenses),
+    bandRow(ROW.profitLoss, COLOR_GREEN, { color: COLOR_WHITE, bold: true }), currencyRow(ROW.profitLoss, COLOR_GREEN), totalBorders(ROW.profitLoss),
+    bandRow(ROW.footer, COLOR_NAVY, { color: COLOR_WHITE, italic: true }),
     {
       updateDimensionProperties: {
         range: { sheetId, dimension: 'COLUMNS', startIndex: 0, endIndex: 1 },
         properties: { pixelSize: 380 },
+        fields: 'pixelSize'
+      }
+    },
+    {
+      updateDimensionProperties: {
+        range: { sheetId, dimension: 'ROWS', startIndex: ROW.title - 1, endIndex: ROW.title },
+        properties: { pixelSize: 40 },
         fields: 'pixelSize'
       }
     }
