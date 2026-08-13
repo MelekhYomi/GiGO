@@ -6,7 +6,7 @@ import webhookRouter, { executeWalletCreditTransaction } from './transaction-rou
 import { db, FieldValue } from './firebase-config';
 import { processVoiceOnboarding } from './voice-agent';
 import { handleAssetGenerationRoute } from './document-agent';
-import { executeAutonomousScraperPipeline, runGlobalJobDiscoverySweep, runAutoApplyMatchingSweep, computeMatchScore, fetchRemoteOKJobs } from './scraper-agent';
+import { executeAutonomousScraperPipeline, runGlobalJobDiscoverySweep, runAutoApplyMatchingSweep, computeMatchScore, fetchRemoteOKJobs, CandidateMatchProfile } from './scraper-agent';
 import testAudioRouter from './routes/testAudioRouter';
 import manualSearchRouter from './routes/manual-search';
 import emailRouter from './routes/application-email';
@@ -2578,6 +2578,16 @@ app.get('/api/discovered-jobs', async (req: Request, res: Response) => {
       }
     }
 
+    const candidateMatchProfile: CandidateMatchProfile = {
+      skills: candidateSkills,
+      roles: candidateRoles,
+      educationFields: (userData?.educationList || []).map((e: any) => e.fieldOfStudy).filter(Boolean),
+      pastRoleTitles: (userData?.workHistory || []).map((w: any) => w.role).filter(Boolean),
+      yearsOfExperience: userData?.yearsOfExperience,
+      careerGoalsNote: userData?.careerGoalsNote,
+      targetIndustry: userData?.targetIndustry,
+    };
+
     // Respect the candidate's work-type preference (Remote/Hybrid/Onsite) if they've set one
     if (userId && workTypePreferences.length > 0) {
       jobs = jobs.filter((job: any) => !job.workType || workTypePreferences.includes(job.workType));
@@ -2616,7 +2626,7 @@ app.get('/api/discovered-jobs', async (req: Request, res: Response) => {
     const hasCandidateProfile = !!userId && (candidateSkills.length > 0 || candidateRoles.length > 0);
     let enrichedJobs = jobs.map((job: any) => ({
       ...job,
-      matchScore: computeMatchScore(job, candidateSkills, candidateRoles)
+      matchScore: computeMatchScore(job, candidateMatchProfile)
     }));
 
     // Only jobs that actually fit this candidate's profile should ever reach their dashboard —

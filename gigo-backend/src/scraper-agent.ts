@@ -25,12 +25,40 @@ interface DiscoveredJob {
   attachmentsRequired?: string[];
 }
 
+export interface CandidateMatchProfile {
+  skills: string[];
+  roles: string[];
+  educationFields?: string[]; // fieldOfStudy from each educationList entry
+  pastRoleTitles?: string[]; // role titles from workHistory
+  yearsOfExperience?: number;
+  careerGoalsNote?: string;
+  targetIndustry?: string;
+}
+
+const SENIOR_CUES = ['senior', 'lead', 'principal', 'staff', 'head of', 'director', 'manager'];
+const JUNIOR_CUES = ['junior', 'entry', 'intern', 'graduate', 'trainee', 'associate'];
+
+function keywordOverlapScore(haystack: string, needles: string[], maxScore: number): number {
+  if (needles.length === 0) return 0;
+  const hits = needles.filter(n => n && haystack.includes(n)).length;
+  return Math.min((hits / needles.length) * maxScore, maxScore);
+}
+
 /**
  * Shared scoring function used by both the matching sweep (for autonomous apply
- * decisions) and the read-time enrichment in GET /api/discovered-jobs.
+ * decisions) and the read-time enrichment in GET /api/discovered-jobs. Weighs the
+ * candidate's full collected profile — skills, target roles, education field,
+ * actual past job titles, years of experience vs. seniority cues in the posting,
+ * and career goals/target industry — not just skills and target roles, since all
+ * of this is real data candidates provide during onboarding and it should
+ * actually inform which jobs they're shown as high matches.
  */
-export function computeMatchScore(job: { jobTitle?: string; keyRequirementsSummary?: string[] }, candidateSkills: string[], candidateRoles: string[]): number {
-  if (candidateSkills.length === 0 && candidateRoles.length === 0) {
+export function computeMatchScore(
+  job: { jobTitle?: string; keyRequirementsSummary?: string[]; jobDescription?: string },
+  candidate: CandidateMatchProfile
+): number {
+  const { skills, roles } = candidate;
+  if (skills.length === 0 && roles.length === 0) {
     const seedId = (job.jobTitle || 'default');
     let hash = 0;
     for (let i = 0; i < seedId.length; i++) {
@@ -40,38 +68,64 @@ export function computeMatchScore(job: { jobTitle?: string; keyRequirementsSumma
   }
 
   const titleLower = (job.jobTitle || '').toLowerCase();
+  const descriptionLower = (job.jobDescription || '').toLowerCase();
   const requirements = (job.keyRequirementsSummary || []).map(r => r.toLowerCase());
+  const requirementsText = requirements.join(' ');
 
+  // Target role vs. job title (0-30)
   let titleMatchScore = 0;
-  candidateRoles.forEach(role => {
-    if (titleLower.includes(role) || role.includes(titleLower)) {
-      titleMatchScore = 40;
-    }
+  roles.forEach(role => {
+    if (titleLower.includes(role) || role.includes(titleLower)) titleMatchScore = 30;
   });
   if (titleMatchScore === 0) {
-    candidateRoles.forEach(role => {
+    roles.forEach(role => {
       role.split(/\s+/).forEach(word => {
-        if (word.length > 3 && titleLower.includes(word)) {
-          titleMatchScore = Math.min(titleMatchScore + 10, 20);
-        }
+        if (word.length > 3 && titleLower.includes(word)) titleMatchScore = Math.min(titleMatchScore + 8, 15);
       });
     });
   }
 
+  // Skills vs. job requirements (0-30)
   let skillMatches = 0;
   requirements.forEach(reqSkill => {
-    candidateSkills.forEach(candSkill => {
-      if (candSkill.includes(reqSkill) || reqSkill.includes(candSkill)) {
-        skillMatches++;
-      }
+    skills.forEach(candSkill => {
+      if (candSkill.includes(reqSkill) || reqSkill.includes(candSkill)) skillMatches++;
     });
   });
   const skillsMatchScore = requirements.length > 0
-    ? Math.min((skillMatches / requirements.length) * 50, 50)
-    : 25;
+    ? Math.min((skillMatches / requirements.length) * 30, 30)
+    : 15;
+
+  // Actual past job titles vs. this posting's title (0-15) — catches real experience
+  // even when it doesn't match the candidate's stated target role wording.
+  const pastRoleTitles = (candidate.pastRoleTitles || []).map(r => r.toLowerCase()).filter(Boolean);
+  const pastRoleScore = keywordOverlapScore(titleLower, pastRoleTitles, 15);
+
+  // Education field of study vs. title/requirements/description (0-10)
+  const educationFields = (candidate.educationFields || []).map(f => f.toLowerCase()).filter(Boolean);
+  const educationScore = keywordOverlapScore(`${titleLower} ${requirementsText} ${descriptionLower}`, educationFields, 10);
+
+  // Years of experience vs. seniority cues in the job title (-8 to +8)
+  let experienceFitScore = 0;
+  const yoe = candidate.yearsOfExperience;
+  if (typeof yoe === 'number') {
+    const looksSenior = SENIOR_CUES.some(cue => titleLower.includes(cue));
+    const looksJunior = JUNIOR_CUES.some(cue => titleLower.includes(cue));
+    if (looksSenior && yoe >= 5) experienceFitScore = 8;
+    else if (looksSenior && yoe < 2) experienceFitScore = -8;
+    else if (looksJunior && yoe <= 2) experienceFitScore = 5;
+    else if (looksJunior && yoe >= 8) experienceFitScore = -5;
+  }
+
+  // Career goals / target industry vs. description (0-7)
+  const goalsTerms = `${candidate.careerGoalsNote || ''} ${candidate.targetIndustry || ''}`
+    .toLowerCase().split(/\s+/).filter(w => w.length > 4);
+  const goalsScore = keywordOverlapScore(descriptionLower, goalsTerms, 7);
 
   const baseScore = 10;
-  const score = Math.round(baseScore + titleMatchScore + skillsMatchScore);
+  const score = Math.round(
+    baseScore + titleMatchScore + skillsMatchScore + pastRoleScore + educationScore + experienceFitScore + goalsScore
+  );
   return Math.min(Math.max(score, 45), 99);
 }
 
@@ -869,12 +923,19 @@ export async function runAutoApplyMatchingSweep() {
     for (const userDoc of usersSnap.docs) {
       const userId = userDoc.id;
       const userData = userDoc.data() || {};
-      const candidateSkills = (userData.skills || []).map((s: string) => s.toLowerCase());
-      const candidateRoles = (userData.targetRoles || []).map((r: string) => r.toLowerCase());
-      if (candidateSkills.length === 0 && candidateRoles.length === 0) continue;
+      const candidateProfile: CandidateMatchProfile = {
+        skills: (userData.skills || []).map((s: string) => s.toLowerCase()),
+        roles: (userData.targetRoles || []).map((r: string) => r.toLowerCase()),
+        educationFields: (userData.educationList || []).map((e: any) => e.fieldOfStudy).filter(Boolean),
+        pastRoleTitles: (userData.workHistory || []).map((w: any) => w.role).filter(Boolean),
+        yearsOfExperience: userData.yearsOfExperience,
+        careerGoalsNote: userData.careerGoalsNote,
+        targetIndustry: userData.targetIndustry,
+      };
+      if (candidateProfile.skills.length === 0 && candidateProfile.roles.length === 0) continue;
 
       for (const job of activeJobs) {
-        const score = computeMatchScore(job, candidateSkills, candidateRoles);
+        const score = computeMatchScore(job, candidateProfile);
         if (score < 80) continue;
 
         // Only fully-automatable via email; portal/google_form/unknown jobs are alert-only.
