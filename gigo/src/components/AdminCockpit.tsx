@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import OrchestratorControlRoom from './OrchestratorControlRoom';
 import AIObservabilityDashboard from './AIObservabilityDashboard';
 import RecruiterResponseSandbox from './RecruiterResponseSandbox';
+import JobSourcesManager from './JobSourcesManager';
 
 // Simple Refresh SVG Icon
 const RefreshIcon = () => (
@@ -153,7 +154,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
   setShowOverrideModal,
 }) => {
   // Local states that were previously bloating App.tsx
-  const [adminTab, setAdminTab] = useState<'activities' | 'financials' | 'applications' | 'candidates' | 'settings' | 'orchestrator' | 'observability' | 'sandbox'>('activities');
+  const [adminTab, setAdminTab] = useState<'activities' | 'financials' | 'applications' | 'candidates' | 'settings' | 'orchestrator' | 'observability' | 'sandbox' | 'jobSources'>('activities');
   const [ledgerSearch, setLedgerSearch] = useState<string>('');
   const [ledgerCurrencyFilter, setLedgerCurrencyFilter] = useState<'ALL' | 'NGN' | 'USD'>('ALL');
   const [appSearch, setAppSearch] = useState<string>('');
@@ -435,7 +436,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
     };
   }, [isLiveFeed, adminTab, fetchAdminLogs, fetchAdminUsers, fetchGlobalTransactions, fetchGlobalApplications]);
 
-  const selectAdminTab = (tab: 'activities' | 'financials' | 'applications' | 'candidates' | 'settings' | 'orchestrator' | 'observability' | 'sandbox') => {
+  const selectAdminTab = (tab: 'activities' | 'financials' | 'applications' | 'candidates' | 'settings' | 'orchestrator' | 'observability' | 'sandbox' | 'jobSources') => {
     setAdminTab(tab);
     addLog(`🔑 Administrative Dashboard: Switched tab view to "${tab.toUpperCase()}".`);
     if (tab === 'activities') fetchAdminLogs();
@@ -555,7 +556,8 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
           { id: 'settings', label: '⚙️ System Control' },
           { id: 'orchestrator', label: '🤖 Orchestrator' },
           { id: 'observability', label: '📈 Observability' },
-          { id: 'sandbox', label: '🧪 Recruiter Sandbox' }
+          { id: 'sandbox', label: '🧪 Recruiter Sandbox' },
+          { id: 'jobSources', label: '🌐 Job Sources' }
         ] as const).map((t) => {
           const isActive = adminTab === t.id;
           return (
@@ -1926,6 +1928,10 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
 
       {adminTab === 'sandbox' && (
         <RecruiterResponseSandbox API_BASE_URL={API_BASE_URL} addLog={addLog} />
+      )}
+
+      {adminTab === 'jobSources' && (
+        <JobSourcesManager API_BASE_URL={API_BASE_URL} userEmail={userEmail || 'admin@gigo.com'} addLog={addLog} />
       )}
 
       {/* 🔐 Admin Password Reset Override Modal */}

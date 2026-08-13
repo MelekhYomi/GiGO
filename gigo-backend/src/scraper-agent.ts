@@ -7,6 +7,7 @@ import { markdownToDocxBuffer } from './utils/docxGenerator';
 import { markdownToPdfBuffer } from './utils/pdfGenerator';
 import { markdownToJpegBuffer } from './utils/imageGenerator';
 import { createNotification } from './utils/notifications';
+import { resolvePath } from './utils/jsonPath';
 
 
 interface DiscoveredJob {
@@ -429,6 +430,115 @@ export async function fetchArbeitnowJobs(): Promise<number> {
       console.error('Failed to write Arbeitnow feed error log:', logErr);
     }
     return 0;
+  }
+}
+
+/**
+ * Generic, admin-configurable job source fetcher — lets the admin team register
+ * additional real, no-AI job board APIs from the Admin Cockpit without a code
+ * deploy, by mapping the target API's JSON field paths (e.g. "company.name",
+ * "results", "locations.0.name") onto GiGO's discovered_jobs schema.
+ */
+export async function fetchGenericJobSource(config: any): Promise<number> {
+  let storedCount = 0;
+  let fetchedCount = 0;
+  try {
+    const response = await axios.get(config.apiUrl, {
+      headers: { 'User-Agent': 'GiGO-CareerPlatform/1.0 (+https://gigo-omega.vercel.app)' },
+      timeout: 15000
+    });
+    const results = resolvePath(response.data, config.resultsPath || '');
+    const items: any[] = Array.isArray(results) ? results : [];
+    fetchedCount = items.length;
+
+    for (const item of items) {
+      const companyName = resolvePath(item, config.fieldMap?.company);
+      const jobTitle = resolvePath(item, config.fieldMap?.title);
+      if (!companyName || !jobTitle) continue;
+
+      const location = config.fieldMap?.location ? resolvePath(item, config.fieldMap.location) : null;
+      const applicationLink = config.fieldMap?.url ? resolvePath(item, config.fieldMap.url) : '';
+      const descriptionRaw = config.fieldMap?.description ? resolvePath(item, config.fieldMap.description) : '';
+
+      let workType: 'Remote' | 'Onsite' = 'Onsite';
+      if (config.fieldMap?.remoteFlag) {
+        workType = resolvePath(item, config.fieldMap.remoteFlag) ? 'Remote' : 'Onsite';
+      } else if (config.fieldMap?.remoteKeywordCheck && location) {
+        workType = /remote|flexible/i.test(String(location)) ? 'Remote' : 'Onsite';
+      }
+
+      const dedupKey = `${companyName}::${jobTitle}`.toString().toLowerCase().replace(/[^a-z0-9:]/g, '_');
+      const docId = `discovered_${config.id}_${dedupKey.substring(0, 100)}`;
+      const docRef = db.collection('discovered_jobs').doc(docId);
+      const existingDoc = await docRef.get();
+
+      let scrapedAt = new Date().toISOString();
+      if (existingDoc.exists) {
+        const existingData = existingDoc.data();
+        if (existingData?.scrapedAt) scrapedAt = existingData.scrapedAt;
+      }
+
+      const plainDescription = String(descriptionRaw || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 600);
+      const postedAt = config.fieldMap?.postedAt ? resolvePath(item, config.fieldMap.postedAt) : null;
+
+      await docRef.set({
+        id: docId,
+        userId: null,
+        companyName: String(companyName),
+        jobTitle: String(jobTitle),
+        workType,
+        location: location ? String(location) : null,
+        applicationLinkOrEmail: applicationLink || '',
+        sourcePlatform: config.name,
+        keyRequirementsSummary: [],
+        scrapedAt,
+        postedAt: postedAt || new Date().toISOString(),
+        applicationDeadline: null,
+        jobDescription: plainDescription,
+        applicationEmail: null,
+        applicationPhone: null,
+        applicationLink: applicationLink || null,
+        applicationMethod: 'portal',
+        emailSubject: null,
+        emailBodyRequirements: null,
+        attachmentsRequired: [],
+      }, { merge: true });
+      storedCount++;
+    }
+
+    await db.collection('agent_execution_logs').add({
+      timestamp: new Date().toISOString(),
+      agentName: `AdminConfiguredSource:${config.name}`,
+      status: 'COMPLETED',
+      metrics: { fetchedCount, storedCount }
+    });
+
+    console.log(`Admin-configured source "${config.name}": stored ${storedCount} real listings.`);
+    return storedCount;
+  } catch (error: any) {
+    console.error(`Admin-configured source "${config.name}" failed:`, error.message);
+    try {
+      await db.collection('agent_execution_logs').add({
+        timestamp: new Date().toISOString(),
+        agentName: `AdminConfiguredSource:${config.name}`,
+        status: 'FAILED',
+        metrics: { error: error.message }
+      });
+    } catch (logErr) {
+      console.error('Failed to write admin-configured source error log:', logErr);
+    }
+    return 0;
+  }
+}
+
+export async function runAllAdminConfiguredSources(): Promise<void> {
+  try {
+    const snapshot = await db.collection('job_sources').where('enabled', '==', true).get();
+    for (const doc of snapshot.docs) {
+      await fetchGenericJobSource({ id: doc.id, ...doc.data() });
+    }
+  } catch (err) {
+    console.error('Failed to run admin-configured job sources:', err);
   }
 }
 

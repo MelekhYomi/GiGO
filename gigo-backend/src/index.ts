@@ -6,7 +6,7 @@ import webhookRouter, { executeWalletCreditTransaction } from './transaction-rou
 import { db, FieldValue } from './firebase-config';
 import { processVoiceOnboarding } from './voice-agent';
 import { handleAssetGenerationRoute } from './document-agent';
-import { executeAutonomousScraperPipeline, runGlobalJobDiscoverySweep, runAutoApplyMatchingSweep, computeMatchScore, fetchRemoteOKJobs, fetchTheMuseJobs, fetchArbeitnowJobs, CandidateMatchProfile } from './scraper-agent';
+import { executeAutonomousScraperPipeline, runGlobalJobDiscoverySweep, runAutoApplyMatchingSweep, computeMatchScore, fetchRemoteOKJobs, fetchTheMuseJobs, fetchArbeitnowJobs, runAllAdminConfiguredSources, CandidateMatchProfile } from './scraper-agent';
 import testAudioRouter from './routes/testAudioRouter';
 import manualSearchRouter from './routes/manual-search';
 import emailRouter from './routes/application-email';
@@ -17,6 +17,7 @@ import aiChatRouter from './routes/ai-chat';
 import ssoAuthRouter from './routes/sso-auth';
 import financialsRouter from './routes/financials';
 import documentsRouter from './routes/documents';
+import jobSourcesRouter from './routes/job-sources';
 import axios from 'axios';
 import { Type } from '@google/genai';
 import { getGeminiClient } from './utils/gemini';
@@ -3055,6 +3056,7 @@ app.use('/api', aiChatRouter);
 app.use('/api', ssoAuthRouter);
 app.use('/api', financialsRouter);
 app.use('/api', documentsRouter);
+app.use('/api', jobSourcesRouter);
 app.use('/api/test', testAudioRouter);
 
 const PORT = process.env.PORT || 8080;
@@ -3101,6 +3103,13 @@ async function scheduledScraperTick() {
     await fetchArbeitnowJobs();
   } catch (err) {
     console.error("[SCHEDULER] Arbeitnow feed failed:", err);
+  }
+
+  try {
+    console.log(`[SCHEDULER] Running admin-configured job sources...`);
+    await runAllAdminConfiguredSources();
+  } catch (err) {
+    console.error("[SCHEDULER] Admin-configured job sources failed:", err);
   }
 
   try {
