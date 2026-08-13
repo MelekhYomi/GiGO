@@ -122,41 +122,32 @@ router.delete('/admin/expenses/:id', async (req: Request, res: Response) => {
 // credited only once Paystack confirms payment); expenses come from real logged spend.
 // Nothing here is simulated or formula-projected.
 async function computePLStatement() {
-  // 1. Real revenue: every WALLET_TOPUP CREDIT ledger entry across all users, resolved
-  // via a collection-group query (single range filter on timestamp — no composite index
-  // needed; purpose/type are filtered in application code).
+  // 1. Real revenue: every WALLET_TOPUP CREDIT ledger entry across all users. Queries
+  // each user's own ledger subcollection directly (no filters — read once, filter in
+  // application code) rather than a collectionGroup query, since collection-group
+  // queries require a manually-provisioned index that isn't guaranteed to exist yet.
   const revIndependent = emptyMonthRow();
   const revRelated = emptyMonthRow();
 
-  const ledgerSnapshot = await db.collectionGroup('ledger')
-    .where('timestamp', '>=', '2026-05-19T00:00:00.000Z')
-    .where('timestamp', '<=', '2026-08-17T23:59:59.999Z')
-    .get();
+  const usersSnapshot = await db.collection('users').get();
 
-  const relatedPartyCache = new Map<string, boolean>();
+  for (const userDoc of usersSnapshot.docs) {
+    const isRelatedParty = !!userDoc.data()?.isRelatedParty;
+    const ledgerSnapshot = await userDoc.ref.collection('ledger').get();
 
-  for (const doc of ledgerSnapshot.docs) {
-    const entry = doc.data();
-    if (entry.type !== 'CREDIT' || entry.purpose !== 'WALLET_TOPUP') continue;
+    for (const doc of ledgerSnapshot.docs) {
+      const entry = doc.data();
+      if (entry.type !== 'CREDIT' || entry.purpose !== 'WALLET_TOPUP') continue;
 
-    const month = monthKeyFromISO(entry.timestamp);
-    if (!month) continue;
+      const month = monthKeyFromISO(entry.timestamp);
+      if (!month) continue;
 
-    const currency = entry.currency || 'NGN';
-    const amountUSD = currency === 'USD' ? Number(entry.amount) : Number(entry.amount) / FX_RATE_NGN_PER_USD;
-    if (!amountUSD || isNaN(amountUSD)) continue;
+      const currency = entry.currency || 'NGN';
+      const amountUSD = currency === 'USD' ? Number(entry.amount) : Number(entry.amount) / FX_RATE_NGN_PER_USD;
+      if (!amountUSD || isNaN(amountUSD)) continue;
 
-    const userId = doc.ref.parent.parent?.id;
-    if (!userId) continue;
-
-    let isRelatedParty = relatedPartyCache.get(userId);
-    if (isRelatedParty === undefined) {
-      const userDoc = await db.collection('users').doc(userId).get();
-      isRelatedParty = !!userDoc.data()?.isRelatedParty;
-      relatedPartyCache.set(userId, isRelatedParty);
+      addToMonth(isRelatedParty ? revRelated : revIndependent, month, amountUSD);
     }
-
-    addToMonth(isRelatedParty ? revRelated : revIndependent, month, amountUSD);
   }
 
   const revTotal = emptyMonthRow();
