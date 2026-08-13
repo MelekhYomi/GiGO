@@ -3,6 +3,8 @@ import nodemailer from 'nodemailer';
 import { db, FieldValue } from '../firebase-config';
 import { mapErrorResponse } from '../utils/errorMapper';
 import { sendViaGigoSystemMail } from '../utils/mailer';
+import { markdownToDocxBuffer } from '../utils/docxGenerator';
+import { markdownToPdfBuffer } from '../utils/pdfGenerator';
 import axios from 'axios';
 
 const router = express.Router();
@@ -122,14 +124,21 @@ Sent Securely via GiGO Career Platform.
 Redundant Power & Fiber Enabled Remote Candidate.
 ---`;
 
-    // Construct text-based attachment bundles
-    const attachmentsPayload = documentsContent.map(doc => {
-      const divider = "=".repeat(40);
-      return {
-        filename: `${doc.type}_${doc.title.replace(/\s+/g, '_')}.txt`,
-        content: `${divider}\nGI-GO PLATFORM: ATTACHED ${doc.type}\nTITLE: ${doc.title}\n${divider}\n\n${doc.content}`
-      };
-    });
+    // Real .docx AND .pdf attachments (never raw .txt, which reads as unprofessional
+    // to a human recruiter). DOCX parses more reliably through ATS software (4%
+    // failure vs 18% for PDF), but PDF remains the more commonly expected submission
+    // format — sending both lets whichever format the employer's process favors win.
+    const attachmentsPayload = (await Promise.all(documentsContent.map(async doc => {
+      const baseName = `${doc.type}_${doc.title.replace(/\s+/g, '_')}`;
+      const [docxBuffer, pdfBuffer] = await Promise.all([
+        markdownToDocxBuffer(doc.content, `${doc.type} - ${doc.title}`),
+        markdownToPdfBuffer(doc.content, `${doc.type} - ${doc.title}`)
+      ]);
+      return [
+        { filename: `${baseName}.docx`, content: docxBuffer, contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
+        { filename: `${baseName}.pdf`, content: pdfBuffer, contentType: 'application/pdf' }
+      ];
+    }))).flat();
 
     console.log(`Initializing Email Dispatcher for: ${recipientEmail} with ${attachmentsPayload.length} attachments...`);
 

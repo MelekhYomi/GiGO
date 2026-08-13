@@ -2586,6 +2586,7 @@ app.get('/api/discovered-jobs', async (req: Request, res: Response) => {
       yearsOfExperience: userData?.yearsOfExperience,
       careerGoalsNote: userData?.careerGoalsNote,
       targetIndustry: userData?.targetIndustry,
+      calibrationAxes: userData?.calibrationAxes,
     };
 
     // Respect the candidate's work-type preference (Remote/Hybrid/Onsite) if they've set one
@@ -2676,6 +2677,29 @@ app.delete('/api/discovered-jobs/:id', async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Failed to dismiss job:", error);
     res.status(500).json({ error: "Failed to dismiss job.", details: error.message });
+  }
+});
+
+// Real per-candidate alerts from the missing-info, stale-profile, great-match, and
+// attachment-gap agents — not a simulated activity feed.
+app.get('/api/users/:userId/notifications', async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  try {
+    const snapshot = await db.collection('users').doc(userId).collection('notifications')
+      .orderBy('createdAt', 'desc').limit(30).get();
+    res.status(200).json(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+  } catch (error: any) {
+    res.status(500).json({ error: "Failed to fetch notifications.", details: error.message });
+  }
+});
+
+app.post('/api/users/:userId/notifications/:notificationId/mark-read', async (req: Request, res: Response) => {
+  const { userId, notificationId } = req.params;
+  try {
+    await db.collection('users').doc(userId).collection('notifications').doc(notificationId).update({ read: true });
+    res.status(200).json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ error: "Failed to mark notification as read.", details: error.message });
   }
 });
 

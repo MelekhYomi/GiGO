@@ -3,6 +3,9 @@ import { db } from './firebase-config';
 import { getGeminiClient } from './utils/gemini';
 import nodemailer from 'nodemailer';
 import axios from 'axios';
+import { markdownToDocxBuffer } from './utils/docxGenerator';
+import { markdownToPdfBuffer } from './utils/pdfGenerator';
+import { createNotification } from './utils/notifications';
 
 
 interface DiscoveredJob {
@@ -33,6 +36,10 @@ export interface CandidateMatchProfile {
   yearsOfExperience?: number;
   careerGoalsNote?: string;
   targetIndustry?: string;
+  // GiGO Brain "mind clone" calibration axes (0-100 each), from voice onboarding.
+  // General workplace-readiness signal, not job-specific — used as a small modifier
+  // on top of the real skills/experience match, not a primary matching signal.
+  calibrationAxes?: { cognitive?: number; credential?: number; behavioral?: number; operational?: number };
 }
 
 const SENIOR_CUES = ['senior', 'lead', 'principal', 'staff', 'head of', 'director', 'manager'];
@@ -122,9 +129,20 @@ export function computeMatchScore(
     .toLowerCase().split(/\s+/).filter(w => w.length > 4);
   const goalsScore = keywordOverlapScore(descriptionLower, goalsTerms, 7);
 
+  // GiGO Brain readiness modifier (-5 to +5) — behavioral+operational axes reflect
+  // workplace readiness (communication, reliability under real conditions), which is
+  // relevant to every job regardless of title, unlike cognitive/credential which are
+  // general aptitude/verification scores, not role-fit signals.
+  let readinessModifier = 0;
+  const axes = candidate.calibrationAxes;
+  if (axes && (typeof axes.behavioral === 'number' || typeof axes.operational === 'number')) {
+    const readiness = ((axes.behavioral ?? 60) + (axes.operational ?? 60)) / 2;
+    readinessModifier = Math.round(((readiness - 60) / 40) * 5); // 60 = neutral baseline, 100 = +5, 20 = -5
+  }
+
   const baseScore = 10;
   const score = Math.round(
-    baseScore + titleMatchScore + skillsMatchScore + pastRoleScore + educationScore + experienceFitScore + goalsScore
+    baseScore + titleMatchScore + skillsMatchScore + pastRoleScore + educationScore + experienceFitScore + goalsScore + readinessModifier
   );
   return Math.min(Math.max(score, 45), 99);
 }
@@ -251,6 +269,39 @@ async function triggerAutonomousApplyAndAlert(
       return;
     }
 
+    // Attachment-gap agent: if this posting requires documents GiGO can't generate
+    // (transcripts, reference letters, government ID, etc.), sending an incomplete
+    // application would look worse than not applying — alert the candidate instead.
+    const requiredDocs: string[] = Array.isArray(job.attachmentsRequired) ? job.attachmentsRequired : [];
+    const unsupportedDocs = requiredDocs.filter((d: string) => !['CV', 'Cover Letter', 'Portfolio'].includes(d));
+    if (unsupportedDocs.length > 0) {
+      await createNotification(
+        userId, 'ATTACHMENT_GAP',
+        `"${job.jobTitle}" at ${job.companyName} requires ${unsupportedDocs.join(', ')}, which GiGO can't generate automatically — apply manually with those attached.`,
+        job.id
+      );
+      console.log(`[AUTOPILOT APPLY] Skipping ${job.jobTitle} for ${userId} — requires unsupported document(s): ${unsupportedDocs.join(', ')}`);
+      return;
+    }
+
+    // Missing-info agent: an application built from an empty profile does more harm
+    // than good to the candidate's standing with the employer — skip and ask them
+    // to fill in real data rather than send a hollow CV.
+    const hasWorkHistory = Array.isArray(userData.workHistory) && userData.workHistory.length > 0;
+    const hasEducation = Array.isArray(userData.educationList) && userData.educationList.length > 0;
+    const hasSkills = Array.isArray(userData.skills) && userData.skills.length > 0;
+    if (!hasSkills && !hasWorkHistory && !hasEducation) {
+      await createNotification(
+        userId, 'MISSING_INFO',
+        `Your profile doesn't have skills, work history, or education on file yet — add these so GiGO can build a strong application for "${job.jobTitle}" instead of an empty one.`,
+        job.id
+      );
+      console.log(`[AUTOPILOT APPLY] Skipping ${job.jobTitle} for ${userId} — profile has no skills, work history, or education on file.`);
+      return;
+    }
+
+    const needsPortfolio = requiredDocs.includes('Portfolio');
+
     const { ai, modelPro } = getGeminiClient(userApiKey || userData.geminiApiKey);
 
     // 1. Compile bespoke COVER LETTER using Gemini
@@ -319,9 +370,36 @@ async function triggerAutonomousApplyAndAlert(
 
     const cvContent = cvResponse.text ? cvResponse.text.trim() : `# CV\n\nTailored Resume for ${userData.fullName || 'Candidate'}`;
 
-    // 3. Save Cover Letter & CV documents under /users/{userId}/documents
+    // 2b. This posting explicitly asked for a Portfolio — generate one rather than
+    // sending an incomplete bundle.
+    let portfolioContent: string | null = null;
+    if (needsPortfolio) {
+      console.log(`[AUTOPILOT APPLY] Job requires a Portfolio — compiling one tailored for ${job.jobTitle}...`);
+      const portfolioPrompt = `You are the lead ATS compliance and career alignment officer for GiGO.
+      Compile a high-impact, custom Career Portfolio document in Markdown for ${userData.fullName || 'the candidate'} targeting the ${job.jobTitle} position at ${job.companyName}.
+
+      Candidate Context:
+      - Name: ${userData.fullName || 'Candidate'}
+      - Target Role: ${candidateRoleName}
+      - Profile Summary: ${candidateSummary}
+      - Skills: ${candidateSkills}
+      - Years of Experience: ${yearsExp}
+
+      Target Job:
+      - Title: ${job.jobTitle}
+      - Company: ${job.companyName}
+      - Key Requirements: ${job.keyRequirementsSummary?.join(', ') || ''}
+
+      Structure the Markdown with: Portfolio Introduction, a Deep-Dive Case Study relevant to ${job.companyName}'s needs, and a Target Project Architecture section. Ground every claim in the candidate context above — never invent employers or projects not implied by their real skills/summary.`;
+
+      const portfolioResponse = await ai.models.generateContent({ model: modelPro, contents: portfolioPrompt });
+      portfolioContent = portfolioResponse.text ? portfolioResponse.text.trim() : null;
+    }
+
+    // 3. Save Cover Letter & CV (& Portfolio, if generated) documents under /users/{userId}/documents
     const cvDocId = `doc_auto_cv_${Date.now()}`;
     const clDocId = `doc_auto_cl_${Date.now()}`;
+    const portfolioDocId = `doc_auto_pf_${Date.now()}`;
 
     await userRef.collection('documents').doc(cvDocId).set({
       id: cvDocId,
@@ -341,7 +419,18 @@ async function triggerAutonomousApplyAndAlert(
       generatedAt: new Date().toISOString()
     });
 
-    console.log(`[AUTOPILOT APPLY] Saved generated CV (${cvDocId}) & Cover Letter (${clDocId}) to candidate records.`);
+    if (portfolioContent) {
+      await userRef.collection('documents').doc(portfolioDocId).set({
+        id: portfolioDocId,
+        type: 'PORTFOLIO',
+        jobTitle: job.jobTitle,
+        companyName: job.companyName,
+        content: portfolioContent,
+        generatedAt: new Date().toISOString()
+      });
+    }
+
+    console.log(`[AUTOPILOT APPLY] Saved generated CV (${cvDocId}), Cover Letter (${clDocId})${portfolioContent ? `, Portfolio (${portfolioDocId})` : ''} to candidate records.`);
 
     // 4. Secure SMTP / Gmail API Outreach Dispatch
     const recipientEmail = job.applicationEmail || job.applicationLinkOrEmail || `careers@${job.companyName.toLowerCase().replace(/[^a-z0-9]/g, '')}.com`;
@@ -359,15 +448,24 @@ async function triggerAutonomousApplyAndAlert(
 
     const emailBody = `${coverLetterContent}\n\n---\nSent Securely via GiGO Career Autopilot.\nRedundant Solar Power & High-Speed Fiber Redundant Professional Candidate.`;
 
+    const candidateFileName = userData.fullName?.replace(/\s+/g, '_') || 'Candidate';
+    const buildDocAttachments = async (content: string, baseName: string, title: string) => {
+      const [docxBuffer, pdfBuffer] = await Promise.all([
+        markdownToDocxBuffer(content, title),
+        markdownToPdfBuffer(content, title)
+      ]);
+      return [
+        { filename: `${baseName}.docx`, content: docxBuffer, contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
+        { filename: `${baseName}.pdf`, content: pdfBuffer, contentType: 'application/pdf' }
+      ];
+    };
+
+    // Both .docx and .pdf per document — DOCX parses more reliably through ATS
+    // software, but PDF remains the more commonly expected human-reviewed format.
     const attachmentsPayload = [
-      {
-        filename: `CV_${userData.fullName?.replace(/\s+/g, '_') || 'Candidate'}.txt`,
-        content: `========================================\nATTACHED CV: TAILORED ATS COMPLIANT RESUME\nFOR: ${userData.fullName || 'Candidate'}\n========================================\n\n${cvContent}`
-      },
-      {
-        filename: `Cover_Letter_${userData.fullName?.replace(/\s+/g, '_') || 'Candidate'}.txt`,
-        content: coverLetterContent
-      }
+      ...(await buildDocAttachments(cvContent, `CV_${candidateFileName}`, `CV - ${userData.fullName || 'Candidate'}`)),
+      ...(await buildDocAttachments(coverLetterContent, `Cover_Letter_${candidateFileName}`, `Cover Letter - ${userData.fullName || 'Candidate'}`)),
+      ...(portfolioContent ? await buildDocAttachments(portfolioContent, `Portfolio_${candidateFileName}`, `Portfolio - ${userData.fullName || 'Candidate'}`) : [])
     ];
 
     if (mailBackend === 'gmail' && smtpHost && smtpUser && smtpPass) {
@@ -917,8 +1015,12 @@ export async function runAutoApplyMatchingSweep() {
       return;
     }
 
-    const usersSnap = await db.collection('users').where('applyMode', '==', 'autonomous').get();
-    console.log(`[MATCHING SWEEP] Evaluating ${activeJobs.length} active jobs against ${usersSnap.size} autonomous-mode candidates.`);
+    // Every candidate is evaluated for matching/alerting (great-match and stale-profile
+    // nudges matter most for manual-mode users, since nothing auto-applies for them);
+    // triggerAutonomousApplyAndAlert has its own applyMode==='manual' gate for the
+    // actual email auto-apply step.
+    const usersSnap = await db.collection('users').where('role', '!=', 'admin').get();
+    console.log(`[MATCHING SWEEP] Evaluating ${activeJobs.length} active jobs against ${usersSnap.size} candidates.`);
 
     for (const userDoc of usersSnap.docs) {
       const userId = userDoc.id;
@@ -931,11 +1033,45 @@ export async function runAutoApplyMatchingSweep() {
         yearsOfExperience: userData.yearsOfExperience,
         careerGoalsNote: userData.careerGoalsNote,
         targetIndustry: userData.targetIndustry,
+        calibrationAxes: userData.calibrationAxes,
       };
       if (candidateProfile.skills.length === 0 && candidateProfile.roles.length === 0) continue;
 
+      // Stale-profile agent: nudge once per week at most, not every sweep.
+      try {
+        const lastUpdated = userData.updatedAt ? new Date(userData.updatedAt).getTime() : 0;
+        const daysSinceUpdate = (Date.now() - lastUpdated) / (24 * 60 * 60 * 1000);
+        if (!lastUpdated || daysSinceUpdate > 30) {
+          const recentStale = await db.collection('users').doc(userId).collection('notifications')
+            .where('type', '==', 'STALE_PROFILE').orderBy('createdAt', 'desc').limit(1).get();
+          const lastNudge = recentStale.empty ? 0 : new Date(recentStale.docs[0].data().createdAt).getTime();
+          if (Date.now() - lastNudge > 7 * 24 * 60 * 60 * 1000) {
+            await createNotification(userId, 'STALE_PROFILE', `Your profile hasn't been updated in over 30 days — refresh your skills, experience, or career goals so job matching stays accurate.`);
+          }
+        }
+      } catch (e) {
+        console.warn(`[MATCHING SWEEP] Stale-profile check failed for ${userId}:`, e);
+      }
+
       for (const job of activeJobs) {
         const score = computeMatchScore(job, candidateProfile);
+        if (score < 70) continue;
+
+        // Great-match agent: alert on any high-scoring job regardless of application
+        // method, not just the email-automatable subset — most discovered jobs are
+        // portal-based and previously produced zero alert even at a 99% match.
+        if (score >= 85) {
+          try {
+            const existingAlert = await db.collection('users').doc(userId).collection('notifications')
+              .where('jobId', '==', job.id).where('type', '==', 'GREAT_MATCH').limit(1).get();
+            if (existingAlert.empty) {
+              await createNotification(userId, 'GREAT_MATCH', `${score}% match: "${job.jobTitle}" at ${job.companyName} — one of your strongest matches yet.`, job.id);
+            }
+          } catch (e) {
+            console.warn(`[MATCHING SWEEP] Great-match alert failed for ${userId}/${job.id}:`, e);
+          }
+        }
+
         if (score < 80) continue;
 
         // Only fully-automatable via email; portal/google_form/unknown jobs are alert-only.

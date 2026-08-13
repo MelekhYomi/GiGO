@@ -2484,6 +2484,42 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
     return () => clearInterval(mailIntervalId);
   }, [hasVoiceOnboarded, userId]);
 
+  // 4. Real agent notifications — missing-info, stale-profile, great-match, and
+  // attachment-gap agents write these server-side; surface new ones the same way
+  // new mail replies surface, via the existing Recent AI Activity feed.
+  const seenNotificationIdsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!hasVoiceOnboarded || !userId) return;
+
+    const NOTIFICATION_ICONS: Record<string, string> = {
+      GREAT_MATCH: '🎯', MISSING_INFO: '📋', STALE_PROFILE: '🔄', ATTACHMENT_GAP: '📎'
+    };
+
+    const pollNotifications = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/users/${userId}/notifications`);
+        if (!response.ok) return;
+        const data: any[] = await response.json();
+
+        const isFirstPoll = seenNotificationIdsRef.current.size === 0;
+        data.forEach(n => {
+          if (!seenNotificationIdsRef.current.has(n.id)) {
+            seenNotificationIdsRef.current.add(n.id);
+            if (!isFirstPoll) {
+              addLog(`${NOTIFICATION_ICONS[n.type] || '🔔'} ${n.message}`);
+            }
+          }
+        });
+      } catch (err) {
+        console.error("Notification poll failed:", err);
+      }
+    };
+
+    pollNotifications();
+    const notifIntervalId = setInterval(pollNotifications, 30000);
+    return () => clearInterval(notifIntervalId);
+  }, [hasVoiceOnboarded, userId]);
+
   const fetchSystemConfig = async () => {
     try {
       const isAdmin = userEmail === 'admin@gigo.com' || userRole === 'admin';
