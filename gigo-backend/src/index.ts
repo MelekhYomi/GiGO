@@ -15,6 +15,7 @@ import mailroomRouter from './routes/mailroom';
 import interviewRouter from './routes/interview';
 import aiChatRouter from './routes/ai-chat';
 import ssoAuthRouter from './routes/sso-auth';
+import financialsRouter from './routes/financials';
 import axios from 'axios';
 import { Type } from '@google/genai';
 import { getGeminiClient } from './utils/gemini';
@@ -2620,8 +2621,10 @@ app.get('/api/discovered-jobs', async (req: Request, res: Response) => {
 
     // Only jobs that actually fit this candidate's profile should ever reach their dashboard —
     // low-scoring jobs are excluded server-side rather than shipped and dismissed client-side.
-    // Skipped for candidates with no skills/roles set yet (they'd otherwise see nothing at all).
-    if (hasCandidateProfile) {
+    // Skipped for candidates with no skills/roles set yet (they'd otherwise see nothing at all),
+    // and skipped when the candidate explicitly asks to browse beyond their matches.
+    const showAllJobs = req.query.showAll === 'true';
+    if (hasCandidateProfile && !showAllJobs) {
       let minMatchScoreThreshold = 55;
       try {
         const configDoc = await db.collection('system_configs').doc('global').get();
@@ -3015,6 +3018,7 @@ app.use('/api', mailroomRouter);
 app.use('/api', interviewRouter);
 app.use('/api', aiChatRouter);
 app.use('/api', ssoAuthRouter);
+app.use('/api', financialsRouter);
 app.use('/api/test', testAudioRouter);
 
 const PORT = process.env.PORT || 8080;

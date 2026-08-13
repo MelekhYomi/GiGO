@@ -91,10 +91,12 @@ export async function fetchRemoteOKJobs(): Promise<number> {
       timeout: 15000
     });
 
-    const rawJobs: any[] = Array.isArray(response.data) ? response.data.slice(1) : []; // index 0 is a legal notice, not a job
-    const recentJobs = rawJobs.slice(0, 20);
+    // index 0 is a legal notice, not a job. No count cap — RemoteOK's feed only
+    // lists currently-open postings (closed roles are removed from the feed by
+    // RemoteOK itself), so every entry here is a real, currently-active listing.
+    const rawJobs: any[] = Array.isArray(response.data) ? response.data.slice(1) : [];
 
-    for (const job of recentJobs) {
+    for (const job of rawJobs) {
       if (!job.company || !job.position) continue;
 
       const dedupKey = `${job.company}::${job.position}`.toLowerCase().replace(/[^a-z0-9:]/g, '_');
@@ -144,7 +146,7 @@ export async function fetchRemoteOKJobs(): Promise<number> {
       timestamp: new Date().toISOString(),
       agentName: 'RemoteOKDirectFeed',
       status: 'COMPLETED',
-      metrics: { fetchedCount: recentJobs.length, storedCount }
+      metrics: { fetchedCount: rawJobs.length, storedCount }
     });
 
     console.log(`RemoteOK direct feed: stored ${storedCount} real listings.`);
@@ -667,7 +669,11 @@ export async function executeAutonomousScraperPipeline(userId?: string) {
 
     CRITICAL (DUPLICATE AVOIDANCE): To avoid spamming or showing duplicate job opportunities to this candidate, you MUST NOT generate or extract any vacancy that matches these already discovered jobs: [${duplicateAvoidanceString || 'None'}]. Make sure your extracted jobs are completely distinct from this list!
 
-    From the real, grounded search results, extract exactly 4 real active jobs. For each job, populate these fields accurately based on real grounded information:
+    From the real, grounded search results, extract every genuinely real, currently
+    active job listing you can find that is still open and accepting applications
+    (do not limit yourself to a small fixed count) — skip only listings that are
+    expired, filled, or no longer accepting applicants. For each job, populate
+    these fields accurately based on real grounded information:
     1. companyName: The actual hiring company name.
     2. jobTitle: A clean job title matching candidate's target roles and level.
     3. workType: One of the allowed work types [${userPreferredWorkTypes.join(', ')}] matching candidate requirements. Choose Remote, Hybrid, or Onsite.

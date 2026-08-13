@@ -618,6 +618,9 @@ export default function App() {
   const [lastFetchedJobId, setLastFetchedJobId] = useState<string | null>(null);
   const [isFetchingMoreJobs, setIsFetchingMoreJobs] = useState<boolean>(false);
   const [hasMoreJobsToFetch, setHasMoreJobsToFetch] = useState<boolean>(true);
+  // When true, bypasses the server-side match-score filter so the candidate
+  // can browse every active listing, not just ones matching their profile.
+  const [showAllJobsMode, setShowAllJobsMode] = useState<boolean>(false);
   // Flag to toggle remaining jobs widescreen overlay
   const [showRemainingJobsModal, setShowRemainingJobsModal] = useState<boolean>(false);
   const [vaultLayout, setVaultLayout] = useState<'card' | 'list' | 'compact'>('card');
@@ -1593,6 +1596,13 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
     }
   }, [userId, userEmail, userRole]);
 
+  // Re-fetch when the candidate toggles between "matches only" and "browse all" jobs
+  useEffect(() => {
+    if (userId) {
+      fetchDiscoveredJobs();
+    }
+  }, [showAllJobsMode]);
+
   // Synchronize Settings Form state values with latest profile attributes on profile load or settings modal toggle
   useEffect(() => {
     if (profile) {
@@ -2212,6 +2222,9 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
     try {
       const limitVal = 20;
       let url = `${API_BASE_URL}/api/discovered-jobs?userId=${currentUserId}&limit=${limitVal}`;
+      if (showAllJobsMode) {
+        url += `&showAll=true`;
+      }
       if (isLoadMore && lastFetchedJobId) {
         url += `&startAfterId=${lastFetchedJobId}`;
       }
@@ -10304,6 +10317,50 @@ ${profile.name || '[   ]'}`;
 
               {/* View Switches & Close Row */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                {/* Matches Only vs Browse All toggle */}
+                <div style={{
+                  display: 'flex',
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  border: '1px solid var(--border-glass)',
+                  borderRadius: '8px',
+                  padding: '2px',
+                  alignItems: 'center'
+                }}>
+                  <button
+                    style={{
+                      padding: '0.35rem 0.65rem',
+                      borderRadius: '6px',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      border: 'none',
+                      background: !showAllJobsMode ? 'var(--primary)' : 'transparent',
+                      color: !showAllJobsMode ? 'var(--text-primary)' : 'var(--text-secondary)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onClick={() => setShowAllJobsMode(false)}
+                    title="Only show jobs matching your profile"
+                  >
+                    🎯 My Matches
+                  </button>
+                  <button
+                    style={{
+                      padding: '0.35rem 0.65rem',
+                      borderRadius: '6px',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      border: 'none',
+                      background: showAllJobsMode ? 'var(--primary)' : 'transparent',
+                      color: showAllJobsMode ? 'var(--text-primary)' : 'var(--text-secondary)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onClick={() => setShowAllJobsMode(true)}
+                    title="Browse every active listing, not just your matches"
+                  >
+                    🌐 Browse All
+                  </button>
+                </div>
                 <div style={{
                   display: 'flex',
                   background: 'rgba(255, 255, 255, 0.03)',

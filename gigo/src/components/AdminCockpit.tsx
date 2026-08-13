@@ -238,6 +238,116 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
   const [gatewayFeeRate, setGatewayFeeRate] = useState<number>(1.5); // percentage clearance fee
   const [llmUnitCostUSD, setLlmUnitCostUSD] = useState<number>(0.015); // cost per agent token execution
 
+  // Real P&L statement (backed by actual Paystack-confirmed revenue + logged
+  // company expenses — no simulated/projected figures).
+  const [plStatement, setPlStatement] = useState<any>(null);
+  const [isLoadingPL, setIsLoadingPL] = useState<boolean>(false);
+  const [companyExpenses, setCompanyExpenses] = useState<any[]>([]);
+  const [newExpenseDate, setNewExpenseDate] = useState<string>('');
+  const [newExpenseCategory, setNewExpenseCategory] = useState<'COGS' | 'SG&A' | 'Other'>('COGS');
+  const [newExpenseSubcategory, setNewExpenseSubcategory] = useState<string>('Personnel');
+  const [newExpenseAmount, setNewExpenseAmount] = useState<string>('');
+  const [newExpenseDescription, setNewExpenseDescription] = useState<string>('');
+  const [isSubmittingExpense, setIsSubmittingExpense] = useState<boolean>(false);
+  const [isSyncingSheet, setIsSyncingSheet] = useState<boolean>(false);
+  const [syncedSheetUrl, setSyncedSheetUrl] = useState<string>('');
+
+  const handleSyncToGoogleSheet = async () => {
+    setIsSyncingSheet(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/pl-statement/sync-to-sheet`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminEmail: userEmail || 'admin@gigo.com' })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSyncedSheetUrl(data.sheetUrl);
+        logAdminAction('PL_SHEET_SYNC', `Synced real P&L statement to Google Sheet: ${data.sheetUrl}`);
+        window.open(data.sheetUrl, '_blank');
+      } else {
+        alert(data.details || data.error || "Failed to sync to Google Sheet.");
+      }
+    } catch (err: any) {
+      alert(`Network error syncing to Google Sheet: ${err.message}`);
+    } finally {
+      setIsSyncingSheet(false);
+    }
+  };
+
+  const fetchPLStatement = async () => {
+    setIsLoadingPL(true);
+    try {
+      const [plRes, expRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/admin/pl-statement`),
+        fetch(`${API_BASE_URL}/api/admin/expenses`)
+      ]);
+      if (plRes.ok) setPlStatement(await plRes.json());
+      if (expRes.ok) setCompanyExpenses(await expRes.json());
+    } catch (err) {
+      console.error("Failed to fetch P&L statement:", err);
+    } finally {
+      setIsLoadingPL(false);
+    }
+  };
+
+  useEffect(() => {
+    if (financialSubTab === 'accounting') {
+      fetchPLStatement();
+    }
+  }, [financialSubTab]);
+
+  const handleAddExpense = async () => {
+    const amountUSD = parseFloat(newExpenseAmount);
+    if (!newExpenseDate || !amountUSD || amountUSD <= 0) {
+      alert("Please provide a valid date and a positive amount.");
+      return;
+    }
+    setIsSubmittingExpense(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/expenses`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adminEmail: userEmail || 'admin@gigo.com',
+          date: newExpenseDate,
+          category: newExpenseCategory,
+          subcategory: newExpenseSubcategory,
+          amountUSD,
+          description: newExpenseDescription
+        })
+      });
+      if (res.ok) {
+        setNewExpenseDate('');
+        setNewExpenseAmount('');
+        setNewExpenseDescription('');
+        logAdminAction('EXPENSE_LOGGED', `Logged real expense: $${amountUSD} (${newExpenseCategory} / ${newExpenseSubcategory})`);
+        await fetchPLStatement();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to log expense.");
+      }
+    } catch (err: any) {
+      alert(`Network error logging expense: ${err.message}`);
+    } finally {
+      setIsSubmittingExpense(false);
+    }
+  };
+
+  const handleDeleteExpense = async (id: string) => {
+    if (!confirm("Remove this expense entry? This affects the real P&L calculation.")) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/expenses/${id}?adminEmail=${encodeURIComponent(userEmail || 'admin@gigo.com')}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        await fetchPLStatement();
+      }
+    } catch (err) {
+      console.error("Failed to delete expense:", err);
+    }
+  };
+
   // Ecosystem Security & Access Governance States
   const [frozenUserIds, setFrozenUserIds] = useState<string[]>([]);
   const [isVoiceActive, setIsVoiceActive] = useState<boolean>(true);
@@ -733,644 +843,204 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               )}
             </div>
           ) : (
-            // CORPORATE ACCOUNTING / BOOKKEEPING BOARD
+            // CORPORATE ACCOUNTING / BOOKKEEPING BOARD — real, computed P&L. No simulated
+            // or projected figures: revenue comes from actual Paystack-confirmed wallet
+            // top-ups, expenses come from real logged spend.
             <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }} className="text-gradient-purple-pink">🏦 GiGO Corporate Bookkeeping & Ledger Systems</h3>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>
-                  Real-time double-entry corporate accounting aggregates actual operational metrics and calculates platform margin health. Adjust pricing model parameters below.
-                </p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }} className="text-gradient-purple-pink">🏦 GiGO Corporate Bookkeeping — Real P&L Statement</h3>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>
+                    Computed live from actual Paystack-confirmed wallet top-ups and manually logged real expenses — cash basis, matching the Devpost submission template exactly.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  {syncedSheetUrl && (
+                    <a href={syncedSheetUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.7rem', color: '#10b981', textDecoration: 'underline' }}>
+                      Open synced sheet ↗
+                    </a>
+                  )}
+                  <button className="btn-glass" onClick={handleSyncToGoogleSheet} disabled={isSyncingSheet} style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem', borderColor: 'rgba(16, 185, 129, 0.4)', color: '#10b981' }}>
+                    {isSyncingSheet ? '📤 Syncing...' : '📊 Sync to Google Sheet'}
+                  </button>
+                  <button className="btn-glass" onClick={fetchPLStatement} disabled={isLoadingPL} style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem' }}>
+                    <RefreshIcon /> Refresh
+                  </button>
+                </div>
               </div>
 
-              {/* Calculus Engine Pre-computations */}
-              {(() => {
-                const FX_RATE = 1500;
-                // const candidateCount = adminUsers.filter(u => u.role !== 'admin').length;
-                
-                // Revenues
-                // const saasRevUSD = candidateCount * saasPriceUSD;
-                // const saasRevNGN = candidateCount * saasPriceNGN;
-                
-                const isDeposit = (t: any) => t.type === 'deposit' || (t.type === 'CREDIT' && t.purpose === 'WALLET_TOPUP');
-                const gatewayBaseUSD = globalTransactions.filter(t => t.currency === 'USD' && isDeposit(t)).reduce((sum, t) => sum + (t.amount || 0), 0);
-                const gatewayBaseNGN = globalTransactions.filter(t => t.currency === 'NGN' && isDeposit(t)).reduce((sum, t) => sum + (t.amount || 0), 0);
-                
-                // const gatewayRevUSD = gatewayBaseUSD * (gatewayFeeRate / 100);
-                // const gatewayRevNGN = gatewayBaseNGN * (gatewayFeeRate / 100);
-                
-                // const sponRevUSD = globalApplications.length * 15;
-                // const sponRevNGN = globalApplications.length * 7500;
+              {isLoadingPL || !plStatement ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4rem 0' }}>
+                  <div className="spinner-micro" style={{ width: '40px', height: '40px', border: '3px solid rgba(255, 255, 255, 0.1)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '1rem' }}></div>
+                  <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Computing real P&L from live transaction data...</span>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.5rem', alignItems: 'flex-start' }}>
 
-                // const totalUSDRevenues = saasRevUSD + gatewayRevUSD + sponRevUSD + (saasRevNGN + gatewayRevNGN + sponRevNGN) / FX_RATE;
-                // const totalNGNRevenues = (saasRevUSD + gatewayRevUSD + sponRevUSD) * FX_RATE + saasRevNGN + gatewayRevNGN + sponRevNGN;
+                  {/* COLUMN 1: THE REAL P&L SHEET */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', gridColumn: 'span 2' }}>
 
-                // Expenses
-                // const geminiExpUSD = adminLogs.length * llmUnitCostUSD;
-                // const scraperExpUSD = globalApplications.length * 0.12;
-                
-                // const referralExpNGN = adminUsers.length * referralBonusNGN;
-                // const referralExpUSD = referralExpNGN / FX_RATE;
-
-                // const totalUSDExpenses = geminiExpUSD + scraperExpUSD + referralExpUSD;
-                // const totalNGNExpenses = (geminiExpUSD + scraperExpUSD) * FX_RATE + referralExpNGN;
-
-                // Profits & Margins
-                // const usdNetProfit = totalUSDRevenues - totalUSDExpenses;
-                // const ngnNetProfit = totalNGNRevenues - totalNGNExpenses;
-                // const profitMargin = totalUSDRevenues > 0 ? (usdNetProfit / totalUSDRevenues) * 100 : 0;
-
-                // Balance Sheet Numbers
-                // const startCapitalUSD = 25000;
-                // const startCapitalNGN = 37500000;
-                
-                // const totalAssetsUSD = startCapitalUSD + usdNetProfit;
-                // const totalAssetsNGN = startCapitalNGN + ngnNetProfit;
-
-                // const totalWalletLiabilityUSD = adminUsers.reduce((sum, u) => sum + (u.financials?.walletBalanceUSD || 0), 0);
-                // const totalWalletLiabilityNGN = adminUsers.reduce((sum, u) => sum + (u.financials?.walletBalanceNGN || 0), 0);
-
-                // const equityUSD = totalAssetsUSD - totalWalletLiabilityUSD;
-                // const equityNGN = totalAssetsNGN - totalWalletLiabilityNGN;
-
-                return (
-                  <>
-                    {/* Split Layout: XPRIZE P&L Statement on Left/Top, Balance Sheet & Sliders on Right/Bottom */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.5rem', alignItems: 'flex-start' }}>
-                      
-                      {/* COLUMN 1: THE BRANDED XPRIZE P&L SHEET */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', gridColumn: 'span 2' }}>
-                        
-                        {/* XPRIZE Branded Header Panel (Excel Style, Premium Dark-Mode) */}
-                        <div style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          borderRadius: '16px 16px 0 0',
-                          overflow: 'hidden',
-                          boxShadow: '0 12px 36px rgba(0, 0, 0, 0.5)',
-                          border: '1px solid var(--border-glass)',
-                          borderBottom: 'none'
-                        }}>
-                          {/* Banner 1: Build with Gemini XPRIZE (Navy) */}
-                          <div style={{
-                            background: '#0a192f',
-                            padding: '1.25rem 1.5rem',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            flexWrap: 'wrap',
-                            gap: '0.5rem'
-                          }}>
-                            <h2 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>
-                              Build with Gemini XPRIZE
-                            </h2>
-                            <span className="badge-glow" style={{ fontSize: '0.65rem', padding: '0.2rem 0.5rem', borderRadius: '4px', background: 'rgba(239, 68, 68, 0.15)', color: '#fca5a5', fontWeight: 800, border: '1px solid rgba(239, 68, 68, 0.3)', textShadow: '0 0 6px rgba(239, 68, 68, 0.3)' }}>
-                              CONFIDENTIAL
-                            </span>
-                          </div>
-
-                          {/* Banner 2: Profit & Loss Statement (Orange) */}
-                          <div style={{
-                            background: '#f25f22', // Official warm orange
-                            padding: '0.6rem 1.5rem',
-                            display: 'flex',
-                            alignItems: 'center'
-                          }}>
-                            <span style={{ fontSize: '0.9rem', fontWeight: 900, color: '#fff', letterSpacing: '0.05em' }}>PROFIT & LOSS STATEMENT</span>
-                          </div>
-
-                          {/* Banner 3: Accent Bar (Green) */}
-                          <div style={{
-                            background: '#00c58e', // Official vibrant green
-                            height: '0.45rem',
-                            width: '100%'
-                          }}></div>
-
-                          {/* Row 4: Program Period & Currency info (Navy / Slate) */}
-                          <div style={{
-                            background: '#0f172a',
-                            padding: '0.75rem 1.5rem',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            flexWrap: 'wrap',
-                            gap: '0.5rem',
-                            borderBottom: '1px solid rgba(255,255,255,0.06)'
-                          }}>
-                            <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>
-                              Program Period: <strong style={{ color: '#fff' }}>May 19 - August 17</strong>
-                            </span>
-                            <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>
-                              Currency: <strong style={{ color: '#38bdf8' }}>USD</strong>
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* XPRIZE Profit & Loss Data Grid */}
-                        {(() => {
-                          const formatUSD = (val: number) => {
-                            const isNeg = val < 0;
-                            const formatted = Math.abs(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                            return isNeg ? `-$${formatted}` : `$${formatted}`;
-                          };
-
-                          // Program Weights for distributing metrics dynamically
-                          const weights = { may: 0.15, june: 0.25, july: 0.35, august: 0.25 };
-
-                          // Base Revenue Components
-                          const saasUSDTotal = candidateCount * saasPriceUSD;
-                          const gatewayUSDTotal = (gatewayBaseUSD + (gatewayBaseNGN / FX_RATE)) * (gatewayFeeRate / 100);
-                          const placementsUSDTotal = globalApplications.length * 15;
-
-                          // REVENUE GROUPS
-                          const independentSalesTotal = saasUSDTotal + placementsUSDTotal;
-                          const relatedPartyRevenueTotal = gatewayUSDTotal;
-                          const totalRevenueTotal = independentSalesTotal + relatedPartyRevenueTotal;
-
-                          const revIndependent = {
-                            may: independentSalesTotal * weights.may,
-                            june: independentSalesTotal * weights.june,
-                            july: independentSalesTotal * weights.july,
-                            august: independentSalesTotal * weights.august,
-                            total: independentSalesTotal
-                          };
-
-                          const revRelated = {
-                            may: relatedPartyRevenueTotal * weights.may,
-                            june: relatedPartyRevenueTotal * weights.june,
-                            july: relatedPartyRevenueTotal * weights.july,
-                            august: relatedPartyRevenueTotal * weights.august,
-                            total: relatedPartyRevenueTotal
-                          };
-
-                          const revTotal = {
-                            may: totalRevenueTotal * weights.may,
-                            june: totalRevenueTotal * weights.june,
-                            july: totalRevenueTotal * weights.july,
-                            august: totalRevenueTotal * weights.august,
-                            total: totalRevenueTotal
-                          };
-
-                          // BASE OPERATION COSTS (Simulated wages and structural tooling)
-                          const baseCogsPersonnel = 1200; // DevOps / Systems upkeep
-                          const baseCogsSoftware = 150;    // Web infrastructure & cluster storage
-                          const baseSgaPersonnel = 800;   // Digital marketing & outreach
-                          const baseSgaSoftware = 75;      // Intercom & CRM support bundles
-
-                          // Mapped Expenses from Telemetry / Sliders
-                          const totalReferralsUSD = (adminUsers.length * referralBonusNGN) / FX_RATE;
-                          const totalCrawlersUSD = globalApplications.length * 0.12;
-                          const totalGeminiUSD = adminLogs.length * llmUnitCostUSD;
-
-                          // EXPENSE GROUPS
-
-                          // 1. COGS (Direct creation/provision)
-                          const cogsPersonnel = {
-                            may: baseCogsPersonnel * weights.may,
-                            june: baseCogsPersonnel * weights.june,
-                            july: baseCogsPersonnel * weights.july,
-                            august: baseCogsPersonnel * weights.august,
-                            total: baseCogsPersonnel
-                          };
-                          const cogsSoftware = {
-                            may: baseCogsSoftware * weights.may,
-                            june: baseCogsSoftware * weights.june,
-                            july: baseCogsSoftware * weights.july,
-                            august: baseCogsSoftware * weights.august,
-                            total: baseCogsSoftware
-                          };
-                          const cogsTokens = {
-                            may: totalGeminiUSD * weights.may,
-                            june: totalGeminiUSD * weights.june,
-                            july: totalGeminiUSD * weights.july,
-                            august: totalGeminiUSD * weights.august,
-                            total: totalGeminiUSD
-                          };
-
-                          // 2. SG&A (Management & Promotion)
-                          const sgaPersonnel = {
-                            may: baseSgaPersonnel * weights.may,
-                            june: baseSgaPersonnel * weights.june,
-                            july: baseSgaPersonnel * weights.july,
-                            august: baseSgaPersonnel * weights.august,
-                            total: baseSgaPersonnel
-                          };
-                          const sgaSoftware = {
-                            may: baseSgaSoftware * weights.may,
-                            june: baseSgaSoftware * weights.june,
-                            july: baseSgaSoftware * weights.july,
-                            august: baseSgaSoftware * weights.august,
-                            total: baseSgaSoftware
-                          };
-                          const sgaTokens = {
-                            may: (totalGeminiUSD * 0.15) * weights.may,
-                            june: (totalGeminiUSD * 0.15) * weights.june,
-                            july: (totalGeminiUSD * 0.15) * weights.july,
-                            august: (totalGeminiUSD * 0.15) * weights.august,
-                            total: totalGeminiUSD * 0.15
-                          };
-
-                          // 3. Other Expenses (Crawlers + Referral Affiliate Bonuses)
-                          const baseOtherExpenses = totalReferralsUSD + totalCrawlersUSD;
-                          const otherExpenses = {
-                            may: baseOtherExpenses * weights.may,
-                            june: baseOtherExpenses * weights.june,
-                            july: baseOtherExpenses * weights.july,
-                            august: baseOtherExpenses * weights.august,
-                            total: baseOtherExpenses
-                          };
-
-                          // Expense Totals
-                          const expTotal = {
-                            may: cogsPersonnel.may + cogsSoftware.may + cogsTokens.may + sgaPersonnel.may + sgaSoftware.may + sgaTokens.may + otherExpenses.may,
-                            june: cogsPersonnel.june + cogsSoftware.june + cogsTokens.june + sgaPersonnel.june + sgaSoftware.june + sgaTokens.june + otherExpenses.june,
-                            july: cogsPersonnel.july + cogsSoftware.july + cogsTokens.july + sgaPersonnel.july + sgaSoftware.july + sgaTokens.july + otherExpenses.july,
-                            august: cogsPersonnel.august + cogsSoftware.august + cogsTokens.august + sgaPersonnel.august + sgaSoftware.august + sgaTokens.august + otherExpenses.august,
-                            total: cogsPersonnel.total + cogsSoftware.total + cogsTokens.total + sgaPersonnel.total + sgaSoftware.total + sgaTokens.total + otherExpenses.total
-                          };
-
-                          // Profit / Loss Statement
-                          const profitLoss = {
-                            may: revTotal.may - expTotal.may,
-                            june: revTotal.june - expTotal.june,
-                            july: revTotal.july - expTotal.july,
-                            august: revTotal.august - expTotal.august,
-                            total: revTotal.total - expTotal.total
-                          };
-
-                          // Margin
-                          // const marginPercent = revTotal.total > 0 ? (profitLoss.total / revTotal.total) * 100 : 0;
-
-                          return (
-                            <div className="table-wrapper" style={{ overflowX: 'auto', border: '1px solid var(--border-glass)', borderRadius: '0 0 16px 16px', background: 'rgba(15, 23, 42, 0.4)' }}>
-                              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
-                                <thead>
-                                  <tr style={{ background: '#0b1329', borderBottom: '2px solid rgba(255, 255, 255, 0.1)' }}>
-                                    <th style={{ padding: '0.75rem 1rem', textAlign: 'left', color: '#fff', fontWeight: 800 }}>Description</th>
-                                    <th style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fb923c', fontWeight: 800 }}>May</th>
-                                    <th style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fb923c', fontWeight: 800 }}>June</th>
-                                    <th style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fb923c', fontWeight: 800 }}>July</th>
-                                    <th style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fb923c', fontWeight: 800 }}>August</th>
-                                    <th style={{ padding: '0.75rem 1rem', textAlign: 'right', color: '#fb923c', fontWeight: 900, background: 'rgba(251, 146, 60, 0.05)' }}>Full 90 Days</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  
-                                  {/* REVENUE ROW */}
-                                  <tr style={{ background: '#1e293b' }}>
-                                    <td colSpan={6} style={{ padding: '0.45rem 1rem', fontWeight: 900, color: '#fb923c', fontSize: '0.8rem', letterSpacing: '0.03em' }}>REVENUE</td>
-                                  </tr>
-                                  
-                                  <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }}>
-                                    <td style={{ padding: '0.55rem 1rem 0.55rem 1.5rem', color: '#cbd5e1' }}>Independent Sales (ie. sales of product or service)</td>
-                                    <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(revIndependent.may)}</td>
-                                    <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(revIndependent.june)}</td>
-                                    <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(revIndependent.july)}</td>
-                                    <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(revIndependent.august)}</td>
-                                    <td style={{ padding: '0.55rem 1rem', textAlign: 'right', color: '#fff', fontWeight: 700, background: 'rgba(251, 146, 60, 0.02)' }}>{formatUSD(revIndependent.total)}</td>
-                                  </tr>
-
-                                  <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }}>
-                                    <td style={{ padding: '0.55rem 1rem 0.55rem 1.5rem', color: '#cbd5e1' }}>Related Party Revenue (ie. see Rules)</td>
-                                    <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(revRelated.may)}</td>
-                                    <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(revRelated.june)}</td>
-                                    <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(revRelated.july)}</td>
-                                    <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(revRelated.august)}</td>
-                                    <td style={{ padding: '0.55rem 1rem', textAlign: 'right', color: '#fff', fontWeight: 700, background: 'rgba(251, 146, 60, 0.02)' }}>{formatUSD(revRelated.total)}</td>
-                                  </tr>
-
-                                  <tr style={{ background: '#0b1329', borderTop: '2px solid #fb923c', borderBottom: '2px solid #fb923c' }}>
-                                    <td style={{ padding: '0.65rem 1rem', fontWeight: 800, color: '#fb923c' }}>TOTAL REVENUE</td>
-                                    <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(revTotal.may)}</td>
-                                    <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(revTotal.june)}</td>
-                                    <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(revTotal.july)}</td>
-                                    <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(revTotal.august)}</td>
-                                    <td style={{ padding: '0.65rem 1rem', textAlign: 'right', color: '#fb923c', fontWeight: 900, background: 'rgba(251, 146, 60, 0.08)' }}>{formatUSD(revTotal.total)}</td>
-                                  </tr>
-
-                                  {/* EXPENSES ROW */}
-                                  <tr style={{ background: '#1e293b' }}>
-                                    <td colSpan={6} style={{ padding: '0.45rem 1rem', fontWeight: 900, color: '#f43f5e', fontSize: '0.8rem', letterSpacing: '0.03em' }}>EXPENSES</td>
-                                  </tr>
-
-                                  {/* COGS */}
-                                  <tr style={{ background: 'rgba(244, 63, 94, 0.03)' }}>
-                                    <td colSpan={6} style={{ padding: '0.35rem 1rem 0.35rem 1.25rem', fontWeight: 700, color: '#f43f5e', textTransform: 'uppercase', fontSize: '0.7rem' }}>COGS</td>
-                                  </tr>
-                                  <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.02)' }}>
-                                    <td style={{ padding: '0.45rem 1rem 0.45rem 1.5rem', color: '#94a3b8' }}>Personnel</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(cogsPersonnel.may)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(cogsPersonnel.june)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(cogsPersonnel.july)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(cogsPersonnel.august)}</td>
-                                    <td style={{ padding: '0.45rem 1rem', textAlign: 'right', color: '#fff', fontWeight: 700, background: 'rgba(251, 146, 60, 0.02)' }}>{formatUSD(cogsPersonnel.total)}</td>
-                                  </tr>
-                                  <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.02)' }}>
-                                    <td style={{ padding: '0.45rem 1rem 0.45rem 1.5rem', color: '#94a3b8' }}>Software Subscriptions</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(cogsSoftware.may)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(cogsSoftware.june)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(cogsSoftware.july)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(cogsSoftware.august)}</td>
-                                    <td style={{ padding: '0.45rem 1rem', textAlign: 'right', color: '#fff', fontWeight: 700, background: 'rgba(251, 146, 60, 0.02)' }}>{formatUSD(cogsSoftware.total)}</td>
-                                  </tr>
-                                  <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.02)' }}>
-                                    <td style={{ padding: '0.45rem 1rem 0.45rem 1.5rem', color: '#94a3b8' }}>Tokens</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(cogsTokens.may)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(cogsTokens.june)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(cogsTokens.july)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(cogsTokens.august)}</td>
-                                    <td style={{ padding: '0.45rem 1rem', textAlign: 'right', color: '#fff', fontWeight: 700, background: 'rgba(251, 146, 60, 0.02)' }}>{formatUSD(cogsTokens.total)}</td>
-                                  </tr>
-
-                                  {/* SG&A */}
-                                  <tr style={{ background: 'rgba(244, 63, 94, 0.03)' }}>
-                                    <td colSpan={6} style={{ padding: '0.35rem 1rem 0.35rem 1.25rem', fontWeight: 700, color: '#f43f5e', textTransform: 'uppercase', fontSize: '0.7rem' }}>SG&A</td>
-                                  </tr>
-                                  <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.02)' }}>
-                                    <td style={{ padding: '0.45rem 1rem 0.45rem 1.5rem', color: '#94a3b8' }}>Personnel</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(sgaPersonnel.may)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(sgaPersonnel.june)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(sgaPersonnel.july)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(sgaPersonnel.august)}</td>
-                                    <td style={{ padding: '0.45rem 1rem', textAlign: 'right', color: '#fff', fontWeight: 700, background: 'rgba(251, 146, 60, 0.02)' }}>{formatUSD(sgaPersonnel.total)}</td>
-                                  </tr>
-                                  <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.02)' }}>
-                                    <td style={{ padding: '0.45rem 1rem 0.45rem 1.5rem', color: '#94a3b8' }}>Software Subscriptions</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(sgaSoftware.may)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(sgaSoftware.june)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(sgaSoftware.july)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(sgaSoftware.august)}</td>
-                                    <td style={{ padding: '0.45rem 1rem', textAlign: 'right', color: '#fff', fontWeight: 700, background: 'rgba(251, 146, 60, 0.02)' }}>{formatUSD(sgaSoftware.total)}</td>
-                                  </tr>
-                                  <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.02)' }}>
-                                    <td style={{ padding: '0.45rem 1rem 0.45rem 1.5rem', color: '#94a3b8' }}>Tokens</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(sgaTokens.may)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(sgaTokens.june)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(sgaTokens.july)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(sgaTokens.august)}</td>
-                                    <td style={{ padding: '0.45rem 1rem', textAlign: 'right', color: '#fff', fontWeight: 700, background: 'rgba(251, 146, 60, 0.02)' }}>{formatUSD(sgaTokens.total)}</td>
-                                  </tr>
-
-                                  {/* Other Expenses */}
-                                  <tr style={{ background: 'rgba(244, 63, 94, 0.03)' }}>
-                                    <td colSpan={6} style={{ padding: '0.35rem 1rem 0.35rem 1.25rem', fontWeight: 700, color: '#f43f5e', textTransform: 'uppercase', fontSize: '0.7rem' }}>Other Expenses</td>
-                                  </tr>
-                                  <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.02)' }}>
-                                    <td style={{ padding: '0.45rem 1rem 0.45rem 1.5rem', color: '#94a3b8' }}>Other expenses (see Legend)</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(otherExpenses.may)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(otherExpenses.june)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(otherExpenses.july)}</td>
-                                    <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(otherExpenses.august)}</td>
-                                    <td style={{ padding: '0.45rem 1rem', textAlign: 'right', color: '#fff', fontWeight: 700, background: 'rgba(251, 146, 60, 0.02)' }}>{formatUSD(otherExpenses.total)}</td>
-                                  </tr>
-
-                                  <tr style={{ background: '#0b1329', borderTop: '2px solid #f43f5e', borderBottom: '2px solid #f43f5e' }}>
-                                    <td style={{ padding: '0.65rem 1rem', fontWeight: 800, color: '#f43f5e' }}>TOTAL EXPENSES</td>
-                                    <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(expTotal.may)}</td>
-                                    <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(expTotal.june)}</td>
-                                    <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(expTotal.july)}</td>
-                                    <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(expTotal.august)}</td>
-                                    <td style={{ padding: '0.65rem 1rem', textAlign: 'right', color: '#f43f5e', fontWeight: 900, background: 'rgba(251, 146, 60, 0.08)' }}>{formatUSD(expTotal.total)}</td>
-                                  </tr>
-
-                                  {/* PROFIT / LOSS ROW */}
-                                  <tr style={{ background: '#10b981', borderTop: '3px solid #047857' }}>
-                                    <td style={{ padding: '0.75rem 1rem', fontWeight: 900, color: '#fff', fontSize: '0.85rem', textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>PROFIT (LOSS)</td>
-                                    <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 800, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>{formatUSD(profitLoss.may)}</td>
-                                    <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 800, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>{formatUSD(profitLoss.june)}</td>
-                                    <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 800, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>{formatUSD(profitLoss.july)}</td>
-                                    <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 800, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>{formatUSD(profitLoss.august)}</td>
-                                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: '#fff', fontWeight: 950, background: '#059669', fontSize: '0.9rem', textShadow: '0 1px 6px rgba(0,0,0,0.45)' }}>{formatUSD(profitLoss.total)}</td>
-                                  </tr>
-
-                                </tbody>
-                              </table>
-                              <div style={{ display: 'flex', justifyContent: 'center', padding: '0.65rem', background: '#0b1329', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em' }}>
-                                  GiGO Financial Ledger  |  Internal Use Only  |  CONFIDENTIAL
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        })()}
-
-                        {/* Legend Details Row */}
-                        <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px', marginTop: '1rem' }}>
-                          <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#fb923c', textTransform: 'uppercase', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>LEGEND:</div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                            <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.5 }}>
-                              <span style={{ color: '#fb923c', marginRight: '0.4rem' }}>■</span> <strong style={{ color: '#fff' }}>COGS</strong> stands for Cost of Goods Sold) and includes expenses to produce the service provided by the business.
-                            </div>
-                            <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.5 }}>
-                              <span style={{ color: '#fb923c', marginRight: '0.4rem' }}>■</span> <strong style={{ color: '#fff' }}>SG&A</strong> stands for Selling, General, and Adminstrative Expenses and includes expenses to operate the business. If personnel is hired to do marketing activities, that expense would be under SG&A.
-                            </div>
-                            <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.5 }}>
-                              <span style={{ color: '#fb923c', marginRight: '0.4rem' }}>■</span> <strong style={{ color: '#fff' }}>"Other Expenses"</strong> may include expenses like rent, travel, or other expenses not outlined in the P&L. If you include them, you must explain each expense line in your Devpost submission.
-                            </div>
-                          </div>
-                        </div>
-
+                    {/* XPRIZE Branded Header Panel */}
+                    <div style={{ display: 'flex', flexDirection: 'column', borderRadius: '16px 16px 0 0', overflow: 'hidden', boxShadow: '0 12px 36px rgba(0, 0, 0, 0.5)', border: '1px solid var(--border-glass)', borderBottom: 'none' }}>
+                      <div style={{ background: '#0b1329', padding: '0.85rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <h2 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>Build with Gemini XPRIZE</h2>
+                        <span className="badge-glow" style={{ fontSize: '0.65rem', padding: '0.2rem 0.5rem', borderRadius: '4px', background: 'rgba(239, 68, 68, 0.15)', color: '#fca5a5', fontWeight: 800, border: '1px solid rgba(239, 68, 68, 0.3)' }}>CONFIDENTIAL</span>
                       </div>
-
-                      {/* COLUMN 2: LEDGER BALANCE SHEET & REAL-TIME INTERACTIVE OVERRIDES */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                        
-                        {/* Recomputations for Column 2 Balance Sheet */}
-                        {(() => {
-                          const FX_RATE = 1500;
-                          const saasUSDTotal = candidateCount * saasPriceUSD;
-                          const gatewayUSDTotal = (gatewayBaseUSD + (gatewayBaseNGN / FX_RATE)) * (gatewayFeeRate / 100);
-                          const placementsUSDTotal = globalApplications.length * 15;
-                          const totalRevenueTotal = saasUSDTotal + placementsUSDTotal + gatewayUSDTotal;
-
-                          const totalReferralsUSD = (adminUsers.length * referralBonusNGN) / FX_RATE;
-                          const totalCrawlersUSD = globalApplications.length * 0.12;
-                          const totalGeminiUSD = adminLogs.length * llmUnitCostUSD;
-
-                          const baseCogsPersonnel = 1200;
-                          const baseCogsSoftware = 150;
-                          const baseSgaPersonnel = 800;
-                          const baseSgaSoftware = 75;
-
-                          const totalExpensesTotal = baseCogsPersonnel + baseCogsSoftware + totalGeminiUSD + 
-                                                    baseSgaPersonnel + baseSgaSoftware + (totalGeminiUSD * 0.15) + 
-                                                    totalReferralsUSD + totalCrawlersUSD;
-
-                          const usdNetProfit = totalRevenueTotal - totalExpensesTotal;
-                          const ngnNetProfit = usdNetProfit * FX_RATE;
-
-                          const startCapitalUSD = 25000;
-                          const startCapitalNGN = 37500000;
-
-                          const totalAssetsUSD = startCapitalUSD + usdNetProfit;
-                          const totalAssetsNGN = startCapitalNGN + ngnNetProfit;
-
-                          const totalWalletLiabilityUSD = adminUsers.reduce((sum, u) => sum + (u.financials?.walletBalanceUSD || 0), 0);
-                          const totalWalletLiabilityNGN = adminUsers.reduce((sum, u) => sum + (u.financials?.walletBalanceNGN || 0), 0);
-
-                          const equityUSD = totalAssetsUSD - totalWalletLiabilityUSD;
-                          const equityNGN = totalAssetsNGN - totalWalletLiabilityNGN;
-
-                          return (
-                            <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(14, 165, 233, 0.25)', borderRadius: '16px', boxShadow: '0 8px 32px rgba(14, 165, 233, 0.05)' }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                                <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                  <span>⚖️</span> Consolidated Balance Sheet
-                                </span>
-                                <span style={{ fontSize: '0.65rem', padding: '0.2rem 0.5rem', borderRadius: '4px', background: 'rgba(14, 165, 233, 0.12)', color: '#38bdf8', fontWeight: 800, border: '1px solid rgba(14, 165, 233, 0.25)' }}>
-                                  BALANCED
-                                </span>
-                              </div>
-
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed rgba(255,255,255,0.06)', paddingBottom: '0.65rem' }}>
-                                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Current Assets (Prepayments + Floating Reserves):</span>
-                                  <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#fff' }}>₦{totalAssetsNGN.toLocaleString('en-NG', { maximumFractionDigits: 0 })}</div>
-                                    <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>${totalAssetsUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
-                                  </div>
-                                </div>
-
-                                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed rgba(255,255,255,0.06)', paddingBottom: '0.65rem' }}>
-                                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Current Liabilities (Outstanding Wallets Deposit float):</span>
-                                  <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#ef4444' }}>₦{totalWalletLiabilityNGN.toLocaleString('en-NG', { maximumFractionDigits: 0 })}</div>
-                                    <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>${totalWalletLiabilityUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
-                                  </div>
-                                </div>
-
-                                <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.35rem' }}>
-                                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--primary)' }}>Owner Retained Equity (Net Platform Capital Value):</span>
-                                  <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--primary)' }}>₦{equityNGN.toLocaleString('en-NG', { maximumFractionDigits: 0 })}</div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.1rem' }}>${equityUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })()}
-
-                        {/* Interactive Real-Time Parameters Adjustments */}
-                        <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
-                          <h4 style={{ fontSize: '0.9rem', fontWeight: 800, margin: '0 0 1.25rem 0', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                            <span>⚙️</span> Interactive Pricing & Margin Sliders
-                          </h4>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                            
-                            {/* SLIDER 1 */}
-                            <div>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.35rem' }}>
-                                <span style={{ color: 'var(--text-primary)' }}>SaaS License Price (USD)</span>
-                                <span style={{ color: 'var(--primary)' }}>${saasPriceUSD} / mo</span>
-                              </div>
-                              <input 
-                                type="range" 
-                                min="5" 
-                                max="100" 
-                                value={saasPriceUSD} 
-                                onChange={(e) => {
-                                  const val = parseInt(e.target.value);
-                                  setSaaSPriceUSD(val);
-                                  logAdminAction('FINANCIAL_CONTROL', `Adjusted USD SaaS License Price to $${val}/month`);
-                                }}
-                                style={{ width: '100%', accentColor: 'var(--primary)' }} 
-                              />
-                            </div>
-
-                            {/* SLIDER 2 */}
-                            <div>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.35rem' }}>
-                                <span style={{ color: 'var(--text-primary)' }}>SaaS License Price (NGN)</span>
-                                <span style={{ color: 'var(--primary)' }}>₦{saasPriceNGN.toLocaleString()} / mo</span>
-                              </div>
-                              <input 
-                                type="range" 
-                                min="2500" 
-                                max="50000" 
-                                value={saasPriceNGN} 
-                                step="500"
-                                onChange={(e) => {
-                                  const val = parseInt(e.target.value);
-                                  setSaaSPriceNGN(val);
-                                  logAdminAction('FINANCIAL_CONTROL', `Adjusted NGN SaaS License Price to ₦${val.toLocaleString()}/month`);
-                                }}
-                                style={{ width: '100%', accentColor: 'var(--primary)' }} 
-                              />
-                            </div>
-
-                            {/* SLIDER 3 */}
-                            <div>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.35rem' }}>
-                                <span style={{ color: 'var(--text-primary)' }}>Gateway Clearing Fee (%)</span>
-                                <span style={{ color: '#10b981' }}>{gatewayFeeRate}%</span>
-                              </div>
-                              <input 
-                                type="range" 
-                                min="0.5" 
-                                max="5.0" 
-                                step="0.1"
-                                value={gatewayFeeRate} 
-                                onChange={(e) => {
-                                  const val = parseFloat(e.target.value);
-                                  setGatewayFeeRate(val);
-                                  logAdminAction('FINANCIAL_CONTROL', `Adjusted Paystack Deposit Clearance Fee to ${val}%`);
-                                }}
-                                style={{ width: '100%', accentColor: '#10b981' }} 
-                              />
-                            </div>
-
-                            {/* SLIDER 4 */}
-                            <div>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.35rem' }}>
-                                <span style={{ color: 'var(--text-primary)' }}>Referral Registration Bonus</span>
-                                <span style={{ color: 'var(--primary)' }}>₦{referralBonusNGN.toLocaleString()}</span>
-                              </div>
-                              <input 
-                                type="range" 
-                                min="500" 
-                                max="10000" 
-                                step="100"
-                                value={referralBonusNGN} 
-                                onChange={(e) => {
-                                  const val = parseInt(e.target.value);
-                                  setReferralBonusNGN(val);
-                                  logAdminAction('FINANCIAL_CONTROL', `Adjusted sign-up referral affiliate bonus value to ₦${val.toLocaleString()}`);
-                                }}
-                                style={{ width: '100%', accentColor: 'var(--primary)' }} 
-                              />
-                            </div>
-
-                            {/* SLIDER 5 */}
-                            <div>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.35rem' }}>
-                                <span style={{ color: 'var(--text-primary)' }}>Gemini Token API Cost</span>
-                                <span style={{ color: '#f43f5e' }}>${llmUnitCostUSD.toFixed(3)}</span>
-                              </div>
-                              <input 
-                                type="range" 
-                                min="0.001" 
-                                max="0.100" 
-                                step="0.001"
-                                value={llmUnitCostUSD} 
-                                onChange={(e) => {
-                                  const val = parseFloat(e.target.value);
-                                  setLlmUnitCostUSD(val);
-                                  logAdminAction('FINANCIAL_CONTROL', `Adjusted Gemini Token API execution unit allocation cost to $${val.toFixed(3)}`);
-                                }}
-                                style={{ width: '100%', accentColor: '#f43f5e' }} 
-                              />
-                            </div>
-
-                          </div>
-                        </div>
-
+                      <div style={{ background: '#f25f22', padding: '0.6rem 1.5rem', display: 'flex', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.9rem', fontWeight: 900, color: '#fff', letterSpacing: '0.05em' }}>PROFIT & LOSS STATEMENT</span>
                       </div>
-
+                      <div style={{ background: '#00c58e', height: '0.45rem', width: '100%' }}></div>
+                      <div style={{ background: '#0f172a', padding: '0.75rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                        <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>Program Period: <strong style={{ color: '#fff' }}>May 19 - August 17</strong></span>
+                        <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>Currency: <strong style={{ color: '#38bdf8' }}>USD</strong></span>
+                      </div>
                     </div>
-                  </>
-                );
-              })()}
 
+                    {(() => {
+                      const formatUSD = (val: number) => {
+                        const isNeg = val < 0;
+                        const formatted = Math.abs(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        return isNeg ? `-$${formatted}` : `$${formatted}`;
+                      };
+                      const r = plStatement.revenue;
+                      const e = plStatement.expenses;
+                      const p = plStatement.profitLoss;
+
+                      const row = (label: string, data: any, indent = true, bold = false) => (
+                        <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }}>
+                          <td style={{ padding: `0.55rem 1rem 0.55rem ${indent ? '1.5rem' : '1rem'}`, color: bold ? '#fff' : '#cbd5e1', fontWeight: bold ? 700 : 400 }}>{label}</td>
+                          <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(data.may)}</td>
+                          <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(data.june)}</td>
+                          <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(data.july)}</td>
+                          <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(data.august)}</td>
+                          <td style={{ padding: '0.55rem 1rem', textAlign: 'right', color: '#fff', fontWeight: 700, background: 'rgba(251, 146, 60, 0.02)' }}>{formatUSD(data.total)}</td>
+                        </tr>
+                      );
+
+                      return (
+                        <div className="table-wrapper" style={{ overflowX: 'auto', border: '1px solid var(--border-glass)', borderRadius: '0 0 16px 16px', background: 'rgba(15, 23, 42, 0.4)' }}>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
+                            <thead>
+                              <tr style={{ background: '#0b1329', borderBottom: '2px solid rgba(255, 255, 255, 0.1)' }}>
+                                <th style={{ padding: '0.75rem 1rem', textAlign: 'left', color: '#fff', fontWeight: 800 }}>Description</th>
+                                <th style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fb923c', fontWeight: 800 }}>May</th>
+                                <th style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fb923c', fontWeight: 800 }}>June</th>
+                                <th style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fb923c', fontWeight: 800 }}>July</th>
+                                <th style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fb923c', fontWeight: 800 }}>August</th>
+                                <th style={{ padding: '0.75rem 1rem', textAlign: 'right', color: '#fb923c', fontWeight: 900, background: 'rgba(251, 146, 60, 0.05)' }}>Full 90 Days</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr style={{ background: '#1e293b' }}><td colSpan={6} style={{ padding: '0.45rem 1rem', fontWeight: 900, color: '#fb923c', fontSize: '0.8rem', letterSpacing: '0.03em' }}>REVENUE</td></tr>
+                              {row('Independent Sales (ie. sales of product or service)', r.independent)}
+                              {row('Related Party Revenue (ie. see Rules)', r.related)}
+                              <tr style={{ background: '#0b1329', borderTop: '2px solid #fb923c', borderBottom: '2px solid #fb923c' }}>
+                                <td style={{ padding: '0.65rem 1rem', fontWeight: 800, color: '#fb923c' }}>TOTAL REVENUE</td>
+                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(r.total.may)}</td>
+                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(r.total.june)}</td>
+                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(r.total.july)}</td>
+                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(r.total.august)}</td>
+                                <td style={{ padding: '0.65rem 1rem', textAlign: 'right', color: '#fb923c', fontWeight: 900, background: 'rgba(251, 146, 60, 0.08)' }}>{formatUSD(r.total.total)}</td>
+                              </tr>
+
+                              <tr style={{ background: '#1e293b' }}><td colSpan={6} style={{ padding: '0.45rem 1rem', fontWeight: 900, color: '#f43f5e', fontSize: '0.8rem', letterSpacing: '0.03em' }}>EXPENSES</td></tr>
+                              <tr style={{ background: 'rgba(244, 63, 94, 0.03)' }}><td colSpan={6} style={{ padding: '0.35rem 1rem 0.35rem 1.25rem', fontWeight: 700, color: '#f43f5e', textTransform: 'uppercase', fontSize: '0.7rem' }}>COGS</td></tr>
+                              {row('Personnel', e.cogsPersonnel)}
+                              {row('Software Subscriptions', e.cogsSoftware)}
+                              {row('Tokens', e.cogsTokens)}
+                              <tr style={{ background: 'rgba(244, 63, 94, 0.03)' }}><td colSpan={6} style={{ padding: '0.35rem 1rem 0.35rem 1.25rem', fontWeight: 700, color: '#f43f5e', textTransform: 'uppercase', fontSize: '0.7rem' }}>SG&A</td></tr>
+                              {row('Personnel', e.sgaPersonnel)}
+                              {row('Software Subscriptions', e.sgaSoftware)}
+                              {row('Tokens', e.sgaTokens)}
+                              <tr style={{ background: 'rgba(244, 63, 94, 0.03)' }}><td colSpan={6} style={{ padding: '0.35rem 1rem 0.35rem 1.25rem', fontWeight: 700, color: '#f43f5e', textTransform: 'uppercase', fontSize: '0.7rem' }}>Other Expenses</td></tr>
+                              {row('Other expenses (see Legend)', e.otherExpenses)}
+                              <tr style={{ background: '#0b1329', borderTop: '2px solid #f43f5e', borderBottom: '2px solid #f43f5e' }}>
+                                <td style={{ padding: '0.65rem 1rem', fontWeight: 800, color: '#f43f5e' }}>TOTAL EXPENSES</td>
+                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(e.total.may)}</td>
+                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(e.total.june)}</td>
+                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(e.total.july)}</td>
+                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(e.total.august)}</td>
+                                <td style={{ padding: '0.65rem 1rem', textAlign: 'right', color: '#f43f5e', fontWeight: 900, background: 'rgba(244, 63, 94, 0.08)' }}>{formatUSD(e.total.total)}</td>
+                              </tr>
+
+                              <tr style={{ background: p.total >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)', borderTop: '2px solid rgba(255,255,255,0.15)' }}>
+                                <td style={{ padding: '0.75rem 1rem', fontWeight: 900, color: p.total >= 0 ? '#10b981' : '#f43f5e', fontSize: '0.85rem' }}>PROFIT (LOSS)</td>
+                                <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 800 }}>{formatUSD(p.may)}</td>
+                                <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 800 }}>{formatUSD(p.june)}</td>
+                                <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 800 }}>{formatUSD(p.july)}</td>
+                                <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 800 }}>{formatUSD(p.august)}</td>
+                                <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: p.total >= 0 ? '#10b981' : '#f43f5e', fontWeight: 900, background: 'rgba(255,255,255,0.03)' }}>{formatUSD(p.total)}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Legend */}
+                    <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#fb923c', textTransform: 'uppercase', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>LEGEND:</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                        <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.5 }}><span style={{ color: '#fb923c', marginRight: '0.4rem' }}>■</span> <strong style={{ color: '#fff' }}>COGS</strong> stands for Cost of Goods Sold and includes expenses to produce the service provided by the business.</div>
+                        <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.5 }}><span style={{ color: '#fb923c', marginRight: '0.4rem' }}>■</span> <strong style={{ color: '#fff' }}>SG&A</strong> stands for Selling, General, and Adminstrative Expenses and includes expenses to operate the business.</div>
+                        <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.5 }}><span style={{ color: '#fb923c', marginRight: '0.4rem' }}>■</span> <strong style={{ color: '#fff' }}>"Other Expenses"</strong> may include expenses like rent, travel, or other expenses not outlined in the P&L. You must explain each expense line in your Devpost submission.</div>
+                        <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.5 }}><span style={{ color: '#fb923c', marginRight: '0.4rem' }}>■</span> Recorded on a <strong style={{ color: '#fff' }}>cash basis</strong>: revenue when Paystack confirms payment, expenses when logged as actually paid.</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* COLUMN 2: LOG A REAL EXPENSE + AUDIT LIST */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+                      <h4 style={{ fontSize: '0.9rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <span>📝</span> Log a Real Expense
+                      </h4>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', margin: '0 0 1.25rem 0' }}>
+                        Record actual money spent (hosting, API overage, contractor pay). Updates the P&L immediately.
+                      </p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        <input type="date" value={newExpenseDate} onChange={(e) => setNewExpenseDate(e.target.value)} min="2026-05-19" max="2026-08-17" style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: '#fff' }} />
+                        <select value={newExpenseCategory} onChange={(e) => { const cat = e.target.value as 'COGS' | 'SG&A' | 'Other'; setNewExpenseCategory(cat); setNewExpenseSubcategory(cat === 'Other' ? 'Other' : 'Personnel'); }} style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: '#fff' }}>
+                          <option value="COGS">COGS</option>
+                          <option value="SG&A">SG&A</option>
+                          <option value="Other">Other Expenses</option>
+                        </select>
+                        {newExpenseCategory !== 'Other' && (
+                          <select value={newExpenseSubcategory} onChange={(e) => setNewExpenseSubcategory(e.target.value)} style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: '#fff' }}>
+                            <option value="Personnel">Personnel</option>
+                            <option value="Software Subscriptions">Software Subscriptions</option>
+                            <option value="Tokens">Tokens</option>
+                          </select>
+                        )}
+                        <input type="number" step="0.01" min="0" placeholder="Amount (USD)" value={newExpenseAmount} onChange={(e) => setNewExpenseAmount(e.target.value)} style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: '#fff' }} />
+                        <input type="text" placeholder="Description (e.g. Render hosting - August)" value={newExpenseDescription} onChange={(e) => setNewExpenseDescription(e.target.value)} style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: '#fff' }} />
+                        <button className="btn-glass btn-primary" onClick={handleAddExpense} disabled={isSubmittingExpense} style={{ justifyContent: 'center', fontWeight: 700 }}>
+                          {isSubmittingExpense ? 'Logging...' : '+ Log Expense'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+                      <h4 style={{ fontSize: '0.9rem', fontWeight: 800, margin: '0 0 1rem 0', color: '#fff' }}>📋 Logged Expenses ({companyExpenses.length})</h4>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '320px', overflowY: 'auto' }}>
+                        {companyExpenses.length === 0 ? (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>No expenses logged yet.</span>
+                        ) : (
+                          companyExpenses.map((exp) => (
+                            <div key={exp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '6px', fontSize: '0.7rem' }}>
+                              <div>
+                                <div style={{ color: '#fff', fontWeight: 700 }}>${Number(exp.amountUSD).toFixed(2)} — {exp.category}/{exp.subcategory}</div>
+                                <div style={{ color: 'var(--text-muted)' }}>{exp.date} {exp.description ? `— ${exp.description}` : ''}</div>
+                              </div>
+                              <button onClick={() => handleDeleteExpense(exp.id)} style={{ background: 'none', border: 'none', color: '#f43f5e', cursor: 'pointer', fontSize: '0.9rem' }}>✕</button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
