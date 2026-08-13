@@ -327,6 +327,14 @@ function buildFormatRequests(sheetId: number) {
       fields: 'userEnteredFormat.backgroundColor,userEnteredFormat.numberFormat'
     }
   });
+  // Thick double-border above/below total rows, matching standard financial-statement styling.
+  const totalBorders = (rowNum: number) => ({
+    updateBorders: {
+      range: { sheetId, startRowIndex: rowNum - 1, endRowIndex: rowNum, startColumnIndex: 0, endColumnIndex: 6 },
+      top: { style: 'DOUBLE', color: COLOR_NAVY },
+      bottom: { style: 'DOUBLE', color: COLOR_NAVY }
+    }
+  });
 
   const white = COLOR_WHITE;
   const whiteRows = [
@@ -345,9 +353,9 @@ function buildFormatRequests(sheetId: number) {
     bandRow(ROW.expensesHeader, COLOR_NAVY, COLOR_WHITE),
     ...whiteRows.map(r => bandRow(r, white)),
     ...whiteRows.map(r => currencyRow(r, white)),
-    bandRow(ROW.totalRevenue, COLOR_LIGHT_GRAY, undefined), currencyRow(ROW.totalRevenue, COLOR_LIGHT_GRAY),
-    bandRow(ROW.totalExpenses, COLOR_LIGHT_GRAY, undefined), currencyRow(ROW.totalExpenses, COLOR_LIGHT_GRAY),
-    bandRow(ROW.profitLoss, COLOR_GREEN, COLOR_WHITE), currencyRow(ROW.profitLoss, COLOR_GREEN),
+    bandRow(ROW.totalRevenue, COLOR_LIGHT_GRAY, COLOR_NAVY), currencyRow(ROW.totalRevenue, COLOR_LIGHT_GRAY), totalBorders(ROW.totalRevenue),
+    bandRow(ROW.totalExpenses, COLOR_LIGHT_GRAY, COLOR_NAVY), currencyRow(ROW.totalExpenses, COLOR_LIGHT_GRAY), totalBorders(ROW.totalExpenses),
+    bandRow(ROW.profitLoss, COLOR_GREEN, COLOR_WHITE), currencyRow(ROW.profitLoss, COLOR_GREEN), totalBorders(ROW.profitLoss),
     bandRow(ROW.footer, COLOR_NAVY, COLOR_WHITE),
     {
       updateDimensionProperties: {
