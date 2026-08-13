@@ -243,63 +243,120 @@ function getGoogleSheetsAuth() {
   return new google.auth.GoogleAuth({ scopes });
 }
 
-const PL_ROW_LABELS: Array<[string, string | null]> = [
-  ['Description', null],
-  ['REVENUE', null],
-  ['Independent Sales (ie. sales of product or service)', 'revIndependent'],
-  ['Related Party Revenue (ie. see Rules)', 'revRelated'],
-  ['TOTAL REVENUE', 'revTotal'],
-  ['', null],
-  ['EXPENSES', null],
-  ['COGS', null],
-  ['Personnel', 'cogsPersonnel'],
-  ['Software Subscriptions', 'cogsSoftware'],
-  ['Tokens', 'cogsTokens'],
-  ['SG&A', null],
-  ['Personnel ', 'sgaPersonnel'],
-  ['Software Subscriptions', 'sgaSoftware'],
-  ['Tokens', 'sgaTokens'],
-  ['Other Expenses', null],
-  ['Other expenses (see Legend)', 'otherExpenses'],
-  ['TOTAL EXPENSES', 'expTotal'],
-  ['', null],
-  ['PROFIT (LOSS)', 'profitLoss'],
-];
+// Official Devpost "Build with Gemini XPRIZE" P&L template colors/format, read
+// directly from the .xlsx template's cell styles.
+const COLOR_NAVY = { red: 0x0B / 255, green: 0x16 / 255, blue: 0x29 / 255 };
+const COLOR_ORANGE = { red: 0xF7 / 255, green: 0x94 / 255, blue: 0x1D / 255 };
+const COLOR_GREEN = { red: 0x00 / 255, green: 0xC4 / 255, blue: 0x8C / 255 };
+const COLOR_LIGHT_GRAY = { red: 0xF4 / 255, green: 0xF5 / 255, blue: 0xF7 / 255 };
+const COLOR_WHITE = { red: 1, green: 1, blue: 1 };
+const CURRENCY_FORMAT = '$#,##0.00;($#,##0.00);\\-';
+
+// 1-indexed sheet row numbers for the fixed line items (used both to build the
+// values array and to generate the SUM/subtraction formulas that mirror the
+// template exactly, per-column, rather than pushing pre-computed totals).
+const ROW = {
+  title: 1, plBanner: 2, period: 3, accentBar: 4, colHeaders: 5,
+  revenueHeader: 6, revIndependent: 7, revRelated: 8, totalRevenue: 9,
+  expensesHeader: 11, cogsLabel: 12, cogsPersonnel: 13, cogsSoftware: 14, cogsTokens: 15,
+  sgaLabel: 16, sgaPersonnel: 17, sgaSoftware: 18, sgaTokens: 19,
+  otherLabel: 20, otherExpenses: 21, totalExpenses: 22,
+  profitLoss: 24, footer: 26,
+};
+const COLS = ['B', 'C', 'D', 'E', 'F']; // May, June, July, August, Full 90 Days
 
 function buildSheetRows(statement: Awaited<ReturnType<typeof computePLStatement>>): (string | number)[][] {
-  const dataRows: Record<string, any> = {
-    revIndependent: statement.revenue.independent,
-    revRelated: statement.revenue.related,
-    revTotal: statement.revenue.total,
-    cogsPersonnel: statement.expenses.cogsPersonnel,
-    cogsSoftware: statement.expenses.cogsSoftware,
-    cogsTokens: statement.expenses.cogsTokens,
-    sgaPersonnel: statement.expenses.sgaPersonnel,
-    sgaSoftware: statement.expenses.sgaSoftware,
-    sgaTokens: statement.expenses.sgaTokens,
-    otherExpenses: statement.expenses.otherExpenses,
-    expTotal: statement.expenses.total,
-    profitLoss: statement.profitLoss,
-  };
+  const rows: (string | number)[][] = [];
+  const set = (rowNum: number, values: (string | number)[]) => { rows[rowNum - 1] = values; };
+  const line = (label: string, d: { may: number; june: number; july: number; august: number; total: number }) =>
+    [label, round2(d.may), round2(d.june), round2(d.july), round2(d.august), round2(d.total)];
 
-  return [
-    ['Build with Gemini XPRIZE'],
-    ['PROFIT & LOSS STATEMENT'],
-    [`Program Period: May 19 - August 17`, '', '', 'Currency:', 'USD'],
-    [],
-    ['Description', 'May', 'June', 'July', 'August', 'Full 90 Days'],
-    ...PL_ROW_LABELS.map(([label, key]) => {
-      if (!key) return [label];
-      const d = dataRows[key];
-      return [label, round2(d.may), round2(d.june), round2(d.july), round2(d.august), round2(d.total)];
-    }),
-    [],
-    [`Live-synced from GiGO's real transaction data on ${new Date().toISOString()} — not manually maintained.`],
-  ];
+  set(ROW.title, ['Build with Gemini XPRIZE']);
+  set(ROW.plBanner, ['PROFIT & LOSS STATEMENT']);
+  set(ROW.period, ['Program Period: May 19 - August 17', '', '', 'Currency:', 'USD']);
+  set(ROW.accentBar, []);
+  set(ROW.colHeaders, ['Description', 'May', 'June', 'July', 'August', 'Full 90 Days']);
+
+  set(ROW.revenueHeader, ['REVENUE']);
+  set(ROW.revIndependent, line('Independent Sales (ie. sales of product or service)', statement.revenue.independent));
+  set(ROW.revRelated, line('Related Party Revenue (ie. see Rules)', statement.revenue.related));
+  set(ROW.totalRevenue, ['TOTAL REVENUE', ...COLS.map(c => `=SUM(${c}${ROW.revIndependent}:${c}${ROW.revRelated})`)]);
+
+  set(ROW.expensesHeader, ['EXPENSES']);
+  set(ROW.cogsLabel, ['COGS']);
+  set(ROW.cogsPersonnel, line('Personnel', statement.expenses.cogsPersonnel));
+  set(ROW.cogsSoftware, line('Software Subscriptions', statement.expenses.cogsSoftware));
+  set(ROW.cogsTokens, line('Tokens', statement.expenses.cogsTokens));
+  set(ROW.sgaLabel, ['SG&A']);
+  set(ROW.sgaPersonnel, line('Personnel', statement.expenses.sgaPersonnel));
+  set(ROW.sgaSoftware, line('Software Subscriptions', statement.expenses.sgaSoftware));
+  set(ROW.sgaTokens, line('Tokens', statement.expenses.sgaTokens));
+  set(ROW.otherLabel, ['Other Expenses']);
+  set(ROW.otherExpenses, line('Other expenses (see Legend)', statement.expenses.otherExpenses));
+  set(ROW.totalExpenses, ['TOTAL EXPENSES', ...COLS.map(c =>
+    `=${c}${ROW.cogsPersonnel}+${c}${ROW.cogsSoftware}+${c}${ROW.cogsTokens}+${c}${ROW.sgaPersonnel}+${c}${ROW.sgaSoftware}+${c}${ROW.sgaTokens}+${c}${ROW.otherExpenses}`
+  )]);
+
+  set(ROW.profitLoss, ['PROFIT (LOSS)', ...COLS.map(c => `=${c}${ROW.totalRevenue}-${c}${ROW.totalExpenses}`)]);
+  set(ROW.footer, [`Build with Gemini XPRIZE | Live-synced from GiGO's real transaction data on ${new Date().toISOString()} | CONFIDENTIAL`]);
+
+  for (let i = 0; i < rows.length; i++) {
+    if (!rows[i]) rows[i] = [];
+  }
+  return rows;
 }
 
 function round2(n: number): number {
   return Math.round((n || 0) * 100) / 100;
+}
+
+// Formatting requests (colors + number format) matching the official template's
+// cell styles exactly, built from the same ROW map used for values/formulas.
+function buildFormatRequests(sheetId: number) {
+  const bandRow = (rowNum: number, color: any, textColor?: any) => ({
+    repeatCell: {
+      range: { sheetId, startRowIndex: rowNum - 1, endRowIndex: rowNum, startColumnIndex: 0, endColumnIndex: 6 },
+      cell: { userEnteredFormat: { backgroundColor: color, ...(textColor ? { textFormat: { foregroundColor: textColor, bold: true } } : {}) } },
+      fields: 'userEnteredFormat.backgroundColor' + (textColor ? ',userEnteredFormat.textFormat' : '')
+    }
+  });
+  const currencyRow = (rowNum: number, color: any) => ({
+    repeatCell: {
+      range: { sheetId, startRowIndex: rowNum - 1, endRowIndex: rowNum, startColumnIndex: 1, endColumnIndex: 6 },
+      cell: { userEnteredFormat: { backgroundColor: color, numberFormat: { type: 'CURRENCY', pattern: CURRENCY_FORMAT } } },
+      fields: 'userEnteredFormat.backgroundColor,userEnteredFormat.numberFormat'
+    }
+  });
+
+  const white = COLOR_WHITE;
+  const whiteRows = [
+    ROW.cogsLabel, ROW.cogsPersonnel, ROW.cogsSoftware, ROW.cogsTokens,
+    ROW.sgaLabel, ROW.sgaPersonnel, ROW.sgaSoftware, ROW.sgaTokens,
+    ROW.otherLabel, ROW.otherExpenses, ROW.revIndependent, ROW.revRelated
+  ];
+
+  return [
+    bandRow(ROW.title, COLOR_NAVY, COLOR_WHITE),
+    bandRow(ROW.plBanner, COLOR_ORANGE, COLOR_WHITE),
+    bandRow(ROW.period, COLOR_LIGHT_GRAY),
+    bandRow(ROW.accentBar, COLOR_GREEN),
+    bandRow(ROW.colHeaders, COLOR_NAVY, COLOR_WHITE),
+    bandRow(ROW.revenueHeader, COLOR_NAVY, COLOR_WHITE),
+    bandRow(ROW.expensesHeader, COLOR_NAVY, COLOR_WHITE),
+    ...whiteRows.map(r => bandRow(r, white)),
+    ...whiteRows.map(r => currencyRow(r, white)),
+    bandRow(ROW.totalRevenue, COLOR_LIGHT_GRAY, undefined), currencyRow(ROW.totalRevenue, COLOR_LIGHT_GRAY),
+    bandRow(ROW.totalExpenses, COLOR_LIGHT_GRAY, undefined), currencyRow(ROW.totalExpenses, COLOR_LIGHT_GRAY),
+    bandRow(ROW.profitLoss, COLOR_GREEN, COLOR_WHITE), currencyRow(ROW.profitLoss, COLOR_GREEN),
+    bandRow(ROW.footer, COLOR_NAVY, COLOR_WHITE),
+    {
+      updateDimensionProperties: {
+        range: { sheetId, dimension: 'COLUMNS', startIndex: 0, endIndex: 1 },
+        properties: { pixelSize: 380 },
+        fields: 'pixelSize'
+      }
+    }
+  ];
 }
 
 function extractSpreadsheetId(input: string): string {
@@ -356,6 +413,13 @@ router.post('/admin/pl-statement/sync-to-sheet', async (req: Request, res: Respo
       range: 'A1',
       valueInputOption: 'USER_ENTERED',
       requestBody: { values: rows }
+    });
+
+    const meta = await sheets.spreadsheets.get({ spreadsheetId });
+    const sheetId = meta.data.sheets?.[0]?.properties?.sheetId ?? 0;
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      requestBody: { requests: buildFormatRequests(sheetId) }
     });
 
     await configRef.set({ plGoogleSheetId: spreadsheetId }, { merge: true });
