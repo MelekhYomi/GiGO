@@ -302,48 +302,52 @@ function round2(n: number): number {
   return Math.round((n || 0) * 100) / 100;
 }
 
-// Syncs the real, live-computed P&L into a Google Sheet under the founder's own
-// Google account, creating it on first run and reusing the same sheet thereafter.
+function extractSpreadsheetId(input: string): string {
+  const match = input.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  return match ? match[1] : input.trim();
+}
+
+// Service accounts have no personal Drive storage quota, so they can't create new
+// spreadsheets in a regular Google account's Drive. Instead: the admin creates a
+// blank sheet themselves and shares it (Editor) with this service account email —
+// GiGO_SHEETS_SERVICE_ACCOUNT_EMAIL below — then this endpoint just writes into it.
+router.get('/admin/pl-statement/sheets-service-account', async (req: Request, res: Response) => {
+  try {
+    const auth = getGoogleSheetsAuth();
+    const client = await auth.getClient();
+    const email = (client as any).email || (await (auth as any).getCredentials?.())?.client_email;
+    res.status(200).json({ serviceAccountEmail: email || 'unknown' });
+  } catch (error: any) {
+    res.status(500).json({ error: "Failed to resolve service account email.", details: error.message });
+  }
+});
+
+// Syncs the real, live-computed P&L into a Google Sheet the admin has already created
+// and shared with GiGO's service account. Pass spreadsheetUrlOrId on first call (or
+// whenever switching sheets); it's remembered in system_configs/global thereafter.
 router.post('/admin/pl-statement/sync-to-sheet', async (req: Request, res: Response) => {
   if (!requireAdmin(req, res)) return;
-  const shareWithEmail = req.body?.shareWithEmail || 'abayomi.deleale@gmail.com';
 
   try {
     const auth = getGoogleSheetsAuth();
     const sheets = google.sheets({ version: 'v4', auth });
-    const drive = google.drive({ version: 'v3', auth });
 
     const statement = await computePLStatement();
     const rows = buildSheetRows(statement);
 
     const configRef = db.collection('system_configs').doc('global');
     const configDoc = await configRef.get();
-    let spreadsheetId = configDoc.data()?.plGoogleSheetId as string | undefined;
-
-    if (spreadsheetId) {
-      // Verify it still exists / is accessible before reusing it.
-      try {
-        await sheets.spreadsheets.get({ spreadsheetId });
-      } catch {
-        spreadsheetId = undefined;
-      }
-    }
+    let spreadsheetId = req.body?.spreadsheetUrlOrId
+      ? extractSpreadsheetId(req.body.spreadsheetUrlOrId)
+      : (configDoc.data()?.plGoogleSheetId as string | undefined);
 
     if (!spreadsheetId) {
-      const created = await sheets.spreadsheets.create({
-        requestBody: {
-          properties: { title: 'GiGO — Build with Gemini XPRIZE P&L Statement' }
-        }
+      res.status(400).json({
+        error: "No Google Sheet configured yet.",
+        needsSpreadsheetId: true,
+        details: "Create a blank Google Sheet, share it (Editor) with the service account email, and resubmit with spreadsheetUrlOrId."
       });
-      spreadsheetId = created.data.spreadsheetId!;
-
-      await drive.permissions.create({
-        fileId: spreadsheetId,
-        sendNotificationEmail: true,
-        requestBody: { type: 'user', role: 'writer', emailAddress: shareWithEmail }
-      });
-
-      await configRef.set({ plGoogleSheetId: spreadsheetId }, { merge: true });
+      return;
     }
 
     await sheets.spreadsheets.values.clear({ spreadsheetId, range: 'A1:Z100' });
@@ -353,6 +357,8 @@ router.post('/admin/pl-statement/sync-to-sheet', async (req: Request, res: Respo
       valueInputOption: 'USER_ENTERED',
       requestBody: { values: rows }
     });
+
+    await configRef.set({ plGoogleSheetId: spreadsheetId }, { merge: true });
 
     const sheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`;
     res.status(200).json({ success: true, sheetUrl, spreadsheetId });

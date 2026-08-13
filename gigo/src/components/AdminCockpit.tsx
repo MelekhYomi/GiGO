@@ -252,19 +252,29 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
   const [isSyncingSheet, setIsSyncingSheet] = useState<boolean>(false);
   const [syncedSheetUrl, setSyncedSheetUrl] = useState<string>('');
 
-  const handleSyncToGoogleSheet = async () => {
+  const handleSyncToGoogleSheet = async (spreadsheetUrlOrId?: string) => {
     setIsSyncingSheet(true);
     try {
       const res = await fetch(`${API_BASE_URL}/api/admin/pl-statement/sync-to-sheet`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminEmail: userEmail || 'admin@gigo.com' })
+        body: JSON.stringify({ adminEmail: userEmail || 'admin@gigo.com', spreadsheetUrlOrId })
       });
       const data = await res.json();
       if (res.ok && data.success) {
         setSyncedSheetUrl(data.sheetUrl);
         logAdminAction('PL_SHEET_SYNC', `Synced real P&L statement to Google Sheet: ${data.sheetUrl}`);
         window.open(data.sheetUrl, '_blank');
+      } else if (data.needsSpreadsheetId) {
+        const svcRes = await fetch(`${API_BASE_URL}/api/admin/pl-statement/sheets-service-account`);
+        const svcData = await svcRes.json();
+        const url = prompt(
+          `First-time setup: create a blank Google Sheet, share it (Editor access) with this service account email:\n\n${svcData.serviceAccountEmail || '(unable to resolve)'}\n\nThen paste the sheet's URL here:`
+        );
+        if (url) {
+          await handleSyncToGoogleSheet(url);
+          return;
+        }
       } else {
         alert(data.details || data.error || "Failed to sync to Google Sheet.");
       }
@@ -860,7 +870,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                       Open synced sheet ↗
                     </a>
                   )}
-                  <button className="btn-glass" onClick={handleSyncToGoogleSheet} disabled={isSyncingSheet} style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem', borderColor: 'rgba(16, 185, 129, 0.4)', color: '#10b981' }}>
+                  <button className="btn-glass" onClick={() => handleSyncToGoogleSheet()} disabled={isSyncingSheet} style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem', borderColor: 'rgba(16, 185, 129, 0.4)', color: '#10b981' }}>
                     {isSyncingSheet ? '📤 Syncing...' : '📊 Sync to Google Sheet'}
                   </button>
                   <button className="btn-glass" onClick={fetchPLStatement} disabled={isLoadingPL} style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem' }}>
