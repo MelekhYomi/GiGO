@@ -5,6 +5,7 @@ import nodemailer from 'nodemailer';
 import axios from 'axios';
 import { markdownToDocxBuffer } from './utils/docxGenerator';
 import { markdownToPdfBuffer } from './utils/pdfGenerator';
+import { markdownToJpegBuffer } from './utils/imageGenerator';
 import { createNotification } from './utils/notifications';
 
 
@@ -240,6 +241,198 @@ export async function fetchRemoteOKJobs(): Promise<number> {
 }
 
 /**
+ * Real, no-AI job source #2: The Muse's public jobs API (no key required). Unlike
+ * RemoteOK, which is remote-only by definition, this covers onsite and hybrid roles
+ * too — real physical locations, not just "Remote". Runs independently of the
+ * Gemini-based discovery sweep, same as fetchRemoteOKJobs.
+ */
+export async function fetchTheMuseJobs(): Promise<number> {
+  let storedCount = 0;
+  let fetchedCount = 0;
+  try {
+    const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+
+    // Pull a few pages; filter down to genuinely recent postings (the API doesn't
+    // guarantee newest-first ordering, so we can't just take page 1 at face value).
+    for (let page = 1; page <= 5; page++) {
+      const response = await axios.get('https://www.themuse.com/api/public/jobs', {
+        params: { page },
+        headers: { 'User-Agent': 'GiGO-CareerPlatform/1.0 (+https://gigo-omega.vercel.app)' },
+        timeout: 15000
+      });
+
+      const results: any[] = Array.isArray(response.data?.results) ? response.data.results : [];
+      fetchedCount += results.length;
+
+      for (const job of results) {
+        const pubDate = job.publication_date ? new Date(job.publication_date).getTime() : 0;
+        if (!pubDate || pubDate < thirtyDaysAgo) continue;
+
+        const companyName = job.company?.name;
+        const jobTitle = job.name;
+        if (!companyName || !jobTitle) continue;
+
+        const locationName: string = job.locations?.[0]?.name || '';
+        const isRemote = /remote|flexible/i.test(locationName);
+        const workType: 'Remote' | 'Onsite' = isRemote ? 'Remote' : 'Onsite';
+
+        const dedupKey = `${companyName}::${jobTitle}`.toLowerCase().replace(/[^a-z0-9:]/g, '_');
+        const docId = `discovered_muse_${dedupKey.substring(0, 110)}`;
+        const docRef = db.collection('discovered_jobs').doc(docId);
+        const existingDoc = await docRef.get();
+
+        let scrapedAt = new Date().toISOString();
+        if (existingDoc.exists) {
+          const existingData = existingDoc.data();
+          if (existingData?.scrapedAt) scrapedAt = existingData.scrapedAt;
+        }
+
+        const plainDescription = (job.contents || '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .slice(0, 600);
+
+        await docRef.set({
+          id: docId,
+          userId: null,
+          companyName,
+          jobTitle,
+          workType,
+          location: locationName || null,
+          applicationLinkOrEmail: job.refs?.landing_page || '',
+          sourcePlatform: 'The Muse',
+          keyRequirementsSummary: Array.isArray(job.categories) ? job.categories.map((c: any) => c.name).slice(0, 5) : [],
+          scrapedAt,
+          postedAt: job.publication_date || new Date().toISOString(),
+          applicationDeadline: null,
+          jobDescription: plainDescription,
+          applicationEmail: null,
+          applicationPhone: null,
+          applicationLink: job.refs?.landing_page || null,
+          applicationMethod: 'portal',
+          emailSubject: null,
+          emailBodyRequirements: null,
+          attachmentsRequired: [],
+        }, { merge: true });
+        storedCount++;
+      }
+    }
+
+    await db.collection('agent_execution_logs').add({
+      timestamp: new Date().toISOString(),
+      agentName: 'TheMuseDirectFeed',
+      status: 'COMPLETED',
+      metrics: { fetchedCount, storedCount }
+    });
+
+    console.log(`The Muse direct feed: stored ${storedCount} real onsite/hybrid/remote listings.`);
+    return storedCount;
+  } catch (error: any) {
+    console.error('The Muse direct feed failed:', error.message);
+    try {
+      await db.collection('agent_execution_logs').add({
+        timestamp: new Date().toISOString(),
+        agentName: 'TheMuseDirectFeed',
+        status: 'FAILED',
+        metrics: { error: error.message }
+      });
+    } catch (logErr) {
+      console.error('Failed to write The Muse feed error log:', logErr);
+    }
+    return 0;
+  }
+}
+
+/**
+ * Real, no-AI job source #3: Arbeitnow's public job board API (no key required).
+ * Has an explicit remote:boolean flag and real onsite locations, mostly
+ * Europe-weighted — another independent source of non-remote listings.
+ */
+export async function fetchArbeitnowJobs(): Promise<number> {
+  let storedCount = 0;
+  try {
+    const response = await axios.get('https://www.arbeitnow.com/api/job-board-api', {
+      headers: { 'User-Agent': 'GiGO-CareerPlatform/1.0 (+https://gigo-omega.vercel.app)' },
+      timeout: 15000
+    });
+
+    const rawJobs: any[] = Array.isArray(response.data?.data) ? response.data.data : [];
+    const thirtyDaysAgoSec = (Date.now() - 30 * 24 * 60 * 60 * 1000) / 1000;
+
+    for (const job of rawJobs) {
+      if (!job.company_name || !job.title) continue;
+      if (job.created_at && job.created_at < thirtyDaysAgoSec) continue;
+
+      const workType: 'Remote' | 'Onsite' = job.remote ? 'Remote' : 'Onsite';
+      const dedupKey = `${job.company_name}::${job.title}`.toLowerCase().replace(/[^a-z0-9:]/g, '_');
+      const docId = `discovered_arbeitnow_${dedupKey.substring(0, 100)}`;
+      const docRef = db.collection('discovered_jobs').doc(docId);
+      const existingDoc = await docRef.get();
+
+      let scrapedAt = new Date().toISOString();
+      if (existingDoc.exists) {
+        const existingData = existingDoc.data();
+        if (existingData?.scrapedAt) scrapedAt = existingData.scrapedAt;
+      }
+
+      const plainDescription = (job.description || '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 600);
+
+      await docRef.set({
+        id: docId,
+        userId: null,
+        companyName: job.company_name,
+        jobTitle: job.title,
+        workType,
+        location: job.location || null,
+        applicationLinkOrEmail: job.url || '',
+        sourcePlatform: 'Arbeitnow',
+        keyRequirementsSummary: Array.isArray(job.tags) ? job.tags.slice(0, 5) : [],
+        scrapedAt,
+        postedAt: job.created_at ? new Date(job.created_at * 1000).toISOString() : new Date().toISOString(),
+        applicationDeadline: null,
+        jobDescription: plainDescription,
+        applicationEmail: null,
+        applicationPhone: null,
+        applicationLink: job.url || null,
+        applicationMethod: 'portal',
+        emailSubject: null,
+        emailBodyRequirements: null,
+        attachmentsRequired: [],
+      }, { merge: true });
+      storedCount++;
+    }
+
+    await db.collection('agent_execution_logs').add({
+      timestamp: new Date().toISOString(),
+      agentName: 'ArbeitnowDirectFeed',
+      status: 'COMPLETED',
+      metrics: { fetchedCount: rawJobs.length, storedCount }
+    });
+
+    console.log(`Arbeitnow direct feed: stored ${storedCount} real listings.`);
+    return storedCount;
+  } catch (error: any) {
+    console.error('Arbeitnow direct feed failed:', error.message);
+    try {
+      await db.collection('agent_execution_logs').add({
+        timestamp: new Date().toISOString(),
+        agentName: 'ArbeitnowDirectFeed',
+        status: 'FAILED',
+        metrics: { error: error.message }
+      });
+    } catch (logErr) {
+      console.error('Failed to write Arbeitnow feed error log:', logErr);
+    }
+    return 0;
+  }
+}
+
+/**
  * Triggers autonomous job application:
  * 1. Generates customized ATS CV & Cover Letter for the matched job using Gemini.
  * 2. Saves documents into the candidate's documents subcollection.
@@ -396,10 +589,16 @@ async function triggerAutonomousApplyAndAlert(
       portfolioContent = portfolioResponse.text ? portfolioResponse.text.trim() : null;
     }
 
-    // 3. Save Cover Letter & CV (& Portfolio, if generated) documents under /users/{userId}/documents
+    // 3. Save Cover Letter & CV (& Portfolio, if generated) documents under /users/{userId}/documents,
+    // each with a JPEG preview generated up front for instant in-app viewing/download.
     const cvDocId = `doc_auto_cv_${Date.now()}`;
     const clDocId = `doc_auto_cl_${Date.now()}`;
     const portfolioDocId = `doc_auto_pf_${Date.now()}`;
+
+    const safeJpeg = async (content: string): Promise<string | null> => {
+      try { return (await markdownToJpegBuffer(content)).toString('base64'); }
+      catch (imgErr) { console.warn('Failed to generate JPEG preview:', imgErr); return null; }
+    };
 
     await userRef.collection('documents').doc(cvDocId).set({
       id: cvDocId,
@@ -407,6 +606,7 @@ async function triggerAutonomousApplyAndAlert(
       jobTitle: job.jobTitle,
       companyName: job.companyName,
       content: cvContent,
+      jpegBase64: await safeJpeg(cvContent),
       generatedAt: new Date().toISOString()
     });
 
@@ -416,6 +616,7 @@ async function triggerAutonomousApplyAndAlert(
       jobTitle: job.jobTitle,
       companyName: job.companyName,
       content: coverLetterContent,
+      jpegBase64: await safeJpeg(coverLetterContent),
       generatedAt: new Date().toISOString()
     });
 
@@ -426,6 +627,7 @@ async function triggerAutonomousApplyAndAlert(
         jobTitle: job.jobTitle,
         companyName: job.companyName,
         content: portfolioContent,
+        jpegBase64: await safeJpeg(portfolioContent),
         generatedAt: new Date().toISOString()
       });
     }

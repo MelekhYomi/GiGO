@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { db, FieldValue } from './firebase-config';
 import { mapErrorResponse } from './utils/errorMapper';
 import { getGeminiClient } from './utils/gemini';
+import { markdownToJpegBuffer } from './utils/imageGenerator';
 
 
 export async function handleAssetGenerationRoute(req: Request, res: Response): Promise<void> {
@@ -233,6 +234,16 @@ ${educationBlock}`;
 
     const assetContent = response.text ? response.text.trim() : `Dear Hiring Team,\n\nI am writing to express my strong interest in the ${finalJobTitle} position at ${finalCompanyName}...`;
 
+    // Generate a real JPEG preview at creation time so the candidate can view/download
+    // it from their archive immediately, not just when an application is sent.
+    let jpegBase64: string | null = null;
+    try {
+      const jpegBuffer = await markdownToJpegBuffer(assetContent);
+      jpegBase64 = jpegBuffer.toString('base64');
+    } catch (imgErr) {
+      console.warn(`Failed to generate JPEG preview for ${type}:`, imgErr);
+    }
+
     // Save generated cover letter in user's documents subcollection
     const docId = `doc_${Date.now()}`;
     await userRef.collection('documents').doc(docId).set({
@@ -241,6 +252,7 @@ ${educationBlock}`;
       jobTitle: finalJobTitle,
       companyName: finalCompanyName,
       content: assetContent,
+      jpegBase64,
       generatedAt: new Date().toISOString()
     });
 
