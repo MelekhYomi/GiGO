@@ -3,6 +3,7 @@ import './App.css';
 import { LandingPage } from './pages/LandingPage';
 import { KanbanBoard } from './components/KanbanBoard';
 import { GiGOBrainDashboard } from './components/GiGOBrainDashboard';
+import LegalDocumentModal from './components/LegalDocumentModal';
 
 const AdminCockpit = lazy(() => import('./components/AdminCockpit').then(module => ({ default: module.AdminCockpit })));
 const MailroomTab = lazy(() => import('./components/MailroomTab').then(module => ({ default: module.MailroomTab })));
@@ -451,6 +452,8 @@ export default function App() {
   const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false);
   const [settingsActiveTab, setSettingsActiveTab] = useState<'profile' | 'scan' | 'keys' | 'security'>('profile');
   const [agreeTerms, setAgreeTerms] = useState<boolean>(false);
+  const [marketingConsent, setMarketingConsent] = useState<boolean>(false);
+  const [showLegalModal, setShowLegalModal] = useState<'terms' | 'privacy' | null>(null);
   const [isScanningNIN, setIsScanningNIN] = useState<boolean>(false);
   const [scanProgress, setScanProgress] = useState<number>(0);
   const [scanLogs, setScanLogs] = useState<string[]>([]);
@@ -511,6 +514,7 @@ export default function App() {
     salaryExpectationMin?: string;
     salaryExpectationMax?: string;
     careerGoalsNote?: string;
+    marketingConsent?: boolean;
   }>({
     name: '[   ]',
     role: '[   ]',
@@ -3563,7 +3567,8 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
           email: authEmail,
           password: authPassword,
           phoneNumber: authPhone,
-          referredBy: localStorage.getItem('gigo_ref_by') || ''
+          referredBy: localStorage.getItem('gigo_ref_by') || '',
+          marketingConsent
         })
       });
 
@@ -4751,9 +4756,9 @@ ${profile.name || '[   ]'}`;
                       </button>
                     </div>
                   </div>
-                  <div className="form-group" style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'flex-start', gap: '0.5rem', userSelect: 'none' }}>
-                    <input 
-                      type="checkbox" 
+                  <div className="form-group" style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.5rem', userSelect: 'none' }}>
+                    <input
+                      type="checkbox"
                       id="agreeTerms"
                       checked={agreeTerms}
                       onChange={(e) => setAgreeTerms(e.target.checked)}
@@ -4761,7 +4766,23 @@ ${profile.name || '[   ]'}`;
                       required
                     />
                     <label htmlFor="agreeTerms" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', cursor: 'pointer', lineHeight: '1.2' }}>
-                      I agree to the <span style={{ color: 'var(--primary)', fontWeight: 600 }}>Terms & Conditions</span>, and certify that I am of legal workable age in my region and country.
+                      I agree to the{' '}
+                      <span onClick={(e) => { e.preventDefault(); setShowLegalModal('terms'); }} style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'underline', cursor: 'pointer' }}>Terms of Service</span>
+                      {' '}and{' '}
+                      <span onClick={(e) => { e.preventDefault(); setShowLegalModal('privacy'); }} style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'underline', cursor: 'pointer' }}>Privacy Policy</span>
+                      , including that GiGO's AI agent may generate and send job applications on my behalf when Autopilot is enabled, and I certify that I am of legal workable age in my region and country.
+                    </label>
+                  </div>
+                  <div className="form-group" style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'flex-start', gap: '0.5rem', userSelect: 'none' }}>
+                    <input
+                      type="checkbox"
+                      id="marketingConsent"
+                      checked={marketingConsent}
+                      onChange={(e) => setMarketingConsent(e.target.checked)}
+                      style={{ marginTop: '0.25rem', cursor: 'pointer', accentColor: 'var(--primary)' }}
+                    />
+                    <label htmlFor="marketingConsent" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', cursor: 'pointer', lineHeight: '1.2' }}>
+                      (Optional) GiGO may use my reviews, testimonials, or feedback in its marketing. I can withdraw this anytime in Settings.
                     </label>
                   </div>
                   <button type="submit" className="btn-glass btn-secondary" style={{ width: '100%', justifyContent: 'center', marginTop: '0.5rem', fontWeight: 700 }} disabled={isSubmittingAuth}>
@@ -4774,6 +4795,9 @@ ${profile.name || '[   ]'}`;
               )}
             </div>
           </div>
+        )}
+        {showLegalModal && (
+          <LegalDocumentModal API_BASE_URL={API_BASE_URL} docType={showLegalModal} onClose={() => setShowLegalModal(null)} />
         )}
       </div>
     );
@@ -10294,6 +10318,54 @@ ${profile.name || '[   ]'}`;
                               </div>
                             )}
                           </div>
+
+                          {/* LEGAL & PRIVACY PANEL */}
+                          <div style={{
+                            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)',
+                            border: '1px solid var(--border-glass)',
+                            borderRadius: '12px',
+                            padding: '1.5rem',
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                            backdropFilter: 'blur(12px)',
+                            WebkitBackdropFilter: 'blur(12px)',
+                            marginTop: '1.5rem'
+                          }}>
+                            <h5 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              📜 Legal & Privacy
+                            </h5>
+                            <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                              <button type="button" className="btn-glass" style={{ padding: '0.4rem 0.9rem', fontSize: '0.75rem' }} onClick={() => setShowLegalModal('terms')}>
+                                View Terms of Service
+                              </button>
+                              <button type="button" className="btn-glass" style={{ padding: '0.4rem 0.9rem', fontSize: '0.75rem' }} onClick={() => setShowLegalModal('privacy')}>
+                                View Privacy Policy
+                              </button>
+                            </div>
+                            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem', cursor: 'pointer', userSelect: 'none' }}>
+                              <input
+                                type="checkbox"
+                                checked={!!profile?.marketingConsent}
+                                onChange={async (e) => {
+                                  const val = e.target.checked;
+                                  try {
+                                    await fetch(`${API_BASE_URL}/api/users/${userId}/update`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ marketingConsent: val })
+                                    });
+                                    setProfile((prev: any) => ({ ...prev, marketingConsent: val }));
+                                    addLog(val ? "Marketing consent granted." : "Marketing consent withdrawn.");
+                                  } catch (err) {
+                                    console.error("Failed to update marketing consent:", err);
+                                  }
+                                }}
+                                style={{ marginTop: '0.2rem', cursor: 'pointer', accentColor: 'var(--primary)' }}
+                              />
+                              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                                GiGO may use my reviews, testimonials, or feedback in its marketing. I can withdraw this at any time.
+                              </span>
+                            </label>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -11194,6 +11266,10 @@ ${profile.name || '[   ]'}`;
             </div>
           </div>
         </div>
+      )}
+
+      {showLegalModal && (
+        <LegalDocumentModal API_BASE_URL={API_BASE_URL} docType={showLegalModal} onClose={() => setShowLegalModal(null)} />
       )}
 
     </div>

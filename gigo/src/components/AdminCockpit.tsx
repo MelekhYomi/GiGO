@@ -3,6 +3,7 @@ import OrchestratorControlRoom from './OrchestratorControlRoom';
 import AIObservabilityDashboard from './AIObservabilityDashboard';
 import RecruiterResponseSandbox from './RecruiterResponseSandbox';
 import JobSourcesManager from './JobSourcesManager';
+import LegalDocumentsEditor from './LegalDocumentsEditor';
 
 // Simple Refresh SVG Icon
 const RefreshIcon = () => (
@@ -1439,6 +1440,8 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
       {/* TAB 5: SYSTEM CONTROL / CONFIGURATION */}
       {adminTab === 'settings' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
+          <LegalDocumentsEditor API_BASE_URL={API_BASE_URL} userEmail={userEmail || 'admin@gigo.com'} addLog={addLog} />
+
           {/* Global System Configuration */}
           <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
