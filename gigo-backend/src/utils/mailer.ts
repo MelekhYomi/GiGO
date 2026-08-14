@@ -38,7 +38,7 @@ export interface SendGigoMailParams {
   to: string;
   subject: string;
   text: string;
-  attachments?: { filename: string; content: string }[];
+  attachments?: { filename: string; content: string | Buffer; contentType?: string }[];
 }
 
 /**

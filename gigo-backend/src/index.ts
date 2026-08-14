@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import bcrypt from 'bcryptjs';
 import multer from 'multer';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -193,7 +194,7 @@ app.post('/api/users/:userId/update', authenticateToken, async (req: Request, re
       updatePayload.paystackSecretKey = existingData.paystackSecretKey;
     }
     if (profilePic !== undefined) updatePayload.profilePic = profilePic;
-    if (password !== undefined) updatePayload.password = password;
+    if (password !== undefined) updatePayload.password = await bcrypt.hash(password, 10);
     if (smtpSettings !== undefined) {
       updatePayload.smtpSettings = {
         host: smtpSettings.host || '',
@@ -853,10 +854,11 @@ app.post('/api/auth/signup', async (req: Request, res: Response) => {
     }
 
     const userId = 'user_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newProfile: any = {
       userId,
       email: email.toLowerCase(),
-      password, // Simple clear text field for demonstration/local security
+      password: hashedPassword,
       fullName,
       phoneNumber: phoneNumber || '',
       role: 'candidate',
@@ -1080,9 +1082,24 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     const userDoc = userQuery.docs[0];
     const userData = userDoc.data();
 
-    if (userData.password !== password) {
+    // bcrypt hashes always start with $2a$/$2b$/$2y$. Accounts created before
+    // hashing was added still have a plaintext password on file — verify those
+    // directly, then transparently upgrade to a real hash on this successful
+    // login so every account ends up hashed without a forced password reset.
+    const storedPassword = userData.password || '';
+    const looksHashed = /^\$2[aby]\$/.test(storedPassword);
+    const passwordMatches = looksHashed
+      ? await bcrypt.compare(password, storedPassword)
+      : storedPassword === password;
+
+    if (!passwordMatches) {
       res.status(401).json({ error: "Invalid email or password." });
       return;
+    }
+
+    if (!looksHashed) {
+      const upgradedHash = await bcrypt.hash(password, 10);
+      await userDoc.ref.update({ password: upgradedHash });
     }
 
     const token = generateToken(userDoc.id);
@@ -1151,8 +1168,9 @@ app.post('/api/users/:userId/change-password', authenticateToken, async (req: Re
   }
   try {
     const userRef = db.collection('users').doc(userId);
+    const hashedPassword = await bcrypt.hash(password, 10);
     await userRef.set({
-      password: password,
+      password: hashedPassword,
       mustChangePassword: false,
       updatedAt: new Date().toISOString()
     }, { merge: true });
@@ -1191,8 +1209,9 @@ app.post('/api/admin/users/:userId/reset-password', async (req: Request, res: Re
     const userEmail = userData.email || '';
     const fullName = userData.fullName || 'Candidate';
 
+    const hashedPassword = await bcrypt.hash(password, 10);
     await userRef.set({
-      password: password,
+      password: hashedPassword,
       mustChangePassword: true,
       updatedAt: new Date().toISOString()
     }, { merge: true });
