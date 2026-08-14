@@ -1272,6 +1272,32 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                                     ⚠️ FROZEN
                                   </span>
                                 )}
+                                <span
+                                  title="Related party revenue must be disclosed separately from arms-length revenue in the P&L (see Devpost rules). Toggle if this account belongs to a team member, family, or pre-existing customer relationship."
+                                  onClick={async () => {
+                                    try {
+                                      const res = await fetch(`${API_BASE_URL}/api/admin/users/${user.userId}/set-related-party`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ adminEmail: userEmail, isRelatedParty: !user.isRelatedParty })
+                                      });
+                                      if (res.ok) {
+                                        logAdminAction('RELATED_PARTY_TOGGLE', `Marked ${user.fullName} as ${!user.isRelatedParty ? '' : 'not '}a related party.`);
+                                        fetchAdminUsers();
+                                      }
+                                    } catch (err) {
+                                      console.error("Failed to toggle related-party flag:", err);
+                                    }
+                                  }}
+                                  style={{
+                                    fontSize: '0.6rem', padding: '0.1rem 0.4rem', borderRadius: '4px', cursor: 'pointer',
+                                    background: user.isRelatedParty ? 'rgba(168, 85, 247, 0.15)' : 'rgba(255, 255, 255, 0.04)',
+                                    color: user.isRelatedParty ? '#c084fc' : 'var(--text-muted)',
+                                    border: user.isRelatedParty ? '1px solid rgba(168, 85, 247, 0.35)' : '1px solid rgba(255, 255, 255, 0.08)'
+                                  }}
+                                >
+                                  {user.isRelatedParty ? '🔗 Related Party' : '+ Mark Related Party'}
+                                </span>
                               </div>
                               <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>ID: {user.userId}</div>
                               {user.ninValue && (
