@@ -3636,6 +3636,42 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
       displayLabel = 'Custom Case Portfolio';
     }
 
+    // Check the archive for a similar existing document before spending a fresh,
+    // paid Gemini generation — offer to reuse & edit instead if one's found.
+    try {
+      const similarRes = await fetch(`${API_BASE_URL}/api/users/${userId}/documents/similar?type=${assetType}&jobTitle=${encodeURIComponent(job.jobTitle)}`);
+      if (similarRes.ok) {
+        const similarDocs = await similarRes.json();
+        if (Array.isArray(similarDocs) && similarDocs.length > 0) {
+          const match = similarDocs[0];
+          const wantsReuse = confirm(
+            `You already have a ${displayLabel} for "${match.jobTitle}" at ${match.companyName}. Reuse & edit it for this job instead of generating a new one (free, instant)?\n\nClick Cancel to generate a brand-new one instead.`
+          );
+          if (wantsReuse) {
+            setGenerating(true);
+            addLog(`Reusing existing ${displayLabel} ("${match.jobTitle}") for "${job.jobTitle}" at ${job.companyName}...`);
+            const reuseRes = await fetch(`${API_BASE_URL}/api/users/${userId}/documents/${match.id}/reuse`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ newJobTitle: job.jobTitle, newCompanyName: job.companyName, newJobId: job.id })
+            });
+            const reuseData = await reuseRes.json();
+            if (reuseRes.ok && reuseData.success) {
+              addLog(`Reused ${displayLabel} saved to your archive — edit it there to tailor it to ${job.companyName}.`);
+              if (assetType === 'COVER_LETTER') setGeneratedCoverLetter(match.content);
+              await fetchDocuments();
+            } else {
+              alert(reuseData.error || "Failed to reuse document.");
+            }
+            setGenerating(false);
+            return;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("Similar-document check failed, proceeding with fresh generation:", err);
+    }
+
     setGenerating(true);
     if (assetType === 'COVER_LETTER') {
       setGeneratedCoverLetter(null);

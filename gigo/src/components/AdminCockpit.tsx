@@ -46,6 +46,7 @@ export interface AdminUser {
   isNINVerified?: boolean;
   ninValue?: string;
   ninCardImage?: string;
+  isRelatedParty?: boolean;
 }
 
 interface AdminCockpitProps {

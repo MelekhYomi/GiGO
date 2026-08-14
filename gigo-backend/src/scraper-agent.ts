@@ -643,9 +643,38 @@ async function triggerAutonomousApplyAndAlert(
 
     const coverLetterContent = coverLetterResponse.text ? coverLetterResponse.text.trim() : `Dear Hiring Team,\n\nI am writing to express my strong interest in the ${job.jobTitle} position at ${job.companyName}...`;
 
-    // 2. Compile customized ATS CV using Gemini
-    console.log(`[AUTOPILOT APPLY] Compiling customized ATS-compliant CV tailored for ${job.jobTitle}...`);
-    const cvPrompt = `You are the lead ATS compliance officer for GiGO.
+    // 2. Archive-reuse agent: check for an existing CV already tailored to a
+    // similar role before spending a fresh Gemini call — reuse it verbatim if
+    // found (the candidate can refine it later from their archive), otherwise
+    // fall through to generating a brand-new one.
+    console.log(`[AUTOPILOT APPLY] Checking archive for a reusable CV similar to "${job.jobTitle}"...`);
+    let cvContent: string | null = null;
+    let reusedCvDocId: string | null = null;
+    try {
+      const existingCvsSnap = await userRef.collection('documents').where('type', '==', 'CV').get();
+      const targetWords = new Set(String(job.jobTitle).toLowerCase().split(/\s+/).filter(w => w.length > 2));
+      let bestMatch: { id: string; content: string; generatedAt: string } | null = null;
+      existingCvsSnap.forEach(doc => {
+        const d = doc.data();
+        const docWords = String(d.jobTitle || '').toLowerCase().split(/\s+/).filter((w: string) => w.length > 2);
+        const overlaps = docWords.some((w: string) => targetWords.has(w));
+        if (overlaps && (!bestMatch || d.generatedAt > bestMatch.generatedAt)) {
+          bestMatch = { id: doc.id, content: d.content, generatedAt: d.generatedAt };
+        }
+      });
+      if (bestMatch) {
+        cvContent = (bestMatch as { id: string; content: string; generatedAt: string }).content;
+        reusedCvDocId = (bestMatch as { id: string; content: string; generatedAt: string }).id;
+        console.log(`[AUTOPILOT APPLY] Reusing existing CV (${reusedCvDocId}) for "${job.jobTitle}" — no fresh Gemini call needed.`);
+      }
+    } catch (reuseErr) {
+      console.warn(`[AUTOPILOT APPLY] Archive-reuse check failed, falling back to fresh generation:`, reuseErr);
+    }
+
+    if (!cvContent) {
+      // 2b. No reusable CV found — compile a customized ATS CV using Gemini.
+      console.log(`[AUTOPILOT APPLY] No reusable CV found. Compiling customized ATS-compliant CV tailored for ${job.jobTitle}...`);
+      const cvPrompt = `You are the lead ATS compliance officer for GiGO.
     Write a structured, modern, and highly professional CV/resume in Markdown specifically tailored for ${userData.fullName || 'the candidate'} targeting the ${job.jobTitle} position at ${job.companyName}.
 
     Candidate Context:
@@ -666,12 +695,12 @@ async function triggerAutonomousApplyAndAlert(
 
     Do not include any empty placeholders. Return ONLY the markdown CV.`;
 
-    const cvResponse = await ai.models.generateContent({
-      model: modelPro,
-      contents: cvPrompt
-    });
-
-    const cvContent = cvResponse.text ? cvResponse.text.trim() : `# CV\n\nTailored Resume for ${userData.fullName || 'Candidate'}`;
+      const cvResponse = await ai.models.generateContent({
+        model: modelPro,
+        contents: cvPrompt
+      });
+      cvContent = cvResponse.text ? cvResponse.text.trim() : `# CV\n\nTailored Resume for ${userData.fullName || 'Candidate'}`;
+    }
 
     // 2b. This posting explicitly asked for a Portfolio — generate one rather than
     // sending an incomplete bundle.
