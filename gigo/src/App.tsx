@@ -456,6 +456,8 @@ export default function App() {
   const [marketingConsent, setMarketingConsent] = useState<boolean>(false);
   const [showLegalModal, setShowLegalModal] = useState<'terms' | 'privacy' | null>(null);
   const [micConsentRequest, setMicConsentRequest] = useState<{ onAllow: () => void; onCancel?: () => void } | null>(null);
+  const [showLocationConsent, setShowLocationConsent] = useState<boolean>(false);
+  const [isDetectingLocation, setIsDetectingLocation] = useState<boolean>(false);
   const [isScanningNIN, setIsScanningNIN] = useState<boolean>(false);
   const [scanProgress, setScanProgress] = useState<number>(0);
   const [scanLogs, setScanLogs] = useState<string[]>([]);
@@ -2946,6 +2948,46 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
   // NATIVE VOICE SYNCHRONIZER PIPELINES
   // ----------------------------------------------------
 
+  const detectLocation = () => {
+    setShowLocationConsent(true);
+  };
+
+  const detectLocationInternal = () => {
+    if (!navigator.geolocation) {
+      addLog("[Location] Geolocation isn't supported by this browser.");
+      return;
+    }
+    setIsDetectingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          // Free, keyless reverse-geocoding — converts coordinates to a real
+          // city/country string for the Location field, rather than storing
+          // raw coordinates the candidate can't read or edit.
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`, {
+            headers: { 'Accept-Language': 'en' }
+          });
+          const data = await res.json();
+          const addr = data.address || {};
+          const city = addr.city || addr.town || addr.village || addr.county || '';
+          const country = addr.country || '';
+          const readable = [city, country].filter(Boolean).join(', ') || `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`;
+          setProfile(prev => ({ ...prev, location: readable }));
+          addLog(`[Location] Detected: ${readable}`);
+        } catch (err) {
+          addLog("[Location] Couldn't resolve your location to a readable address. Please enter it manually.");
+        } finally {
+          setIsDetectingLocation(false);
+        }
+      },
+      () => {
+        addLog("[Location] Permission denied or unavailable. Please enter your location manually.");
+        setIsDetectingLocation(false);
+      }
+    );
+  };
+
   const startMicSync = () => {
     setMicConsentRequest({ onAllow: startMicSyncInternal, onCancel: () => setIsSyncing(false) });
   };
@@ -5191,8 +5233,13 @@ ${profile.name || '[   ]'}`;
                               </div>
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                                 <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Location / City</label>
-                                <input type="text" className="input-glass" style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}
-                                  value={profile?.location || ''} onChange={(e) => setProfile(prev => ({ ...prev, location: e.target.value }))} />
+                                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                                  <input type="text" className="input-glass" style={{ flex: 1, padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}
+                                    value={profile?.location || ''} onChange={(e) => setProfile(prev => ({ ...prev, location: e.target.value }))} />
+                                  <button type="button" className="btn-glass" style={{ padding: '0.5rem 0.65rem', fontSize: '0.75rem' }} onClick={detectLocation} disabled={isDetectingLocation} title="Auto-detect my location">
+                                    {isDetectingLocation ? '...' : '📍'}
+                                  </button>
+                                </div>
                               </div>
                             </div>
 
@@ -10187,11 +10234,15 @@ ${profile.name || '[   ]'}`;
                                     </div>
 
                                     <div className="form-group" style={{ marginBottom: 0 }}>
-                                      <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#fff' }}>Upload NIN Document Slip / Card (JPEG/PNG)</label>
-                                      <input 
-                                        type="file" 
+                                      <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#fff' }}>Upload or Photograph NIN Document Slip / Card (JPEG/PNG)</label>
+                                      <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: '0.2rem 0 0.5rem 0' }}>
+                                        On mobile, this opens your camera directly — GiGO only uses the photo to verify your identity, and it's never shared outside your account.
+                                      </p>
+                                      <input
+                                        type="file"
                                         accept="image/*"
-                                        className="form-control" 
+                                        capture="environment"
+                                        className="form-control"
                                         style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', padding: '0.45rem' }}
                                         onChange={(e) => {
                                           const file = e.target.files?.[0];
@@ -11297,6 +11348,15 @@ ${profile.name || '[   ]'}`;
           reason="This lets GiGO's voice engine transcribe what you say to build or update your career profile. Nothing is recorded or used for any other purpose."
           onAllow={() => { const req = micConsentRequest; setMicConsentRequest(null); req.onAllow(); }}
           onCancel={() => { const req = micConsentRequest; setMicConsentRequest(null); req.onCancel?.(); }}
+        />
+      )}
+      {showLocationConsent && (
+        <PermissionConsentModal
+          icon="📍"
+          title="GiGO would like your location"
+          reason="This fills in your city/country automatically so job matching can weigh location-relevant postings. You can always type it in manually instead."
+          onAllow={() => { setShowLocationConsent(false); detectLocationInternal(); }}
+          onCancel={() => setShowLocationConsent(false)}
         />
       )}
 
