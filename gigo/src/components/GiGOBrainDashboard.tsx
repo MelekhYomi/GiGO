@@ -108,6 +108,50 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
   const [brainChatInput, setBrainChatInput] = useState('');
   const [isBrainChatSending, setIsBrainChatSending] = useState(false);
 
+  // Document archive: edit-in-place + JPEG download. Local overrides layer on top
+  // of the compiledDocuments prop so a save reflects immediately without needing
+  // a full parent refetch.
+  const [editingDocId, setEditingDocId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [documentOverrides, setDocumentOverrides] = useState<Record<string, { content: string }>>({});
+
+  const startEditingDoc = (doc: any) => {
+    setEditingDocId(doc.id);
+    setEditContent(documentOverrides[doc.id]?.content ?? doc.content);
+  };
+
+  const saveDocEdit = async (docId: string) => {
+    setIsSavingEdit(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/users/${userId}/documents/${docId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: editContent })
+      });
+      if (res.ok) {
+        setDocumentOverrides(prev => ({ ...prev, [docId]: { content: editContent } }));
+        setEditingDocId(null);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || "Failed to save changes.");
+      }
+    } catch (err: any) {
+      alert(`Network error saving document: ${err.message}`);
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
+  const downloadDocJpeg = (docId: string, filenameHint: string) => {
+    const a = document.createElement('a');
+    a.href = `${API_BASE_URL}/api/users/${userId}/documents/${docId}/download-jpeg`;
+    a.download = `${filenameHint.replace(/\s+/g, '_')}.jpg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   const sendMindCloneMessage = async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || isBrainChatSending) return;
@@ -1110,7 +1154,10 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                     No compiled ATS documents found.
                   </div>
                 ) : (
-                  compiledDocuments.map((doc: any) => (
+                  compiledDocuments.map((rawDoc: any) => {
+                    const doc = { ...rawDoc, content: documentOverrides[rawDoc.id]?.content ?? rawDoc.content };
+                    const isEditing = editingDocId === doc.id;
+                    return (
                     <div key={doc.id} className="transaction-item" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '0.5rem' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
@@ -1126,25 +1173,60 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                             </span>
                           </div>
                         </div>
-                        <button 
-                          className="btn-glass" 
-                          style={{ padding: '0.15rem 0.4rem', fontSize: '0.65rem' }}
-                          onClick={() => {
-                            navigator.clipboard.writeText(doc.content);
-                            alert("Asset copied to clipboard!");
-                          }}
-                        >
-                          Copy
-                        </button>
+                        <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                          <button
+                            className="btn-glass"
+                            style={{ padding: '0.15rem 0.4rem', fontSize: '0.65rem' }}
+                            onClick={() => {
+                              navigator.clipboard.writeText(doc.content);
+                              alert("Asset copied to clipboard!");
+                            }}
+                          >
+                            Copy
+                          </button>
+                          <button
+                            className="btn-glass"
+                            style={{ padding: '0.15rem 0.4rem', fontSize: '0.65rem' }}
+                            onClick={() => isEditing ? setEditingDocId(null) : startEditingDoc(doc)}
+                          >
+                            {isEditing ? 'Cancel' : 'Edit'}
+                          </button>
+                          <button
+                            className="btn-glass"
+                            style={{ padding: '0.15rem 0.4rem', fontSize: '0.65rem', borderColor: 'rgba(16, 185, 129, 0.4)', color: '#10b981' }}
+                            onClick={() => downloadDocJpeg(doc.id, `${doc.type || 'Document'}_${doc.jobTitle}`)}
+                          >
+                            📥 JPEG
+                          </button>
+                        </div>
                       </div>
-                      <pre style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', maxHeight: '100px', overflowY: 'auto', background: 'rgba(0,0,0,0.15)', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-glass)', fontFamily: 'monospace' }}>
-                        {doc.content}
-                      </pre>
+                      {isEditing ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                          <textarea
+                            value={editContent}
+                            onChange={(e) => setEditContent(e.target.value)}
+                            style={{ fontSize: '0.7rem', color: '#fff', whiteSpace: 'pre-wrap', minHeight: '160px', background: 'rgba(0,0,0,0.25)', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-glass)', fontFamily: 'monospace', resize: 'vertical' }}
+                          />
+                          <button
+                            className="btn-glass btn-primary"
+                            style={{ padding: '0.3rem 0.75rem', fontSize: '0.7rem', alignSelf: 'flex-start', fontWeight: 700 }}
+                            disabled={isSavingEdit}
+                            onClick={() => saveDocEdit(doc.id)}
+                          >
+                            {isSavingEdit ? 'Saving...' : 'Save Changes'}
+                          </button>
+                        </div>
+                      ) : (
+                        <pre style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', maxHeight: '100px', overflowY: 'auto', background: 'rgba(0,0,0,0.15)', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-glass)', fontFamily: 'monospace' }}>
+                          {doc.content}
+                        </pre>
+                      )}
                       <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
                         Compiled: {new Date(doc.generatedAt).toLocaleString()}
                       </div>
                     </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>
