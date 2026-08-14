@@ -4,6 +4,7 @@ import { LandingPage } from './pages/LandingPage';
 import { KanbanBoard } from './components/KanbanBoard';
 import { GiGOBrainDashboard } from './components/GiGOBrainDashboard';
 import LegalDocumentModal from './components/LegalDocumentModal';
+import PermissionConsentModal from './components/PermissionConsentModal';
 
 const AdminCockpit = lazy(() => import('./components/AdminCockpit').then(module => ({ default: module.AdminCockpit })));
 const MailroomTab = lazy(() => import('./components/MailroomTab').then(module => ({ default: module.MailroomTab })));
@@ -454,6 +455,7 @@ export default function App() {
   const [agreeTerms, setAgreeTerms] = useState<boolean>(false);
   const [marketingConsent, setMarketingConsent] = useState<boolean>(false);
   const [showLegalModal, setShowLegalModal] = useState<'terms' | 'privacy' | null>(null);
+  const [micConsentRequest, setMicConsentRequest] = useState<{ onAllow: () => void; onCancel?: () => void } | null>(null);
   const [isScanningNIN, setIsScanningNIN] = useState<boolean>(false);
   const [scanProgress, setScanProgress] = useState<number>(0);
   const [scanLogs, setScanLogs] = useState<string[]>([]);
@@ -1408,7 +1410,11 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
     };
   };
 
-  const startSignupVoiceRecording = async () => {
+  const startSignupVoiceRecording = () => {
+    setMicConsentRequest({ onAllow: startSignupVoiceRecordingInternal });
+  };
+
+  const startSignupVoiceRecordingInternal = async () => {
     try {
       signupChunksRef.current = [];
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -2940,7 +2946,11 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
   // NATIVE VOICE SYNCHRONIZER PIPELINES
   // ----------------------------------------------------
 
-  const startMicSync = async () => {
+  const startMicSync = () => {
+    setMicConsentRequest({ onAllow: startMicSyncInternal, onCancel: () => setIsSyncing(false) });
+  };
+
+  const startMicSyncInternal = async () => {
     if (!profile.geminiApiKey) {
       addLog("[Voice Engine] System-rooted platform key will be used (Optional custom key was not provided).");
     }
@@ -4798,6 +4808,15 @@ ${profile.name || '[   ]'}`;
         )}
         {showLegalModal && (
           <LegalDocumentModal API_BASE_URL={API_BASE_URL} docType={showLegalModal} onClose={() => setShowLegalModal(null)} />
+        )}
+        {micConsentRequest && (
+          <PermissionConsentModal
+            icon="🎙️"
+            title="GiGO would like to use your microphone"
+            reason="This lets GiGO's voice engine transcribe what you say and extract your name, email, and phone number to speed up signup. Nothing is used for any other purpose."
+            onAllow={() => { const req = micConsentRequest; setMicConsentRequest(null); req.onAllow(); }}
+            onCancel={() => { const req = micConsentRequest; setMicConsentRequest(null); req.onCancel?.(); }}
+          />
         )}
       </div>
     );
@@ -11270,6 +11289,15 @@ ${profile.name || '[   ]'}`;
 
       {showLegalModal && (
         <LegalDocumentModal API_BASE_URL={API_BASE_URL} docType={showLegalModal} onClose={() => setShowLegalModal(null)} />
+      )}
+      {micConsentRequest && (
+        <PermissionConsentModal
+          icon="🎙️"
+          title="GiGO would like to use your microphone"
+          reason="This lets GiGO's voice engine transcribe what you say to build or update your career profile. Nothing is recorded or used for any other purpose."
+          onAllow={() => { const req = micConsentRequest; setMicConsentRequest(null); req.onAllow(); }}
+          onCancel={() => { const req = micConsentRequest; setMicConsentRequest(null); req.onCancel?.(); }}
+        />
       )}
 
     </div>
