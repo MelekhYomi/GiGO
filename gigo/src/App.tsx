@@ -6,6 +6,7 @@ import { GiGOBrainDashboard } from './components/GiGOBrainDashboard';
 import LegalDocumentModal from './components/LegalDocumentModal';
 import PermissionConsentModal from './components/PermissionConsentModal';
 import WaitlistCommitmentModal from './components/WaitlistCommitmentModal';
+import BankTransferPanel from './components/BankTransferPanel';
 
 const AdminCockpit = lazy(() => import('./components/AdminCockpit').then(module => ({ default: module.AdminCockpit })));
 const MailroomTab = lazy(() => import('./components/MailroomTab').then(module => ({ default: module.MailroomTab })));
@@ -457,6 +458,7 @@ export default function App() {
   const [marketingConsent, setMarketingConsent] = useState<boolean>(false);
   const [showLegalModal, setShowLegalModal] = useState<'terms' | 'privacy' | null>(null);
   const [micConsentRequest, setMicConsentRequest] = useState<{ onAllow: () => void; onCancel?: () => void } | null>(null);
+  const [topUpMethod, setTopUpMethod] = useState<'paystack' | 'bank'>('paystack');
   const [showLocationConsent, setShowLocationConsent] = useState<boolean>(false);
   const [isDetectingLocation, setIsDetectingLocation] = useState<boolean>(false);
   const [isWaitlistSignup] = useState<boolean>(() => {
@@ -7236,10 +7238,22 @@ ${profile.name || '[   ]'}`;
             <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fff' }}>
               <WalletIcon /> Refuel Career Momentum
             </h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.4' }}>
-              Select a <strong>Momentum Package</strong> to power your high-value automated career operations. Secure checkout powered by Paystack.
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem', lineHeight: '1.4' }}>
+              Select a <strong>Momentum Package</strong> to power your high-value automated career operations.
             </p>
 
+            <div style={{ display: 'flex', background: 'rgba(0,0,0,0.25)', borderRadius: '10px', padding: '0.25rem', border: '1px solid var(--border-glass)', marginBottom: '1.5rem', width: 'fit-content' }}>
+              <button type="button" className="btn-glass" style={{ padding: '0.4rem 1rem', fontSize: '0.75rem', background: topUpMethod === 'paystack' ? 'var(--primary)' : 'transparent' }} onClick={() => setTopUpMethod('paystack')}>
+                💳 Paystack
+              </button>
+              <button type="button" className="btn-glass" style={{ padding: '0.4rem 1rem', fontSize: '0.75rem', background: topUpMethod === 'bank' ? 'var(--primary)' : 'transparent' }} onClick={() => setTopUpMethod('bank')}>
+                🏦 Bank Transfer
+              </button>
+            </div>
+
+            {topUpMethod === 'bank' ? (
+              <BankTransferPanel API_BASE_URL={API_BASE_URL} />
+            ) : (
             <form onSubmit={handleTopUpSubmit}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
                 
@@ -7355,6 +7369,7 @@ ${profile.name || '[   ]'}`;
                 ) : `Proceed to Secure Refuel — NGN ${parseFloat(topUpAmount || '5000').toLocaleString()}`}
               </button>
             </form>
+            )}
           </div>
         </div>
       )}
