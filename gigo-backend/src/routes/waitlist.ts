@@ -19,7 +19,7 @@ export const WAITLIST_TIERS = [
 // candidate finishes real onboarding (voice interview + profile wizard).
 router.post('/users/:userId/waitlist-commitment', async (req: Request, res: Response) => {
   const { userId } = req.params;
-  const { committedTierId, voiceOnboardingFeedback, voiceOnboardingRating } = req.body;
+  const { committedTierId, voiceOnboardingFeedback, voiceOnboardingRating, isRelatedParty } = req.body;
 
   if (!committedTierId || !WAITLIST_TIERS.some(t => t.id === committedTierId)) {
     res.status(400).json({ error: "committedTierId must be one of: " + WAITLIST_TIERS.map(t => t.id).join(', ') });
@@ -40,6 +40,10 @@ router.post('/users/:userId/waitlist-commitment', async (req: Request, res: Resp
       waitlistCommittedPriceNGN: tier.priceNGN,
       voiceOnboardingFeedback: voiceOnboardingFeedback || '',
       voiceOnboardingRating: typeof voiceOnboardingRating === 'number' ? voiceOnboardingRating : null,
+      // Same field the real P&L (financials.ts) already reads to split Independent
+      // vs. Related Party revenue - self-reported here at the moment of signup,
+      // rather than relying on an admin to notice and correct it later.
+      isRelatedParty: !!isRelatedParty,
       waitlistCommittedAt: new Date().toISOString()
     });
 

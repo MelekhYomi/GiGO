@@ -23,9 +23,14 @@ export default function WaitlistCommitmentModal({ API_BASE_URL, userId, onDone }
   const [selectedTier, setSelectedTier] = useState<string>('starter');
   const [feedback, setFeedback] = useState('');
   const [rating, setRating] = useState<number>(5);
+  const [isRelatedParty, setIsRelatedParty] = useState<boolean | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
+    if (isRelatedParty === null) {
+      alert("Please answer the relationship question below — it's required.");
+      return;
+    }
     setIsSubmitting(true);
     try {
       await fetch(`${API_BASE_URL}/api/users/${userId}/waitlist-commitment`, {
@@ -34,7 +39,8 @@ export default function WaitlistCommitmentModal({ API_BASE_URL, userId, onDone }
         body: JSON.stringify({
           committedTierId: selectedTier,
           voiceOnboardingFeedback: feedback,
-          voiceOnboardingRating: rating
+          voiceOnboardingRating: rating,
+          isRelatedParty
         })
       });
     } catch (err) {
@@ -51,8 +57,25 @@ export default function WaitlistCommitmentModal({ API_BASE_URL, userId, onDone }
         <div className="logo-icon" style={{ margin: '0 auto 1rem auto', width: '48px', height: '48px', fontSize: '1.4rem' }}>🎉</div>
         <h2 className="text-gradient-purple-pink" style={{ textAlign: 'center', fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.5rem' }}>You're on the List!</h2>
         <p style={{ textAlign: 'center', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-          Your profile is real and saved. Two quick questions to help us prioritize the waitlist rollout:
+          Your profile is real and saved. A few quick questions to help us prioritize the waitlist rollout:
         </p>
+
+        <div style={{ marginBottom: '1.25rem' }}>
+          <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '0.6rem' }}>
+            Are you a friend, family member, or otherwise personally connected to the GiGO team?
+          </label>
+          <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: '0 0 0.6rem 0' }}>
+            This doesn't affect your access — we just need to report it separately for transparency.
+          </p>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button type="button" onClick={() => setIsRelatedParty(false)} className="btn-glass" style={{ flex: 1, padding: '0.6rem', fontWeight: 700, background: isRelatedParty === false ? 'var(--primary)' : 'transparent' }}>
+              No, I found GiGO independently
+            </button>
+            <button type="button" onClick={() => setIsRelatedParty(true)} className="btn-glass" style={{ flex: 1, padding: '0.6rem', fontWeight: 700, background: isRelatedParty === true ? 'var(--primary)' : 'transparent' }}>
+              Yes, I know the team
+            </button>
+          </div>
+        </div>
 
         <div style={{ marginBottom: '1.25rem' }}>
           <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '0.6rem' }}>
