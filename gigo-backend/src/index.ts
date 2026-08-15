@@ -20,6 +20,7 @@ import financialsRouter from './routes/financials';
 import documentsRouter from './routes/documents';
 import jobSourcesRouter from './routes/job-sources';
 import legalRouter from './routes/legal';
+import waitlistRouter from './routes/waitlist';
 import axios from 'axios';
 import { Type } from '@google/genai';
 import { getGeminiClient } from './utils/gemini';
@@ -839,7 +840,7 @@ app.get('/api/users/:userId/documents', authenticateToken, async (req: Request, 
 
 // User Sign Up
 app.post('/api/auth/signup', async (req: Request, res: Response) => {
-  const { email, password, fullName, phoneNumber, referredBy, marketingConsent } = req.body;
+  const { email, password, fullName, phoneNumber, referredBy, marketingConsent, isWaitlist } = req.body;
   if (!email || !password || !fullName) {
     res.status(400).json({ error: "Email, password, and full name are required." });
     return;
@@ -865,6 +866,7 @@ app.post('/api/auth/signup', async (req: Request, res: Response) => {
       role: 'candidate',
       agreedToTermsAt: new Date().toISOString(),
       marketingConsent: !!marketingConsent,
+      isWaitlist: !!isWaitlist,
       professionalSummary: '[   ]',
       targetRoles: [],
       skills: [],
@@ -3080,6 +3082,7 @@ app.use('/api', financialsRouter);
 app.use('/api', documentsRouter);
 app.use('/api', jobSourcesRouter);
 app.use('/api', legalRouter);
+app.use('/api', waitlistRouter);
 app.use('/api/test', testAudioRouter);
 
 const PORT = process.env.PORT || 8080;

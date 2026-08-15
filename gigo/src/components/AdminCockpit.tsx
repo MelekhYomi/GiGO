@@ -4,6 +4,7 @@ import AIObservabilityDashboard from './AIObservabilityDashboard';
 import RecruiterResponseSandbox from './RecruiterResponseSandbox';
 import JobSourcesManager from './JobSourcesManager';
 import LegalDocumentsEditor from './LegalDocumentsEditor';
+import WaitlistPanel from './WaitlistPanel';
 
 // Simple Refresh SVG Icon
 const RefreshIcon = () => (
@@ -1057,6 +1058,8 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               )}
             </div>
           )}
+
+          <WaitlistPanel API_BASE_URL={API_BASE_URL} />
         </div>
       )}
 

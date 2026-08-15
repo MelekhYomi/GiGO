@@ -5,6 +5,7 @@ import { KanbanBoard } from './components/KanbanBoard';
 import { GiGOBrainDashboard } from './components/GiGOBrainDashboard';
 import LegalDocumentModal from './components/LegalDocumentModal';
 import PermissionConsentModal from './components/PermissionConsentModal';
+import WaitlistCommitmentModal from './components/WaitlistCommitmentModal';
 
 const AdminCockpit = lazy(() => import('./components/AdminCockpit').then(module => ({ default: module.AdminCockpit })));
 const MailroomTab = lazy(() => import('./components/MailroomTab').then(module => ({ default: module.MailroomTab })));
@@ -458,6 +459,12 @@ export default function App() {
   const [micConsentRequest, setMicConsentRequest] = useState<{ onAllow: () => void; onCancel?: () => void } | null>(null);
   const [showLocationConsent, setShowLocationConsent] = useState<boolean>(false);
   const [isDetectingLocation, setIsDetectingLocation] = useState<boolean>(false);
+  const [isWaitlistSignup] = useState<boolean>(() => {
+    const fromUrl = window.location.pathname === '/waitlist' || new URLSearchParams(window.location.search).has('waitlist');
+    if (fromUrl) localStorage.setItem('gigo_waitlist_flow', 'true');
+    return fromUrl || localStorage.getItem('gigo_waitlist_flow') === 'true';
+  });
+  const [showWaitlistCommitment, setShowWaitlistCommitment] = useState<boolean>(false);
   const [isScanningNIN, setIsScanningNIN] = useState<boolean>(false);
   const [scanProgress, setScanProgress] = useState<number>(0);
   const [scanLogs, setScanLogs] = useState<string[]>([]);
@@ -982,6 +989,10 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
         await fetchUserProfile(); // Refresh current user's profile instantly
         await fetchDiscoveredJobs(); // Refresh job stream with real-time matching scores
         triggerScraperSweep(); // Automatically kick off the background Live AI Matches Scraper agent!
+        if (isWaitlistSignup) {
+          localStorage.removeItem('gigo_waitlist_flow');
+          setShowWaitlistCommitment(true);
+        }
       } else {
         addLog(`[Ecosystem Onboarding] Deploy failed with status ${res.status}`);
         alert("Deployment failed. Please check your internet connection.");
@@ -3620,7 +3631,8 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
           password: authPassword,
           phoneNumber: authPhone,
           referredBy: localStorage.getItem('gigo_ref_by') || '',
-          marketingConsent
+          marketingConsent,
+          isWaitlist: isWaitlistSignup
         })
       });
 
@@ -11358,6 +11370,9 @@ ${profile.name || '[   ]'}`;
           onAllow={() => { setShowLocationConsent(false); detectLocationInternal(); }}
           onCancel={() => setShowLocationConsent(false)}
         />
+      )}
+      {showWaitlistCommitment && userId && (
+        <WaitlistCommitmentModal API_BASE_URL={API_BASE_URL} userId={userId} onDone={() => setShowWaitlistCommitment(false)} />
       )}
 
     </div>
