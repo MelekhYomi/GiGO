@@ -4588,6 +4588,7 @@ ${profile.name || '[   ]'}`;
     return (
       <div style={{ position: 'relative' }}>
         <LandingPage
+          autoShowWalkthrough={isWaitlistSignup}
           onSignIn={() => {
             setAuthError('');
             setAuthEmail('');

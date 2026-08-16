@@ -10,6 +10,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
 export interface LandingPageProps {
   onSignIn: () => void;
   onSignUp: () => void;
+  autoShowWalkthrough?: boolean;
 }
 
 const FAQ_ITEMS = [
@@ -21,7 +22,7 @@ const FAQ_ITEMS = [
   { q: 'Can I use my own Gmail instead of a GiGO-only inbox?', a: "Yes. Connect your Gmail once in Mailroom and GiGO tracks recruiter replies to your applications automatically from your real inbox." },
 ];
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, autoShowWalkthrough }) => {
   const [publicStats, setPublicStats] = useState<{ waitlistSignups: number; jobsDiscovered: number; documentsGenerated: number } | null>(null);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
@@ -31,6 +32,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp }) 
       .then(setPublicStats)
       .catch(err => console.error("Failed to fetch public stats:", err));
   }, []);
+
   // Referral form state
   const [friendContact, setFriendContact] = useState('');
   const [friendName, setFriendName] = useState('');
@@ -40,6 +42,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp }) 
 
   // Walkthrough details modal toggle
   const [showWalkthrough, setShowWalkthrough] = useState(false);
+
+  // Waitlist-tagged visitors (from the /waitlist link) should see the walkthrough
+  // immediately, not require an extra click to discover it exists.
+  useEffect(() => {
+    if (autoShowWalkthrough) setShowWalkthrough(true);
+  }, [autoShowWalkthrough]);
 
   // Interactive Cost Calculator state inside walkthrough
   const [calcPace, setCalcPace] = useState<number>(50);
