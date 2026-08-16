@@ -14,6 +14,7 @@ interface StatsData {
     modelUsageShare: { model: string; value: number }[];
     latencyDistribution: { bucket: string; latency: number }[];
   };
+  logsAnalyzed?: number;
 }
 
 interface AIObservabilityDashboardProps {
@@ -64,9 +65,20 @@ export default function AIObservabilityDashboard({ API_BASE_URL }: AIObservabili
     );
   }
 
+  if (!stats.logsAnalyzed || stats.logsAnalyzed === 0) {
+    return (
+      <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+        <h3 style={{ color: 'var(--text-secondary)' }}>No AI Activity Logged Yet</h3>
+        <p style={{ fontSize: '0.85rem', maxWidth: '440px', margin: '0.5rem auto 0 auto' }}>
+          This dashboard reflects real entries in agent_execution_logs only — nothing is simulated. Once candidates start generating documents, verifying identity, or triggering autonomous applications, real token, latency, and cost data will appear here.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
-      
+
       {/* Metrics Cards Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
         

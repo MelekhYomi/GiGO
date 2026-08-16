@@ -2299,25 +2299,36 @@ app.post('/api/admin/agent-prompts', async (req: Request, res: Response) => {
 });
 
 // Compute AI Observability Metrics (Admin Only)
+// Real observability metrics computed entirely from agent_execution_logs - this
+// is cited directly in the hackathon rules as AI-Native Operations evidence, so
+// it must never show fabricated numbers. When there isn't enough real log data
+// yet, fields come back as 0/empty rather than a plausible-looking fake value.
 app.get('/api/admin/observability-stats', async (req: Request, res: Response) => {
   try {
     const logsSnapshot = await db.collection('agent_execution_logs')
       .orderBy('timestamp', 'desc')
-      .limit(100)
+      .limit(500)
       .get();
 
-    let logs = logsSnapshot.docs.map(doc => doc.data());
-    
-    // Fallback/Seed Data if there aren't enough logs
+    const logs = logsSnapshot.docs.map(doc => doc.data());
+
     let totalTokens = 0;
     let inputTokens = 0;
     let outputTokens = 0;
-    let estimatedCost = 0;
     let totalLatency = 0;
     let maxLatency = 0;
-    let latencies: number[] = [];
+    const latencies: number[] = [];
     let groundingSuccesses = 0;
     let groundingTotal = 0;
+    const modelCounts: Record<string, number> = {};
+    const costByDate: Record<string, number> = {};
+
+    const costForTokens = (modelUsed: string, inTok: number, outTok: number): number => {
+      const isPro = typeof modelUsed === 'string' && modelUsed.toLowerCase().includes('pro');
+      const inRate = isPro ? 1.25 : 0.075;
+      const outRate = isPro ? 5.00 : 0.30;
+      return (inTok * inRate) / 1_000_000 + (outTok * outRate) / 1_000_000;
+    };
 
     logs.forEach(log => {
       const metrics = log.executionMetrics || {};
@@ -2325,78 +2336,61 @@ app.get('/api/admin/observability-stats', async (req: Request, res: Response) =>
       const logOutputTokens = typeof metrics.outputTokens === 'number' ? metrics.outputTokens : (typeof metrics.tokensUsed === 'number' ? Math.round(metrics.tokensUsed * 0.2) : 0);
       const logLatency = typeof metrics.latencyMs === 'number' ? metrics.latencyMs : (typeof metrics.executionTimeMs === 'number' ? metrics.executionTimeMs : 0);
       const grounded = metrics.groundingCheck === 'success' || metrics.grounded === true || (log.autonomousDecisionsExecuted && log.autonomousDecisionsExecuted.some((d: string) => d.toLowerCase().includes('grounding') || d.toLowerCase().includes('verified')));
+      const modelUsed = typeof metrics.modelUsed === 'string' ? metrics.modelUsed : 'unknown';
 
       inputTokens += logInputTokens;
       outputTokens += logOutputTokens;
       totalTokens += (logInputTokens + logOutputTokens);
-      
+
       if (logLatency > 0) {
         totalLatency += logLatency;
         latencies.push(logLatency);
         if (logLatency > maxLatency) maxLatency = logLatency;
       }
 
-      if (grounded) {
-        groundingSuccesses++;
-      }
+      if (grounded) groundingSuccesses++;
       groundingTotal++;
+
+      if (modelUsed !== 'unknown') {
+        modelCounts[modelUsed] = (modelCounts[modelUsed] || 0) + 1;
+      }
+
+      if (log.timestamp) {
+        const dateKey = new Date(log.timestamp).toISOString().slice(0, 10);
+        costByDate[dateKey] = (costByDate[dateKey] || 0) + costForTokens(modelUsed, logInputTokens, logOutputTokens);
+      }
     });
 
-    // If database is brand new and has 0 logs, provide beautiful seeded statistics
-    if (logs.length === 0) {
-      inputTokens = 4280500;
-      outputTokens = 1120400;
-      totalTokens = inputTokens + outputTokens;
-      latencies = [420, 890, 1200, 1500, 2400, 3100, 480, 750, 1100, 1600, 2200, 3500];
-      totalLatency = latencies.reduce((a, b) => a + b, 0);
-      maxLatency = 3500;
-      groundingSuccesses = 18;
-      groundingTotal = 20;
-    }
+    const latencyAvg = latencies.length > 0 ? Math.round(totalLatency / latencies.length) : 0;
 
-    const latencyAvg = latencies.length > 0 ? Math.round(totalLatency / latencies.length) : 1200;
-    
-    // Sort latencies to compute percentiles
     latencies.sort((a, b) => a - b);
     const p95Idx = Math.max(0, Math.floor(latencies.length * 0.95) - 1);
-    const latencyP95 = latencies.length > 0 ? latencies[p95Idx] : 2800;
+    const latencyP95 = latencies.length > 0 ? latencies[p95Idx] : 0;
+    const latencyP50 = latencies.length > 0 ? latencies[Math.max(0, Math.floor(latencies.length * 0.5) - 1)] : 0;
+    const latencyP90 = latencies.length > 0 ? latencies[Math.max(0, Math.floor(latencies.length * 0.9) - 1)] : 0;
 
-    // Estimate cost:
-    // Gemini 1.5/2.5 Pro: $1.25 per 1M input tokens, $5.00 per 1M output tokens
-    // Gemini 1.5/2.5 Flash: $0.075 per 1M input tokens, $0.30 per 1M output tokens
-    // Assume 30% Pro and 70% Flash
-    const proInputCost = (inputTokens * 0.3 * 1.25) / 1000000;
-    const proOutputCost = (outputTokens * 0.3 * 5.00) / 1000000;
-    const flashInputCost = (inputTokens * 0.7 * 0.075) / 1000000;
-    const flashOutputCost = (outputTokens * 0.7 * 0.30) / 1000000;
-    estimatedCost = parseFloat((proInputCost + proOutputCost + flashInputCost + flashOutputCost).toFixed(4));
+    const estimatedCost = parseFloat(
+      Object.values(costByDate).reduce((sum, c) => sum + c, 0).toFixed(4)
+    );
 
-    // If estimatedCost is 0, set a high-fidelity starting cost
-    if (estimatedCost === 0) {
-      estimatedCost = 7.42;
-    }
+    const groundingSuccessRate = groundingTotal > 0 ? Math.round((groundingSuccesses / groundingTotal) * 100) : 0;
 
-    const groundingSuccessRate = groundingTotal > 0 ? Math.round((groundingSuccesses / groundingTotal) * 100) : 92;
+    // Real per-day cost, most recent 7 days that actually have logged activity.
+    const costDistribution = Object.entries(costByDate)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-7)
+      .map(([date, cost]) => ({ date, cost: parseFloat(cost.toFixed(4)) }));
 
-    // Format gorgeous chart data
-    const costDistribution = [
-      { date: 'Mon', cost: 1.12 },
-      { date: 'Tue', cost: 1.45 },
-      { date: 'Wed', cost: 0.98 },
-      { date: 'Thu', cost: 2.15 },
-      { date: 'Fri', cost: 1.84 },
-      { date: 'Sat', cost: 2.30 },
-      { date: 'Sun', cost: estimatedCost > 2 ? parseFloat((estimatedCost - 1.5).toFixed(2)) : estimatedCost }
-    ];
-
-    const modelUsageShare = [
-      { model: 'Gemini 2.5 Flash', value: 70 },
-      { model: 'Gemini 2.5 Pro', value: 30 }
-    ];
+    // Real model usage split, computed from actual executionMetrics.modelUsed values.
+    const totalModelCalls = Object.values(modelCounts).reduce((sum, c) => sum + c, 0);
+    const modelUsageShare = Object.entries(modelCounts).map(([model, count]) => ({
+      model,
+      value: totalModelCalls > 0 ? Math.round((count / totalModelCalls) * 100) : 0
+    }));
 
     const latencyDistribution = [
-      { bucket: 'P50 (Median)', latency: Math.round(latencyAvg * 0.8) },
-      { bucket: 'P90 (Typical High)', latency: Math.round(latencyAvg * 1.5) },
+      { bucket: 'P50 (Median)', latency: latencyP50 },
+      { bucket: 'P90 (Typical High)', latency: latencyP90 },
       { bucket: 'P95 (Outliers)', latency: latencyP95 }
     ];
 
@@ -2409,6 +2403,7 @@ app.get('/api/admin/observability-stats', async (req: Request, res: Response) =>
       latencyMax: maxLatency,
       latencyP95,
       groundingSuccessRate,
+      logsAnalyzed: logs.length,
       chartsData: {
         costDistribution,
         modelUsageShare,
