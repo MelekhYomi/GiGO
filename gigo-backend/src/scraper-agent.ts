@@ -8,6 +8,7 @@ import { markdownToPdfBuffer } from './utils/pdfGenerator';
 import { markdownToJpegBuffer } from './utils/imageGenerator';
 import { createNotification } from './utils/notifications';
 import { resolvePath } from './utils/jsonPath';
+import { isNINLockDisabled } from './utils/ninLock';
 
 
 interface DiscoveredJob {
@@ -564,6 +565,7 @@ async function triggerAutonomousApplyAndAlert(
     const userDoc = await userRef.get();
     if (!userDoc.exists) return;
 
+    const ninLockDisabled = await isNINLockDisabled();
     const userData = userDoc.data() || {};
     
     // Check if candidate is actually in autonomous mode
@@ -914,7 +916,7 @@ async function triggerAutonomousApplyAndAlert(
         const freshUserDoc = await transaction.get(userRef);
         const freshUserData = freshUserDoc.data() || {};
         const currentBalance = freshUserData.financials?.walletBalanceNGN || 0;
-        const isNINVerified = !!freshUserData.isNINVerified;
+        const isNINVerified = ninLockDisabled || !!freshUserData.isNINVerified;
         const spendable = isNINVerified ? currentBalance : Math.max(0, currentBalance - 4000.00);
 
         if (spendable >= cost) {

@@ -107,4 +107,29 @@ router.put('/admin/ai-auto-apply-gate/toggle', async (req: Request, res: Respons
   }
 });
 
+// Same toggle pattern again, for bypassing the NIN-verification 80%-of-bonus
+// wallet lock platform-wide (see utils/ninLock.ts for why).
+router.get('/nin-lock/status', async (req: Request, res: Response) => {
+  try {
+    const doc = await db.collection('system_configs').doc('global').get();
+    res.status(200).json({ disabled: !!doc.data()?.ninLockDisabled });
+  } catch (error: any) {
+    res.status(200).json({ disabled: false });
+  }
+});
+
+router.put('/admin/nin-lock/toggle', async (req: Request, res: Response) => {
+  const { adminEmail, disabled } = req.body;
+  if (!(await isAuthorizedAdminEmail(adminEmail))) {
+    res.status(403).json({ error: "Unauthorized. Only the primary super admin (admin@gigo.com) can change this setting." });
+    return;
+  }
+  try {
+    await db.collection('system_configs').doc('global').set({ ninLockDisabled: !!disabled }, { merge: true });
+    res.status(200).json({ success: true, disabled: !!disabled });
+  } catch (error: any) {
+    res.status(500).json({ error: "Failed to update NIN lock setting.", details: error.message });
+  }
+});
+
 export default router;

@@ -5,6 +5,7 @@ import { mapErrorResponse } from './utils/errorMapper';
 import { getGeminiClient } from './utils/gemini';
 import { markdownToJpegBuffer } from './utils/imageGenerator';
 import { executeWalletCreditTransaction } from './transaction-router';
+import { isNINLockDisabled } from './utils/ninLock';
 
 
 export async function handleAssetGenerationRoute(req: Request, res: Response): Promise<void> {
@@ -37,7 +38,8 @@ export async function handleAssetGenerationRoute(req: Request, res: Response): P
     }
 
     const userData = userDoc.data() || {};
-    const isNINVerified = !!userData.isNINVerified;
+    const ninLockDisabled = await isNINLockDisabled();
+    const isNINVerified = ninLockDisabled || !!userData.isNINVerified;
     const walletBalanceNGN = userData.financials?.walletBalanceNGN || 0;
     const spendableNGN = isNINVerified ? walletBalanceNGN : Math.max(0, walletBalanceNGN - 4000.00);
 
@@ -84,7 +86,7 @@ export async function handleAssetGenerationRoute(req: Request, res: Response): P
     await db.runTransaction(async (transaction) => {
       const freshUserDoc = await transaction.get(userRef);
       const freshUserData = freshUserDoc.data() || {};
-      const freshIsNINVerified = !!freshUserData.isNINVerified;
+      const freshIsNINVerified = ninLockDisabled || !!freshUserData.isNINVerified;
       const currentBalance = freshUserData.financials?.walletBalanceNGN || 0;
       const freshSpendable = freshIsNINVerified ? currentBalance : Math.max(0, currentBalance - 4000.00);
 

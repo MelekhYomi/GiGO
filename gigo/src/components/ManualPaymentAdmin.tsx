@@ -26,13 +26,17 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
   const [aiGateEnabled, setAiGateEnabled] = useState(false);
   const [isTogglingGate, setIsTogglingGate] = useState(false);
 
+  const [ninLockDisabled, setNinLockDisabled] = useState(false);
+  const [isTogglingNinLock, setIsTogglingNinLock] = useState(false);
+
   const fetchAll = async () => {
     try {
-      const [detailsRes, auditRes, fallbackRes, gateRes] = await Promise.all([
+      const [detailsRes, auditRes, fallbackRes, gateRes, ninLockRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/manual-payment/details`),
         fetch(`${API_BASE_URL}/api/admin/manual-payment/audit`),
         fetch(`${API_BASE_URL}/api/manual-fallback/status`),
-        fetch(`${API_BASE_URL}/api/ai-auto-apply-gate/status`)
+        fetch(`${API_BASE_URL}/api/ai-auto-apply-gate/status`),
+        fetch(`${API_BASE_URL}/api/nin-lock/status`)
       ]);
       const details = await detailsRes.json();
       setBankName(details.bankName || '');
@@ -44,6 +48,8 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
       setManualFallbackEnabled(!!fallbackStatus.enabled);
       const gateStatus = await gateRes.json();
       setAiGateEnabled(!!gateStatus.enabled);
+      const ninLockStatus = await ninLockRes.json();
+      setNinLockDisabled(!!ninLockStatus.disabled);
     } catch (err) {
       console.error("Failed to fetch manual payment admin data:", err);
     }
@@ -82,6 +88,24 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
       alert(`Failed to update setting: ${err.message}`);
     } finally {
       setIsTogglingGate(false);
+    }
+  };
+
+  const handleToggleNinLock = async () => {
+    const next = !ninLockDisabled;
+    setIsTogglingNinLock(true);
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/nin-lock/toggle`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminEmail: userEmail, disabled: next })
+      });
+      setNinLockDisabled(next);
+      addLog(`🪪 NIN verification wallet lock ${next ? 'bypassed' : 're-enabled'} platform-wide.`);
+    } catch (err: any) {
+      alert(`Failed to update setting: ${err.message}`);
+    } finally {
+      setIsTogglingNinLock(false);
     }
   };
 
@@ -186,6 +210,29 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
         >
           <div style={{
             position: 'absolute', top: '3px', left: aiGateEnabled ? '23px' : '3px', width: '20px', height: '20px',
+            borderRadius: '50%', background: '#fff', transition: 'left 0.2s'
+          }} />
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
+        <div>
+          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>🪪 Bypass NIN Verification Wallet Lock</div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
+            Normally 80% of a candidate's welcome bonus stays locked until they complete NIN verification. Turn this on to give every candidate full spendable balance immediately — useful while sorting out verification-related issues, so it never blocks a real paying candidate.
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={handleToggleNinLock}
+          disabled={isTogglingNinLock}
+          style={{
+            flexShrink: 0, marginLeft: '1rem', width: '46px', height: '26px', borderRadius: '13px', border: 'none',
+            background: ninLockDisabled ? '#10b981' : 'rgba(255,255,255,0.15)', position: 'relative', cursor: 'pointer', transition: 'background 0.2s'
+          }}
+        >
+          <div style={{
+            position: 'absolute', top: '3px', left: ninLockDisabled ? '23px' : '3px', width: '20px', height: '20px',
             borderRadius: '50%', background: '#fff', transition: 'left 0.2s'
           }} />
         </button>
