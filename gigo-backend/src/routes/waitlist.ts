@@ -107,4 +107,25 @@ router.get('/waitlist/tiers', (req: Request, res: Response) => {
   res.status(200).json(WAITLIST_TIERS);
 });
 
+// Public, aggregate-only stats for the landing page — real counts, but never any
+// PII. Uses count() aggregation so it doesn't read full documents.
+router.get('/public/stats', async (req: Request, res: Response) => {
+  try {
+    const [waitlistCount, jobsCount, documentsCount] = await Promise.all([
+      db.collection('users').where('isWaitlist', '==', true).count().get(),
+      db.collection('discovered_jobs').count().get(),
+      db.collectionGroup('documents').count().get()
+    ]);
+
+    res.status(200).json({
+      waitlistSignups: waitlistCount.data().count,
+      jobsDiscovered: jobsCount.data().count,
+      documentsGenerated: documentsCount.data().count
+    });
+  } catch (error: any) {
+    console.error("Failed to compute public stats:", error);
+    res.status(200).json({ waitlistSignups: 0, jobsDiscovered: 0, documentsGenerated: 0 });
+  }
+});
+
 export default router;

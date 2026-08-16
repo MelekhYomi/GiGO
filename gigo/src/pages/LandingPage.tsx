@@ -3,12 +3,34 @@ import { GiGOLogo } from '../components/GiGOLogo';
 import { OnboardingCard } from '../components/OnboardingCard';
 import { AgentTelemetryCards } from '../components/AgentTelemetryCards';
 
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:8080'
+  : (import.meta.env.VITE_API_BASE_URL || 'https://gigo-fego.onrender.com');
+
 export interface LandingPageProps {
   onSignIn: () => void;
   onSignUp: () => void;
 }
 
+const FAQ_ITEMS = [
+  { q: 'Is GiGO actually free to start?', a: 'Yes. Every account launches with a 250 Pace welcome bonus - enough to try real CV generation and job applications before you spend a naira. You only refuel your wallet when you choose to.' },
+  { q: 'Does the AI apply to jobs without asking me?', a: 'Only if you turn on Auto-Apply. By default, GiGO drafts everything and waits for your review. You can switch between full autopilot and manual approval at any time in Settings.' },
+  { q: 'Where do the job listings actually come from?', a: "Real job board APIs - RemoteOK, The Muse, Arbeitnow - plus any additional sources an admin configures. Nothing is invented; every listing links back to its original posting." },
+  { q: "What happens if GiGO's AI is temporarily down?", a: "You're never stuck. You can write your own CV or cover letter by hand and it's saved to your archive for free, so you can still apply to already-discovered jobs manually." },
+  { q: 'How do I pay if I don’t have a card for Paystack?', a: 'Bank transfer works too - transfer to the account shown in your Wallet, send the receipt via WhatsApp, and your balance is credited once verified.' },
+  { q: 'Can I use my own Gmail instead of a GiGO-only inbox?', a: "Yes. Connect your Gmail once in Mailroom and GiGO tracks recruiter replies to your applications automatically from your real inbox." },
+];
+
 export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp }) => {
+  const [publicStats, setPublicStats] = useState<{ waitlistSignups: number; jobsDiscovered: number; documentsGenerated: number } | null>(null);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/public/stats`)
+      .then(res => res.json())
+      .then(setPublicStats)
+      .catch(err => console.error("Failed to fetch public stats:", err));
+  }, []);
   // Referral form state
   const [friendContact, setFriendContact] = useState('');
   const [friendName, setFriendName] = useState('');
@@ -166,6 +188,26 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp }) 
         </div>
       </header>
 
+      {/* Real, aggregate-only stats — no PII, computed live from Firestore counts */}
+      {publicStats && (
+        <div className="border-t border-brandBorder relative z-10 py-6">
+          <div className="max-w-4xl mx-auto px-6 grid grid-cols-3 gap-4 text-center">
+            <div>
+              <div className="text-2xl sm:text-3xl font-black text-brandTextPrimary">{publicStats.waitlistSignups.toLocaleString()}</div>
+              <div className="text-[11px] text-brandTextSecondary uppercase tracking-wide font-semibold mt-1">Waitlist Signups</div>
+            </div>
+            <div>
+              <div className="text-2xl sm:text-3xl font-black text-brandTextPrimary">{publicStats.jobsDiscovered.toLocaleString()}</div>
+              <div className="text-[11px] text-brandTextSecondary uppercase tracking-wide font-semibold mt-1">Live Jobs Tracked</div>
+            </div>
+            <div>
+              <div className="text-2xl sm:text-3xl font-black text-brandTextPrimary">{publicStats.documentsGenerated.toLocaleString()}</div>
+              <div className="text-[11px] text-brandTextSecondary uppercase tracking-wide font-semibold mt-1">Documents Generated</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* AI Agent Team Showcase — always visible, not hidden behind a click */}
       <section className="border-t border-brandBorder relative z-10 py-16">
         <div className="max-w-6xl mx-auto px-6">
@@ -290,6 +332,72 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp }) 
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Comparison: GiGO vs. generic job boards */}
+      <section className="border-t border-brandBorder relative z-10 py-16">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl sm:text-4xl font-bold text-brandTextPrimary tracking-tight mb-3">
+              Why not just use a regular job board?
+            </h2>
+            <p className="text-sm sm:text-base text-brandTextSecondary max-w-2xl mx-auto leading-relaxed">
+              A job board shows you listings. GiGO does the work around them.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-brandBorder overflow-hidden">
+            <div className="grid grid-cols-3 bg-brandCard/40 text-[11px] sm:text-xs font-bold uppercase tracking-wide">
+              <div className="px-3 sm:px-5 py-3 text-brandTextSecondary">Capability</div>
+              <div className="px-3 sm:px-5 py-3 text-center text-brandTextMuted">Generic Job Board</div>
+              <div className="px-3 sm:px-5 py-3 text-center text-brandPrimary">GiGO</div>
+            </div>
+            {[
+              { label: 'Building your CV', board: 'You write it from scratch', gigo: 'Speak it, or AI drafts it tailored per job' },
+              { label: 'Finding relevant roles', board: 'You search and filter manually', gigo: 'Agents scan sources 24/7 and pre-filter by match score' },
+              { label: 'Submitting applications', board: 'One by one, by hand', gigo: 'Autopilot applies to high-confidence matches, or you review each one' },
+              { label: 'Tracking responses', board: 'Scattered across your personal inbox', gigo: 'One Mailroom, automatically linked to each application' },
+              { label: 'Interview prep', board: 'Not included', gigo: 'Free unlimited AI mock interviews, tailored to the role' },
+              { label: 'Pricing', board: 'Often a flat monthly subscription', gigo: 'Pay only per action - CV, cover letter, or submission' },
+            ].map((row, i) => (
+              <div key={row.label} className={`grid grid-cols-3 text-[11px] sm:text-xs ${i % 2 === 0 ? 'bg-brandSurface' : 'bg-brandBg'}`}>
+                <div className="px-3 sm:px-5 py-3 font-semibold text-brandTextPrimary">{row.label}</div>
+                <div className="px-3 sm:px-5 py-3 text-center text-brandTextMuted">{row.board}</div>
+                <div className="px-3 sm:px-5 py-3 text-center text-brandTextPrimary font-medium">{row.gigo}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="border-t border-brandBorder relative z-10 bg-brandCard/25 py-16">
+        <div className="max-w-2xl mx-auto px-6">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl sm:text-4xl font-bold text-brandTextPrimary tracking-tight mb-3">
+              Questions people actually ask
+            </h2>
+          </div>
+
+          <div className="space-y-3">
+            {FAQ_ITEMS.map((item, i) => (
+              <div key={item.q} className="rounded-2xl bg-brandSurface border border-brandBorder overflow-hidden">
+                <button
+                  onClick={() => setOpenFaqIndex(openFaqIndex === i ? null : i)}
+                  className="w-full flex items-center justify-between px-5 py-4 text-left"
+                >
+                  <span className="text-sm font-semibold text-brandTextPrimary pr-4">{item.q}</span>
+                  <span className={`text-brandTextSecondary text-lg shrink-0 transition-transform ${openFaqIndex === i ? 'rotate-45' : ''}`}>+</span>
+                </button>
+                {openFaqIndex === i && (
+                  <div className="px-5 pb-4 text-[12px] sm:text-sm text-brandTextSecondary leading-relaxed animate-fade-in">
+                    {item.a}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>
