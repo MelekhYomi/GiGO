@@ -24,6 +24,7 @@ import waitlistRouter from './routes/waitlist';
 import manualPaymentRouter from './routes/manual-payment';
 import manualFallbackRouter from './routes/manual-fallback';
 import adminManagementRouter from './routes/admin-management';
+import paceTransferRouter from './routes/pace-transfer';
 import axios from 'axios';
 import { Type } from '@google/genai';
 import { getGeminiClient } from './utils/gemini';
@@ -3090,6 +3091,7 @@ app.use('/api', waitlistRouter);
 app.use('/api', manualPaymentRouter);
 app.use('/api', manualFallbackRouter);
 app.use('/api', adminManagementRouter);
+app.use('/api', paceTransferRouter);
 app.use('/api/test', testAudioRouter);
 
 const PORT = process.env.PORT || 8080;

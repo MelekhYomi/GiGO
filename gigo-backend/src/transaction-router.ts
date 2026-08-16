@@ -89,14 +89,23 @@ export async function executeWalletCreditTransaction(userId: string, amount: num
 
     const userData = userDoc.data() || {};
     const oldBalanceNGN = userData.financials?.walletBalanceNGN || 0;
+    const oldPaidBalanceNGN = userData.financials?.paidBalanceNGN || 0;
 
     const creditAmountNGN = currency === 'USD' ? (amount * 1500) : amount;
     const newBalanceNGN = oldBalanceNGN + creditAmountNGN;
     const newBalanceUSD = newBalanceNGN / 1500;
 
+    // Only real payment credits (Paystack, bank transfer) count toward the
+    // transferable "paid" balance - promotional bonuses use a separate code path
+    // entirely (direct ledger writes in signup/referral), and refunds restore
+    // money without inflating what's eligible to send to another user.
+    const isRealPayment = provider === 'PAYSTACK' || provider === 'BANK_TRANSFER_MANUAL';
+    const newPaidBalanceNGN = isRealPayment ? oldPaidBalanceNGN + creditAmountNGN : oldPaidBalanceNGN;
+
     transaction.update(userRef, {
       'financials.walletBalanceNGN': newBalanceNGN,
       'financials.walletBalanceUSD': newBalanceUSD,
+      'financials.paidBalanceNGN': newPaidBalanceNGN,
       'financials.lastTopUpTimestamp': new Date().toISOString()
     });
 

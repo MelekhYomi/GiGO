@@ -7,6 +7,7 @@ import LegalDocumentModal from './components/LegalDocumentModal';
 import PermissionConsentModal from './components/PermissionConsentModal';
 import WaitlistCommitmentModal from './components/WaitlistCommitmentModal';
 import BankTransferPanel from './components/BankTransferPanel';
+import PaceTransferModal from './components/PaceTransferModal';
 import ManualDocumentModal from './components/ManualDocumentModal';
 import { GiGOLogo } from './components/GiGOLogo';
 
@@ -461,6 +462,7 @@ export default function App() {
   const [showLegalModal, setShowLegalModal] = useState<'terms' | 'privacy' | null>(null);
   const [micConsentRequest, setMicConsentRequest] = useState<{ onAllow: () => void; onCancel?: () => void } | null>(null);
   const [topUpMethod, setTopUpMethod] = useState<'paystack' | 'bank'>('paystack');
+  const [showPaceTransferModal, setShowPaceTransferModal] = useState(false);
   const [manualFallbackRequest, setManualFallbackRequest] = useState<{ assetType: 'COVER_LETTER' | 'CV' | 'PORTFOLIO'; jobTitle: string; companyName: string; jobId?: string } | null>(null);
   const [showLocationConsent, setShowLocationConsent] = useState<boolean>(false);
   const [isDetectingLocation, setIsDetectingLocation] = useState<boolean>(false);
@@ -6551,7 +6553,7 @@ ${profile.name || '[   ]'}`;
                 })()}
 
                 {/* Quick actions */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
                   <button
                     className="btn-glass"
                     style={{ flexDirection: 'column', gap: '0.4rem', padding: '0.85rem 0.5rem', border: '1px solid var(--border-glass)' }}
@@ -6559,6 +6561,14 @@ ${profile.name || '[   ]'}`;
                   >
                     <span style={{ fontSize: '1.1rem' }}>⚡</span>
                     <span style={{ fontSize: '0.68rem', fontWeight: 700 }}>Refuel</span>
+                  </button>
+                  <button
+                    className="btn-glass"
+                    style={{ flexDirection: 'column', gap: '0.4rem', padding: '0.85rem 0.5rem', border: '1px solid var(--border-glass)' }}
+                    onClick={() => setShowPaceTransferModal(true)}
+                  >
+                    <span style={{ fontSize: '1.1rem' }}>↗️</span>
+                    <span style={{ fontSize: '0.68rem', fontWeight: 700 }}>Send</span>
                   </button>
                   <button
                     className="btn-glass"
@@ -7239,6 +7249,15 @@ ${profile.name || '[   ]'}`;
       {/* ----------------------------------------------------
          MODALS RENDERING BLOCK
          ---------------------------------------------------- */}
+
+      {showPaceTransferModal && (
+        <PaceTransferModal
+          API_BASE_URL={API_BASE_URL}
+          userId={userId}
+          onClose={() => setShowPaceTransferModal(false)}
+          onSuccess={() => fetchUserProfile()}
+        />
+      )}
 
       {/* TOP UP MODAL (PAYSTACK CHECKOUT) */}
       {showTopUpModal && (
