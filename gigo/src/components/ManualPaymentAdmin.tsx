@@ -18,6 +18,11 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
   const [creditNote, setCreditNote] = useState('');
   const [isCrediting, setIsCrediting] = useState(false);
 
+  const [receiptImageBase64, setReceiptImageBase64] = useState('');
+  const [receiptMimeType, setReceiptMimeType] = useState('');
+  const [isScanningReceipt, setIsScanningReceipt] = useState(false);
+  const [scanNote, setScanNote] = useState('');
+
   const [audit, setAudit] = useState<any[]>([]);
 
   const [manualFallbackEnabled, setManualFallbackEnabled] = useState(false);
@@ -127,6 +132,45 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
     }
   };
 
+  const handleReceiptUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setReceiptMimeType(file.type || 'image/jpeg');
+    setScanNote('');
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = (reader.result as string).split(',')[1] || '';
+      setReceiptImageBase64(base64);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleScanReceipt = async () => {
+    if (!receiptImageBase64) {
+      alert("Upload a receipt image first.");
+      return;
+    }
+    setIsScanningReceipt(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/manual-payment/scan-receipt`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminEmail: userEmail, receiptImageBase64, mimeType: receiptMimeType })
+      });
+      const data = await res.json();
+      if (data.success && data.extractedAmountNGN > 0) {
+        setCreditAmount(String(data.extractedAmountNGN));
+        setScanNote(`AI read ₦${data.extractedAmountNGN.toLocaleString()} from the receipt — review before crediting. ${data.note || ''}`);
+      } else {
+        setScanNote(data.error || data.note || "Couldn't confidently read an amount — please enter it manually.");
+      }
+    } catch (err: any) {
+      setScanNote(`Scan failed: ${err.message} — please enter the amount manually.`);
+    } finally {
+      setIsScanningReceipt(false);
+    }
+  };
+
   const handleCredit = async () => {
     const amount = parseFloat(creditAmount);
     if (!creditEmail || !amount || amount < 1000) {
@@ -138,12 +182,12 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
       const res = await fetch(`${API_BASE_URL}/api/admin/manual-payment/credit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminEmail: userEmail, userEmail: creditEmail, amountNGN: amount, receiptNote: creditNote })
+        body: JSON.stringify({ adminEmail: userEmail, userEmail: creditEmail, amountNGN: amount, receiptNote: creditNote, receiptImageBase64: receiptImageBase64 || undefined })
       });
       const data = await res.json();
       if (res.ok && data.success) {
         addLog(`💰 Credited ₦${amount.toLocaleString()} to ${creditEmail} (verified bank transfer).`);
-        setCreditEmail(''); setCreditAmount(''); setCreditNote('');
+        setCreditEmail(''); setCreditAmount(''); setCreditNote(''); setReceiptImageBase64(''); setScanNote('');
         await fetchAll();
       } else {
         alert(data.error || "Failed to credit payment.");
@@ -262,13 +306,23 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
 
       <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '1.25rem' }}>
         <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#fff', margin: '0 0 0.75rem 0' }}>💰 Credit a Verified Receipt</h4>
+        <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', margin: '0 0 0.75rem 0' }}>
+          Upload the receipt screenshot sent via WhatsApp and let AI read the amount, or just type it in directly — either way, nothing is credited until you review and click Credit Wallet.
+        </p>
+        <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+          <input type="file" accept="image/*" onChange={handleReceiptUpload} style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }} />
+          <button className="btn-glass" style={{ padding: '0.4rem 0.9rem', fontSize: '0.75rem' }} onClick={handleScanReceipt} disabled={!receiptImageBase64 || isScanningReceipt}>
+            {isScanningReceipt ? 'Scanning...' : '🔍 Scan with AI'}
+          </button>
+        </div>
+        {scanNote && <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginBottom: '0.75rem', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>{scanNote}</div>}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
           <input style={inputStyle} value={creditEmail} onChange={e => setCreditEmail(e.target.value)} placeholder="Candidate email" />
           <input style={inputStyle} type="number" min="1000" value={creditAmount} onChange={e => setCreditAmount(e.target.value)} placeholder="Amount (₦, min 1000)" />
           <input style={inputStyle} value={creditNote} onChange={e => setCreditNote(e.target.value)} placeholder="Note (optional)" />
         </div>
         <button className="btn-glass" style={{ padding: '0.5rem 1.25rem', fontSize: '0.8rem', fontWeight: 700, borderColor: 'rgba(16, 185, 129, 0.4)', color: '#10b981' }} onClick={handleCredit} disabled={isCrediting}>
-          {isCrediting ? 'Crediting...' : '+ Credit Wallet'}
+          {isCrediting ? 'Crediting...' : '✓ Approve & Credit Wallet'}
         </button>
       </div>
 

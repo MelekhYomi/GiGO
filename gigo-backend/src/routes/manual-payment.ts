@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express';
+import { Type } from '@google/genai';
 import { db } from '../firebase-config';
 import { executeWalletCreditTransaction } from '../transaction-router';
+import { getGeminiClient } from '../utils/gemini';
 
 const router = express.Router();
 
@@ -50,13 +52,58 @@ router.put('/admin/manual-payment/details', async (req: Request, res: Response) 
   }
 });
 
+// Reads a bank-transfer receipt image and extracts the amount paid — a suggestion
+// for the admin to review, never an auto-credit. The admin still confirms (or
+// corrects) the amount via /admin/manual-payment/credit below; this just removes
+// the need to squint at a WhatsApp screenshot and type the number by hand.
+router.post('/admin/manual-payment/scan-receipt', async (req: Request, res: Response) => {
+  if (!requireAdmin(req, res)) return;
+  const { receiptImageBase64, mimeType } = req.body;
+
+  if (!receiptImageBase64) {
+    res.status(400).json({ error: "receiptImageBase64 is required." });
+    return;
+  }
+
+  try {
+    const { ai, modelFlash } = getGeminiClient();
+    const response = await ai.models.generateContent({
+      model: modelFlash,
+      contents: [
+        { inlineData: { mimeType: mimeType || 'image/jpeg', data: receiptImageBase64 } },
+        {
+          text: `This is a bank transfer receipt or screenshot. Extract the amount that was paid/transferred, in Nigerian Naira (NGN). If the amount is shown in a different currency, convert your best estimate is not needed — just extract the NGN figure if present. If you cannot find a clear amount, set amountNGN to 0 and explain why in the note.`
+        }
+      ],
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            amountNGN: { type: Type.NUMBER, description: "The transferred amount in NGN. 0 if not confidently found." },
+            note: { type: Type.STRING, description: "Brief note: what you saw, or why extraction failed." }
+          },
+          required: ['amountNGN', 'note']
+        }
+      }
+    });
+
+    if (!response.text) throw new Error("Empty response from Gemini receipt scan.");
+    const parsed = JSON.parse(response.text);
+    res.status(200).json({ success: true, extractedAmountNGN: parsed.amountNGN || 0, note: parsed.note || '' });
+  } catch (error: any) {
+    console.error("Receipt scan failed:", error.message);
+    res.status(200).json({ success: false, extractedAmountNGN: 0, note: '', error: "AI scan unavailable — please enter the amount manually from the receipt." });
+  }
+});
+
 // Admin manually credits a candidate's wallet after verifying a bank-transfer
 // receipt received via WhatsApp. This is real money that actually moved, so it
 // feeds the real ledger/P&L exactly like a Paystack transaction — same credit
 // function, same schema, just a different paymentMethod tag for audit clarity.
 router.post('/admin/manual-payment/credit', async (req: Request, res: Response) => {
   if (!requireAdmin(req, res)) return;
-  const { userEmail, amountNGN, receiptNote } = req.body;
+  const { userEmail, amountNGN, receiptNote, receiptImageBase64 } = req.body;
 
   if (!userEmail || typeof amountNGN !== 'number' || amountNGN < MINIMUM_MANUAL_PAYMENT_NGN) {
     res.status(400).json({ error: `userEmail and an amountNGN of at least ₦${MINIMUM_MANUAL_PAYMENT_NGN.toLocaleString()} are required.` });
@@ -82,6 +129,7 @@ router.post('/admin/manual-payment/credit', async (req: Request, res: Response) 
       userEmail: userDoc.data().email,
       amountNGN,
       receiptNote: receiptNote || '',
+      receiptImageBase64: receiptImageBase64 || null,
       creditedBy: req.body.adminEmail,
       referenceId
     });
