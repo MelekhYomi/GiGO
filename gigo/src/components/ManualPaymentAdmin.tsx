@@ -34,14 +34,18 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
   const [ninLockDisabled, setNinLockDisabled] = useState(false);
   const [isTogglingNinLock, setIsTogglingNinLock] = useState(false);
 
+  const [paystackDisabled, setPaystackDisabled] = useState(false);
+  const [isTogglingPaystack, setIsTogglingPaystack] = useState(false);
+
   const fetchAll = async () => {
     try {
-      const [detailsRes, auditRes, fallbackRes, gateRes, ninLockRes] = await Promise.all([
+      const [detailsRes, auditRes, fallbackRes, gateRes, ninLockRes, sysConfigRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/manual-payment/details`),
         fetch(`${API_BASE_URL}/api/admin/manual-payment/audit`),
         fetch(`${API_BASE_URL}/api/manual-fallback/status`),
         fetch(`${API_BASE_URL}/api/ai-auto-apply-gate/status`),
-        fetch(`${API_BASE_URL}/api/nin-lock/status`)
+        fetch(`${API_BASE_URL}/api/nin-lock/status`),
+        fetch(`${API_BASE_URL}/api/system-config`)
       ]);
       const details = await detailsRes.json();
       setBankName(details.bankName || '');
@@ -55,6 +59,8 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
       setAiGateEnabled(!!gateStatus.enabled);
       const ninLockStatus = await ninLockRes.json();
       setNinLockDisabled(!!ninLockStatus.disabled);
+      const sysConfig = await sysConfigRes.json();
+      setPaystackDisabled(!!sysConfig.paystackDisabled);
     } catch (err) {
       console.error("Failed to fetch manual payment admin data:", err);
     }
@@ -93,6 +99,24 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
       alert(`Failed to update setting: ${err.message}`);
     } finally {
       setIsTogglingGate(false);
+    }
+  };
+
+  const handleTogglePaystack = async () => {
+    const next = !paystackDisabled;
+    setIsTogglingPaystack(true);
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/paystack/toggle`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminEmail: userEmail, disabled: next })
+      });
+      setPaystackDisabled(next);
+      addLog(`💳 Paystack ${next ? 'hidden' : 'shown'} in the Refuel modal — bank transfer ${next ? 'is now the only visible option' : 'remains available alongside it'}.`);
+    } catch (err: any) {
+      alert(`Failed to update setting: ${err.message}`);
+    } finally {
+      setIsTogglingPaystack(false);
     }
   };
 
@@ -277,6 +301,29 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
         >
           <div style={{
             position: 'absolute', top: '3px', left: ninLockDisabled ? '23px' : '3px', width: '20px', height: '20px',
+            borderRadius: '50%', background: '#fff', transition: 'left 0.2s'
+          }} />
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
+        <div>
+          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>💳 Hide Paystack in Refuel Modal</div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
+            When on, every candidate only sees Bank Transfer as a payment option — useful while Paystack billing/keys are being sorted out. Turn off to show both options again.
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={handleTogglePaystack}
+          disabled={isTogglingPaystack}
+          style={{
+            flexShrink: 0, marginLeft: '1rem', width: '46px', height: '26px', borderRadius: '13px', border: 'none',
+            background: paystackDisabled ? '#10b981' : 'rgba(255,255,255,0.15)', position: 'relative', cursor: 'pointer', transition: 'background 0.2s'
+          }}
+        >
+          <div style={{
+            position: 'absolute', top: '3px', left: paystackDisabled ? '23px' : '3px', width: '20px', height: '20px',
             borderRadius: '50%', background: '#fff', transition: 'left 0.2s'
           }} />
         </button>

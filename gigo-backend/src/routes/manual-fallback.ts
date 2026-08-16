@@ -132,4 +132,22 @@ router.put('/admin/nin-lock/toggle', async (req: Request, res: Response) => {
   }
 });
 
+// Same toggle pattern again — lets the admin hide the Paystack option in the
+// Wallet's Refuel modal (e.g. while billing/API keys are being sorted out),
+// leaving Bank Transfer as the only visible payment path. Read via the existing
+// public /api/system-config endpoint (paystackDisabled field).
+router.put('/admin/paystack/toggle', async (req: Request, res: Response) => {
+  const { adminEmail, disabled } = req.body;
+  if (!(await isAuthorizedAdminEmail(adminEmail))) {
+    res.status(403).json({ error: "Unauthorized. Only the primary super admin (admin@gigo.com) can change this setting." });
+    return;
+  }
+  try {
+    await db.collection('system_configs').doc('global').set({ paystackDisabled: !!disabled }, { merge: true });
+    res.status(200).json({ success: true, disabled: !!disabled });
+  } catch (error: any) {
+    res.status(500).json({ error: "Failed to update Paystack setting.", details: error.message });
+  }
+});
+
 export default router;

@@ -1310,7 +1310,7 @@ app.post('/api/admin/users/:userId/reset-password', async (req: Request, res: Re
       ]
     });
 
-    res.status(200).json({ success: true, message: `Successfully reset password for candidate \${fullName}. Temporary login details sent to \${userEmail}.` });
+    res.status(200).json({ success: true, message: `Successfully reset password for candidate ${fullName}. Temporary login details sent to ${userEmail}.` });
   } catch (error: any) {
     console.error("Admin reset password error:", error);
     res.status(500).json({ error: "Failed to reset candidate password.", details: error.message });
@@ -2043,7 +2043,8 @@ app.get('/api/system-config', async (req: Request, res: Response) => {
         allowUserSelfDeletion: typeof data.allowUserSelfDeletion === 'boolean' ? data.allowUserSelfDeletion : true,
         allowAlternateMailBackends: typeof data.allowAlternateMailBackends === 'boolean' ? data.allowAlternateMailBackends : false,
         scraperIntervalMinutes: typeof data.scraperIntervalMinutes === 'number' ? data.scraperIntervalMinutes : 45,
-        minMatchScoreThreshold: typeof data.minMatchScoreThreshold === 'number' ? data.minMatchScoreThreshold : 55
+        minMatchScoreThreshold: typeof data.minMatchScoreThreshold === 'number' ? data.minMatchScoreThreshold : 55,
+        paystackDisabled: !!data.paystackDisabled
       });
     } else {
       res.status(200).json({
@@ -2056,7 +2057,8 @@ app.get('/api/system-config', async (req: Request, res: Response) => {
         allowUserSelfDeletion: true,
         allowAlternateMailBackends: false,
         scraperIntervalMinutes: 45,
-        minMatchScoreThreshold: 55
+        minMatchScoreThreshold: 55,
+        paystackDisabled: false
       });
     }
   } catch (error: any) {

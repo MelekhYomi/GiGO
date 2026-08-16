@@ -1131,6 +1131,7 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
     allowAlternateMailBackends?: boolean;
     scraperIntervalMinutes?: number;
     minMatchScoreThreshold?: number;
+    paystackDisabled?: boolean;
   }>({
     frontendDomain: DEFAULT_FRONTEND_DOMAIN,
     referralBonus: 500,
@@ -7250,7 +7251,7 @@ ${profile.name || '[   ]'}`;
          MODALS RENDERING BLOCK
          ---------------------------------------------------- */}
 
-      {showPaceTransferModal && (
+      {showPaceTransferModal && userId && (
         <PaceTransferModal
           API_BASE_URL={API_BASE_URL}
           userId={userId}
@@ -7271,16 +7272,18 @@ ${profile.name || '[   ]'}`;
               Select a <strong>Momentum Package</strong> to power your high-value automated career operations.
             </p>
 
-            <div style={{ display: 'flex', background: 'rgba(0,0,0,0.25)', borderRadius: '10px', padding: '0.25rem', border: '1px solid var(--border-glass)', marginBottom: '1.5rem', width: 'fit-content' }}>
-              <button type="button" className="btn-glass" style={{ padding: '0.4rem 1rem', fontSize: '0.75rem', background: topUpMethod === 'paystack' ? 'var(--primary)' : 'transparent' }} onClick={() => setTopUpMethod('paystack')}>
-                💳 Paystack
-              </button>
-              <button type="button" className="btn-glass" style={{ padding: '0.4rem 1rem', fontSize: '0.75rem', background: topUpMethod === 'bank' ? 'var(--primary)' : 'transparent' }} onClick={() => setTopUpMethod('bank')}>
-                🏦 Bank Transfer
-              </button>
-            </div>
+            {!systemConfig.paystackDisabled && (
+              <div style={{ display: 'flex', background: 'rgba(0,0,0,0.25)', borderRadius: '10px', padding: '0.25rem', border: '1px solid var(--border-glass)', marginBottom: '1.5rem', width: 'fit-content' }}>
+                <button type="button" className="btn-glass" style={{ padding: '0.4rem 1rem', fontSize: '0.75rem', background: topUpMethod === 'paystack' ? 'var(--primary)' : 'transparent' }} onClick={() => setTopUpMethod('paystack')}>
+                  💳 Paystack
+                </button>
+                <button type="button" className="btn-glass" style={{ padding: '0.4rem 1rem', fontSize: '0.75rem', background: topUpMethod === 'bank' ? 'var(--primary)' : 'transparent' }} onClick={() => setTopUpMethod('bank')}>
+                  🏦 Bank Transfer
+                </button>
+              </div>
+            )}
 
-            {topUpMethod === 'bank' ? (
+            {(systemConfig.paystackDisabled || topUpMethod === 'bank') ? (
               <BankTransferPanel API_BASE_URL={API_BASE_URL} />
             ) : (
             <form onSubmit={handleTopUpSubmit}>
