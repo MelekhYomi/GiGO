@@ -27,6 +27,7 @@ import adminManagementRouter from './routes/admin-management';
 import paceTransferRouter from './routes/pace-transfer';
 import documentUploadRouter from './routes/document-upload';
 import ninVerificationRouter from './routes/nin-verification';
+import adminAuditLogRouter from './routes/admin-audit-log';
 import axios from 'axios';
 import { Type } from '@google/genai';
 import { getGeminiClient } from './utils/gemini';
@@ -34,6 +35,10 @@ import { authenticateToken, generateToken } from './utils/auth';
 import nodemailer from 'nodemailer';
 
 const app = express();
+// Render sits behind a reverse proxy — without this, req.ip resolves to
+// Render's internal proxy address for every request instead of the real
+// client IP, which matters for real audit-log entries below.
+app.set('trust proxy', true);
 app.use(express.json());
 
 // Default production frontend domain (referral links, sign-in emails, admin
@@ -3093,6 +3098,7 @@ app.use('/api', adminManagementRouter);
 app.use('/api', paceTransferRouter);
 app.use('/api', documentUploadRouter);
 app.use('/api', ninVerificationRouter);
+app.use('/api', adminAuditLogRouter);
 app.use('/api/test', testAudioRouter);
 
 const PORT = process.env.PORT || 8080;

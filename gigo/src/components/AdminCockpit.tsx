@@ -373,42 +373,40 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
 
   const candidateCount = adminUsers.filter(u => u.role !== 'admin').length;
 
-  // Administrative Audit Trails
-  const [adminAuditLogs, setAdminAuditLogs] = useState<any[]>([
-    {
-      id: 'audit_1',
-      timestamp: new Date(Date.now() - 10800000).toISOString(), // 3 hours ago
-      adminEmail: userEmail || 'admin@gigo.com',
-      action: 'SYSTEM_BOOT',
-      details: 'GiGO Super-Admin engine successfully mounted with local storage buffers.',
-      ip: '197.210.64.48'
-    },
-    {
-      id: 'audit_2',
-      timestamp: new Date(Date.now() - 5400000).toISOString(), // 1.5 hours ago
-      adminEmail: userEmail || 'admin@gigo.com',
-      action: 'CONFIG_UPDATE',
-      details: 'Updated global landing domain URL configuration successfully.',
-      ip: '197.210.64.48'
-    }
-  ]);
+  // Administrative Audit Trails - real, persisted server-side (admin_audit_logs
+  // collection), with the real request IP captured on the backend. Previously
+  // this was purely local React state seeded with fabricated example entries
+  // and a Math.random()-generated fake IP on every new entry, despite being
+  // labeled "Non-repudiable logs" in the UI.
+  const [adminAuditLogs, setAdminAuditLogs] = useState<any[]>([]);
 
-  const logAdminAction = (action: string, details: string) => {
-    const newLog = {
-      id: `audit_${Date.now()}`,
-      timestamp: new Date().toISOString(),
-      adminEmail: userEmail || 'admin@gigo.com',
-      action,
-      details,
-      ip: '197.210.64.' + Math.floor(Math.random() * 254)
-    };
-    setAdminAuditLogs(prev => [newLog, ...prev]);
+  const fetchAuditLog = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/audit-log`);
+      if (res.ok) setAdminAuditLogs(await res.json());
+    } catch (err) {
+      console.error("Failed to fetch admin audit log:", err);
+    }
+  };
+
+  const logAdminAction = async (action: string, details: string) => {
     addLog(`🛡️ [Audit Trail] Registered admin action: ${action} - ${details}`);
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/audit-log`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminEmail: userEmail || 'admin@gigo.com', action, details })
+      });
+      await fetchAuditLog();
+    } catch (err) {
+      console.error("Failed to persist admin audit log entry:", err);
+    }
   };
 
   useEffect(() => {
     fetchAdminLogs();
     fetchAdminUsers();
+    fetchAuditLog();
   }, []);
 
   // background active polling loop
