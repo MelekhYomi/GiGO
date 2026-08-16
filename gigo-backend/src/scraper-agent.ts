@@ -1336,6 +1336,67 @@ export async function runGlobalJobDiscoverySweep(seedUserId?: string) {
   return executeAutonomousScraperPipeline(seedUserId);
 }
 
+interface AutoApplyJudgment {
+  shouldApply: boolean;
+  confidence: number;
+  reasoning: string;
+}
+
+/**
+ * The actual go/no-go decision on an autonomous application, made by Gemini rather
+ * than the heuristic score alone. The heuristic (computeMatchScore) stays in place
+ * as a cheap pre-filter to avoid spending a Gemini call on obviously weak matches —
+ * this only runs once a job has already cleared that bar. Throws on any failure
+ * (quota exhaustion, network error, malformed response) so the caller can fall back
+ * to heuristic-only behavior rather than silently blocking auto-apply.
+ */
+async function evaluateAutoApplyDecisionWithGemini(
+  job: { jobTitle?: string; companyName?: string; jobDescription?: string; keyRequirementsSummary?: string[] },
+  candidate: CandidateMatchProfile,
+  heuristicScore: number,
+  userApiKey?: string
+): Promise<AutoApplyJudgment> {
+  const { ai, modelFlash } = getGeminiClient(userApiKey);
+
+  const prompt = `You are the autonomous application gatekeeper for a career platform. A candidate has enabled full autopilot, meaning an application will be sent to the employer on their behalf WITHOUT their manual review if you approve it. Be genuinely selective — false positives cost the candidate credibility with a real employer.
+
+Candidate profile:
+- Target roles: ${candidate.roles.join(', ') || 'none stated'}
+- Skills: ${candidate.skills.join(', ') || 'none stated'}
+- Years of experience: ${candidate.yearsOfExperience ?? 'unknown'}
+- Past role titles: ${(candidate.pastRoleTitles || []).join(', ') || 'none on file'}
+- Education fields: ${(candidate.educationFields || []).join(', ') || 'none on file'}
+- Career goals: ${candidate.careerGoalsNote || 'not stated'}
+
+Job posting:
+- Title: ${job.jobTitle || 'unknown'}
+- Company: ${job.companyName || 'unknown'}
+- Requirements: ${(job.keyRequirementsSummary || []).join(', ') || 'not specified'}
+- Description: ${job.jobDescription || 'not provided'}
+
+A keyword-matching heuristic already scored this pair at ${heuristicScore}/100 and flagged it as a candidate for autopilot. Make the real judgment call: does this candidate genuinely fit this specific role well enough to justify an unreviewed autonomous application? Consider seniority fit, domain relevance, and whether the heuristic score likely reflects a real match or just keyword overlap.`;
+
+  const response = await ai.models.generateContent({
+    model: modelFlash,
+    contents: prompt,
+    config: {
+      responseMimeType: 'application/json',
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          shouldApply: { type: Type.BOOLEAN },
+          confidence: { type: Type.NUMBER, description: '0-100' },
+          reasoning: { type: Type.STRING, description: 'One or two sentences explaining the decision.' }
+        },
+        required: ['shouldApply', 'confidence', 'reasoning']
+      }
+    }
+  });
+
+  if (!response.text) throw new Error("Empty response from Gemini auto-apply gate.");
+  return JSON.parse(response.text) as AutoApplyJudgment;
+}
+
 /**
  * Matching & Auto-Apply Sweep — runs separately from discovery. Reads the shared
  * discovered_jobs pool, scores it against every autonomous-mode candidate's profile,
@@ -1355,6 +1416,15 @@ export async function runAutoApplyMatchingSweep() {
       console.log("[MATCHING SWEEP] No active jobs in the shared pool. Skipping.");
       return;
     }
+
+    // Fetched once per sweep, not per job — whether the Gemini judgment gate runs at
+    // all. Defaults to off so this never burns Gemini quota until an admin explicitly
+    // turns it on (e.g. once billing/quota is restored).
+    let aiGateEnabled = false;
+    try {
+      const configDoc = await db.collection('system_configs').doc('global').get();
+      aiGateEnabled = !!configDoc.data()?.aiAutoApplyGateEnabled;
+    } catch { /* default off */ }
 
     // Every candidate is evaluated for matching/alerting (great-match and stale-profile
     // nudges matter most for manual-mode users, since nothing auto-applies for them);
@@ -1424,6 +1494,38 @@ export async function runAutoApplyMatchingSweep() {
         } catch (e) {
           console.warn(`[MATCHING SWEEP] Error checking existing mail threads for jobId ${job.id}:`, e);
           continue;
+        }
+
+        // The heuristic score cleared the bar — if the AI gate is enabled, Gemini makes
+        // the real go/no-go call rather than the numeric threshold alone. Any failure
+        // (quota exhaustion, network error) falls back to the heuristic-only decision
+        // so a Gemini outage never blocks the autonomous-apply loop entirely.
+        let finalDecision = true;
+        if (aiGateEnabled) {
+          try {
+            const judgment = await evaluateAutoApplyDecisionWithGemini(job, candidateProfile, score, userData.geminiApiKey);
+            finalDecision = judgment.shouldApply;
+            await db.collection('agent_execution_logs').add({
+              timestamp: new Date().toISOString(),
+              agentName: "AutoApplyGateAgent",
+              userId,
+              executionMetrics: { status: "SUCCESS", modelUsed: 'gemini-flash', heuristicScore: score, geminiConfidence: judgment.confidence, decision: judgment.shouldApply ? 'APPROVED' : 'REJECTED' },
+              businessDecisionsExecuted: [`Gemini judged "${job.jobTitle}" at ${job.companyName} for autonomous application: ${judgment.reasoning}`]
+            });
+            if (!finalDecision) {
+              console.log(`[MATCHING SWEEP] Gemini gate rejected autonomous apply for user ${userId} / job ${job.id}: ${judgment.reasoning}`);
+              continue;
+            }
+          } catch (gateErr: any) {
+            console.warn(`[MATCHING SWEEP] Gemini auto-apply gate failed, falling back to heuristic-only decision for job ${job.id}:`, gateErr.message);
+            await db.collection('agent_execution_logs').add({
+              timestamp: new Date().toISOString(),
+              agentName: "AutoApplyGateAgent",
+              userId,
+              executionMetrics: { status: "FALLBACK", heuristicScore: score },
+              businessDecisionsExecuted: [`Gemini gate unavailable (${gateErr.message}) — fell back to heuristic-only threshold for "${job.jobTitle}" at ${job.companyName}.`]
+            }).catch(() => {});
+          }
         }
 
         console.log(`[MATCHING SWEEP] Match score ${score}% >= 80% (email-based) for user ${userId} / job ${job.id}. Triggering autonomous apply!`);

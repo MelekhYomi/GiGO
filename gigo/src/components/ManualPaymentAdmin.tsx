@@ -23,12 +23,16 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
   const [manualFallbackEnabled, setManualFallbackEnabled] = useState(false);
   const [isTogglingFallback, setIsTogglingFallback] = useState(false);
 
+  const [aiGateEnabled, setAiGateEnabled] = useState(false);
+  const [isTogglingGate, setIsTogglingGate] = useState(false);
+
   const fetchAll = async () => {
     try {
-      const [detailsRes, auditRes, fallbackRes] = await Promise.all([
+      const [detailsRes, auditRes, fallbackRes, gateRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/manual-payment/details`),
         fetch(`${API_BASE_URL}/api/admin/manual-payment/audit`),
-        fetch(`${API_BASE_URL}/api/manual-fallback/status`)
+        fetch(`${API_BASE_URL}/api/manual-fallback/status`),
+        fetch(`${API_BASE_URL}/api/ai-auto-apply-gate/status`)
       ]);
       const details = await detailsRes.json();
       setBankName(details.bankName || '');
@@ -38,6 +42,8 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
       setAudit(await auditRes.json());
       const fallbackStatus = await fallbackRes.json();
       setManualFallbackEnabled(!!fallbackStatus.enabled);
+      const gateStatus = await gateRes.json();
+      setAiGateEnabled(!!gateStatus.enabled);
     } catch (err) {
       console.error("Failed to fetch manual payment admin data:", err);
     }
@@ -58,6 +64,24 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
       alert(`Failed to update setting: ${err.message}`);
     } finally {
       setIsTogglingFallback(false);
+    }
+  };
+
+  const handleToggleGate = async () => {
+    const next = !aiGateEnabled;
+    setIsTogglingGate(true);
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/ai-auto-apply-gate/toggle`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminEmail: userEmail, enabled: next })
+      });
+      setAiGateEnabled(next);
+      addLog(`🧠 Gemini auto-apply judgment gate ${next ? 'enabled' : 'disabled'} platform-wide.`);
+    } catch (err: any) {
+      alert(`Failed to update setting: ${err.message}`);
+    } finally {
+      setIsTogglingGate(false);
     }
   };
 
@@ -139,6 +163,29 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
         >
           <div style={{
             position: 'absolute', top: '3px', left: manualFallbackEnabled ? '23px' : '3px', width: '20px', height: '20px',
+            borderRadius: '50%', background: '#fff', transition: 'left 0.2s'
+          }} />
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
+        <div>
+          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>🧠 Gemini Auto-Apply Judgment Gate</div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
+            When on, a real Gemini call makes the final go/no-go decision on every autonomous application (the heuristic score only pre-filters candidates for it) — reasoning is logged to agent_execution_logs. Off by default so it doesn't spend quota until you're ready; falls back to heuristic-only automatically if a Gemini call ever fails.
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={handleToggleGate}
+          disabled={isTogglingGate}
+          style={{
+            flexShrink: 0, marginLeft: '1rem', width: '46px', height: '26px', borderRadius: '13px', border: 'none',
+            background: aiGateEnabled ? '#10b981' : 'rgba(255,255,255,0.15)', position: 'relative', cursor: 'pointer', transition: 'background 0.2s'
+          }}
+        >
+          <div style={{
+            position: 'absolute', top: '3px', left: aiGateEnabled ? '23px' : '3px', width: '20px', height: '20px',
             borderRadius: '50%', background: '#fff', transition: 'left 0.2s'
           }} />
         </button>

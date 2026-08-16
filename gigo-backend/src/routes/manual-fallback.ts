@@ -80,4 +80,30 @@ router.post('/users/:userId/documents/manual', async (req: Request, res: Respons
   }
 });
 
+// Same admin-toggle pattern as manual fallback above, for the Gemini-powered
+// auto-apply decision gate in scraper-agent.ts. Kept in this file rather than a new
+// one since it's the same tiny shape (public status read + admin-gated toggle).
+router.get('/ai-auto-apply-gate/status', async (req: Request, res: Response) => {
+  try {
+    const doc = await db.collection('system_configs').doc('global').get();
+    res.status(200).json({ enabled: !!doc.data()?.aiAutoApplyGateEnabled });
+  } catch (error: any) {
+    res.status(200).json({ enabled: false });
+  }
+});
+
+router.put('/admin/ai-auto-apply-gate/toggle', async (req: Request, res: Response) => {
+  const { adminEmail, enabled } = req.body;
+  if (adminEmail !== 'admin@gigo.com') {
+    res.status(403).json({ error: "Unauthorized. Only the primary super admin (admin@gigo.com) can change this setting." });
+    return;
+  }
+  try {
+    await db.collection('system_configs').doc('global').set({ aiAutoApplyGateEnabled: !!enabled }, { merge: true });
+    res.status(200).json({ success: true, enabled: !!enabled });
+  } catch (error: any) {
+    res.status(500).json({ error: "Failed to update AI auto-apply gate setting.", details: error.message });
+  }
+});
+
 export default router;
