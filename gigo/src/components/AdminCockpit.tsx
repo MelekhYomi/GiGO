@@ -159,7 +159,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
   setShowOverrideModal,
 }) => {
   // Local states that were previously bloating App.tsx
-  const [adminTab, setAdminTab] = useState<'activities' | 'financials' | 'applications' | 'candidates' | 'settings' | 'orchestrator' | 'observability' | 'sandbox' | 'jobSources'>('activities');
+  const [adminTab, setAdminTab] = useState<'activities' | 'financials' | 'applications' | 'candidates' | 'settings' | 'orchestrator' | 'observability' | 'sandbox' | 'jobSources'>('candidates');
   const [ledgerSearch, setLedgerSearch] = useState<string>('');
   const [ledgerCurrencyFilter, setLedgerCurrencyFilter] = useState<'ALL' | 'NGN' | 'USD'>('ALL');
   const [appSearch, setAppSearch] = useState<string>('');
@@ -552,15 +552,15 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
         }}
       >
         {([
+          { id: 'candidates', label: '👥 Candidate Directory' },
+          { id: 'applications', label: '💼 Application Hub' },
           { id: 'activities', label: '📊 Activity Stream' },
           { id: 'financials', label: '💳 Financial Ledger' },
-          { id: 'applications', label: '💼 Application Hub' },
-          { id: 'candidates', label: '👥 Candidate Directory' },
-          { id: 'settings', label: '⚙️ System Control' },
           { id: 'orchestrator', label: '🤖 Orchestrator' },
           { id: 'observability', label: '📈 Observability' },
+          { id: 'jobSources', label: '🌐 Job Sources' },
           { id: 'sandbox', label: '🧪 Recruiter Sandbox' },
-          { id: 'jobSources', label: '🌐 Job Sources' }
+          { id: 'settings', label: '⚙️ System Control' }
         ] as const).map((t) => {
           const isActive = adminTab === t.id;
           return (

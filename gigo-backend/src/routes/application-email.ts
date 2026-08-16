@@ -3,6 +3,7 @@ import nodemailer from 'nodemailer';
 import { db, FieldValue } from '../firebase-config';
 import { mapErrorResponse } from '../utils/errorMapper';
 import { sendViaGigoSystemMail } from '../utils/mailer';
+import { sendRealGmailMessage, buildGmailOAuthClient } from './mailroom';
 import { markdownToDocxBuffer } from '../utils/docxGenerator';
 import { markdownToPdfBuffer } from '../utils/pdfGenerator';
 import axios from 'axios';
@@ -173,7 +174,27 @@ Redundant Power & Fiber Enabled Remote Candidate.
       } catch (gigoMailErr) {
         console.warn('GiGO system mailbox send failed, falling back to simulated dispatch:', gigoMailErr);
       }
+    } else if (mailBackend === 'gmail' && userData.gmailCredentials?.refreshToken) {
+      // Preferred path once Gmail is connected: real Gmail API send from the
+      // candidate's own account, not a shared mailbox or app-password SMTP relay.
+      isMock = false;
+      try {
+        const oauth2Client = buildGmailOAuthClient(userData.gmailCredentials);
+        const gmailAttachments = attachmentsPayload.map(a => ({
+          filename: a.filename,
+          content: a.content as Buffer,
+          contentType: a.contentType
+        }));
+        const sendResult = await sendRealGmailMessage(oauth2Client, recipientEmail, subject, compiledBody.replace(/\n/g, '<br>'), gmailAttachments);
+        mailInfo = { messageId: sendResult.data.id || `gmail-${Date.now()}`, gmail: true };
+        console.log(`Real Gmail API application sent successfully. MessageId: ${mailInfo.messageId}`);
+      } catch (gmailErr) {
+        console.warn(`Real Gmail API send failed, falling back to simulated dispatch:`, gmailErr);
+        isMock = true;
+      }
     } else if (mailBackend === 'gmail' && smtpHost && smtpUser && smtpPass) {
+      // Legacy fallback: candidate configured a manual SMTP app password instead
+      // of (or in addition to) OAuth.
       isMock = false;
       try {
         const transporter = nodemailer.createTransport({

@@ -9,6 +9,7 @@ import { markdownToJpegBuffer } from './utils/imageGenerator';
 import { createNotification } from './utils/notifications';
 import { resolvePath } from './utils/jsonPath';
 import { isNINLockDisabled } from './utils/ninLock';
+import { sendRealGmailMessage, buildGmailOAuthClient } from './routes/mailroom';
 
 
 interface DiscoveredJob {
@@ -811,7 +812,25 @@ async function triggerAutonomousApplyAndAlert(
       ...(portfolioContent ? await buildDocAttachments(portfolioContent, `Portfolio_${candidateFileName}`, `Portfolio - ${userData.fullName || 'Candidate'}`) : [])
     ];
 
-    if (mailBackend === 'gmail' && smtpHost && smtpUser && smtpPass) {
+    if (mailBackend === 'gmail' && userData.gmailCredentials?.refreshToken) {
+      // Preferred path: real Gmail API send from the candidate's own connected
+      // account, same as the manual application-email.ts path.
+      isMock = false;
+      try {
+        const oauth2Client = buildGmailOAuthClient(userData.gmailCredentials);
+        const gmailAttachments = attachmentsPayload.map((a: any) => ({
+          filename: a.filename,
+          content: a.content as Buffer,
+          contentType: a.contentType
+        }));
+        const sendResult = await sendRealGmailMessage(oauth2Client, recipientEmail, subject, emailBody.replace(/\n/g, '<br>'), gmailAttachments);
+        mailInfo = { messageId: sendResult.data.id || `gmail-autopilot-${Date.now()}`, gmail: true };
+        console.log(`[AUTOPILOT APPLY] Real Gmail API application sent successfully. MsgId: ${mailInfo.messageId}`);
+      } catch (gmailErr) {
+        console.warn(`[AUTOPILOT APPLY] Real Gmail API send failed. Falling back to platform simulated dispatch:`, gmailErr);
+        isMock = true;
+      }
+    } else if (mailBackend === 'gmail' && smtpHost && smtpUser && smtpPass) {
       isMock = false;
       try {
         const transporter = nodemailer.createTransport({

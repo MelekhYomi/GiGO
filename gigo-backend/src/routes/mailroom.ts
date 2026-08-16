@@ -57,32 +57,84 @@ router.get('/mail/threads/:threadId', authenticateToken, async (req: Request, re
 });
 
 /**
- * Helper to build and send a real email via Gmail API
+ * Sends a real email via the Gmail API using the candidate's own connected
+ * OAuth credentials - this genuinely goes out from their real Gmail account,
+ * not a shared GiGO mailbox. Supports attachments (CV/cover letter/portfolio)
+ * via a real MIME multipart message, required for the initial application
+ * send, not just plain-text follow-up replies.
  */
-async function sendRealGmailMessage(auth: any, to: string, subject: string, bodyText: string) {
+export async function sendRealGmailMessage(
+  auth: any,
+  to: string,
+  subject: string,
+  bodyText: string,
+  attachments?: { filename: string; content: Buffer; contentType: string }[]
+) {
   const gmail = google.gmail({ version: 'v1', auth });
   const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString('base64')}?=`;
-  const messageParts = [
-    `To: ${to}`,
-    'Content-Type: text/html; charset=utf-8',
-    'MIME-Version: 1.0',
-    `Subject: ${utf8Subject}`,
-    '',
-    bodyText,
-  ];
-  const message = messageParts.join('\n');
-  const encodedMessage = Buffer.from(message)
+
+  let raw: string;
+  if (attachments && attachments.length > 0) {
+    const boundary = `gigo_boundary_${Date.now()}`;
+    const parts: string[] = [
+      `To: ${to}`,
+      'MIME-Version: 1.0',
+      `Subject: ${utf8Subject}`,
+      `Content-Type: multipart/mixed; boundary="${boundary}"`,
+      '',
+      `--${boundary}`,
+      'Content-Type: text/html; charset=utf-8',
+      '',
+      bodyText,
+      ''
+    ];
+    for (const att of attachments) {
+      parts.push(
+        `--${boundary}`,
+        `Content-Type: ${att.contentType}; name="${att.filename}"`,
+        'Content-Transfer-Encoding: base64',
+        `Content-Disposition: attachment; filename="${att.filename}"`,
+        '',
+        att.content.toString('base64'),
+        ''
+      );
+    }
+    parts.push(`--${boundary}--`);
+    raw = parts.join('\r\n');
+  } else {
+    raw = [
+      `To: ${to}`,
+      'Content-Type: text/html; charset=utf-8',
+      'MIME-Version: 1.0',
+      `Subject: ${utf8Subject}`,
+      '',
+      bodyText,
+    ].join('\n');
+  }
+
+  const encodedMessage = Buffer.from(raw)
     .toString('base64')
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=+$/, '');
-  
-  await gmail.users.messages.send({
+
+  return gmail.users.messages.send({
     userId: 'me',
-    requestBody: {
-      raw: encodedMessage,
-    },
+    requestBody: { raw: encodedMessage },
   });
+}
+
+export function buildGmailOAuthClient(gmailCredentials: { accessToken?: string; refreshToken?: string; expiryDate?: number }) {
+  const client_id = process.env.GOOGLE_CLIENT_ID || '1047125301880-mock.apps.googleusercontent.com';
+  const client_secret = process.env.GOOGLE_CLIENT_SECRET || 'mock-client-secret';
+  const redirect_uri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5173/oauth-callback';
+  const oauth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uri);
+  oauth2Client.setCredentials({
+    access_token: gmailCredentials.accessToken,
+    refresh_token: gmailCredentials.refreshToken,
+    expiry_date: gmailCredentials.expiryDate
+  });
+  return oauth2Client;
 }
 
 /**
@@ -796,16 +848,22 @@ router.post('/mail/google-oauth-callback', authenticateToken, async (req: Reques
     const oauth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uri);
     const { tokens } = await oauth2Client.getToken(code);
 
-    // Save credentials in candidate's Firestore document
+    // Save credentials in candidate's Firestore document. Also switch mailBackend
+    // to 'gmail' - previously connecting Gmail only stored credentials without
+    // ever activating them, so a candidate could go through the OAuth flow and
+    // still have every application quietly sent from GiGO's shared system
+    // mailbox instead of their own real inbox, with no indication anything was
+    // still on the fallback path.
     await db.collection('users').doc(userId).update({
       gmailCredentials: {
         accessToken: tokens.access_token || '',
         refreshToken: tokens.refresh_token || '',
         expiryDate: tokens.expiry_date || 0
-      }
+      },
+      mailBackend: 'gmail'
     });
 
-    res.status(200).json({ success: true, message: "Gmail inbox connected successfully!" });
+    res.status(200).json({ success: true, message: "Gmail connected — applications and replies now go through your real Gmail account." });
   } catch (error: any) {
     console.error("Failed Google OAuth callback token exchange:", error);
     res.status(500).json({ error: "Failed to authenticate Gmail connection." });
