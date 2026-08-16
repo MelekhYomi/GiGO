@@ -37,15 +37,19 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
   const [paystackDisabled, setPaystackDisabled] = useState(false);
   const [isTogglingPaystack, setIsTogglingPaystack] = useState(false);
 
+  const [documentUploadStatus, setDocumentUploadStatus] = useState<{ enabled: boolean; reason: string }>({ enabled: false, reason: 'gemini_healthy' });
+  const [isTogglingUploadMode, setIsTogglingUploadMode] = useState(false);
+
   const fetchAll = async () => {
     try {
-      const [detailsRes, auditRes, fallbackRes, gateRes, ninLockRes, sysConfigRes] = await Promise.all([
+      const [detailsRes, auditRes, fallbackRes, gateRes, ninLockRes, sysConfigRes, uploadStatusRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/manual-payment/details`),
         fetch(`${API_BASE_URL}/api/admin/manual-payment/audit`),
         fetch(`${API_BASE_URL}/api/manual-fallback/status`),
         fetch(`${API_BASE_URL}/api/ai-auto-apply-gate/status`),
         fetch(`${API_BASE_URL}/api/nin-lock/status`),
-        fetch(`${API_BASE_URL}/api/system-config`)
+        fetch(`${API_BASE_URL}/api/system-config`),
+        fetch(`${API_BASE_URL}/api/document-upload/status`)
       ]);
       const details = await detailsRes.json();
       setBankName(details.bankName || '');
@@ -61,6 +65,8 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
       setNinLockDisabled(!!ninLockStatus.disabled);
       const sysConfig = await sysConfigRes.json();
       setPaystackDisabled(!!sysConfig.paystackDisabled);
+      const uploadStatus = await uploadStatusRes.json();
+      setDocumentUploadStatus({ enabled: !!uploadStatus.enabled, reason: uploadStatus.reason || 'gemini_healthy' });
     } catch (err) {
       console.error("Failed to fetch manual payment admin data:", err);
     }
@@ -117,6 +123,26 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
       alert(`Failed to update setting: ${err.message}`);
     } finally {
       setIsTogglingPaystack(false);
+    }
+  };
+
+  const handleSetUploadMode = async (mode: 'auto' | 'on' | 'off') => {
+    setIsTogglingUploadMode(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/document-upload/force-mode`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminEmail: userEmail, mode })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setDocumentUploadStatus({ enabled: !!data.status.enabled, reason: data.status.reason });
+        addLog(`📤 Document upload fallback set to ${mode.toUpperCase()} (currently ${data.status.enabled ? 'visible' : 'hidden'} to candidates).`);
+      }
+    } catch (err: any) {
+      alert(`Failed to update setting: ${err.message}`);
+    } finally {
+      setIsTogglingUploadMode(false);
     }
   };
 
@@ -327,6 +353,34 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
             borderRadius: '50%', background: '#fff', transition: 'left 0.2s'
           }} />
         </button>
+      </div>
+
+      <div style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.6rem' }}>
+          <div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>📤 Upload-Your-Own-CV Fallback</div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
+              Auto mode shows the upload button to candidates only when the last Gemini document-generation attempt failed, and hides it again once Gemini succeeds — no manual watching required. Force it on/off to override.
+            </div>
+          </div>
+          <span style={{ flexShrink: 0, marginLeft: '0.75rem', fontSize: '0.65rem', fontWeight: 700, padding: '0.2rem 0.5rem', borderRadius: '999px', background: documentUploadStatus.enabled ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.08)', color: documentUploadStatus.enabled ? '#10b981' : 'var(--text-muted)' }}>
+            {documentUploadStatus.enabled ? 'VISIBLE' : 'HIDDEN'}
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {(['auto', 'on', 'off'] as const).map(mode => (
+            <button
+              key={mode}
+              type="button"
+              className="btn-glass"
+              style={{ flex: 1, padding: '0.4rem', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' }}
+              onClick={() => handleSetUploadMode(mode)}
+              disabled={isTogglingUploadMode}
+            >
+              {mode}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>

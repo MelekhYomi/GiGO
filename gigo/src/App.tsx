@@ -8,6 +8,7 @@ import PermissionConsentModal from './components/PermissionConsentModal';
 import WaitlistCommitmentModal from './components/WaitlistCommitmentModal';
 import BankTransferPanel from './components/BankTransferPanel';
 import PaceTransferModal from './components/PaceTransferModal';
+import UploadDocumentModal from './components/UploadDocumentModal';
 import ManualDocumentModal from './components/ManualDocumentModal';
 import { GiGOLogo } from './components/GiGOLogo';
 
@@ -463,6 +464,15 @@ export default function App() {
   const [micConsentRequest, setMicConsentRequest] = useState<{ onAllow: () => void; onCancel?: () => void } | null>(null);
   const [topUpMethod, setTopUpMethod] = useState<'paystack' | 'bank'>('paystack');
   const [showPaceTransferModal, setShowPaceTransferModal] = useState(false);
+  const [documentUploadEnabled, setDocumentUploadEnabled] = useState(false);
+  const [uploadDocumentRequest, setUploadDocumentRequest] = useState<{ assetType: 'COVER_LETTER' | 'CV' | 'PORTFOLIO'; jobTitle: string; companyName: string; jobId?: string } | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/document-upload/status`)
+      .then(res => res.json())
+      .then(data => setDocumentUploadEnabled(!!data.enabled))
+      .catch(() => setDocumentUploadEnabled(false));
+  }, []);
   const [manualFallbackRequest, setManualFallbackRequest] = useState<{ assetType: 'COVER_LETTER' | 'CV' | 'PORTFOLIO'; jobTitle: string; companyName: string; jobId?: string } | null>(null);
   const [showLocationConsent, setShowLocationConsent] = useState<boolean>(false);
   const [isDetectingLocation, setIsDetectingLocation] = useState<boolean>(false);
@@ -7416,6 +7426,16 @@ ${profile.name || '[   ]'}`;
         />
       )}
 
+      {uploadDocumentRequest && userId && (
+        <UploadDocumentModal
+          API_BASE_URL={API_BASE_URL}
+          userId={userId}
+          request={uploadDocumentRequest}
+          onClose={() => setUploadDocumentRequest(null)}
+          onSaved={() => { addLog(`Uploaded ${uploadDocumentRequest.assetType.replace('_', ' ')} saved to your archive.`); fetchDocuments(); }}
+        />
+      )}
+
       {/* TRACK NEW TASK MODAL */}
       {showNewTaskModal && (
         <div className="modal-overlay">
@@ -8039,6 +8059,21 @@ ${profile.name || '[   ]'}`;
                   >
                     💼 Compile Case Portfolio — Proof of Work (4 Pace)
                   </button>
+
+                  {documentUploadEnabled && (
+                    <>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center', margin: '0.25rem 0' }}>
+                        — or, if you already have one —
+                      </div>
+                      <button
+                        className="btn-glass"
+                        style={{ width: '100%', justifyContent: 'center', border: '1px dashed var(--border-glass)', fontWeight: 600, fontSize: '0.8rem' }}
+                        onClick={() => setUploadDocumentRequest({ assetType: 'CV', jobTitle: selectedJob.jobTitle, companyName: selectedJob.companyName, jobId: selectedJob.id })}
+                      >
+                        📤 Upload Your Own CV / Cover Letter / Portfolio (Free)
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
 

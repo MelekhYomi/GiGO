@@ -6,6 +6,7 @@ import { getGeminiClient } from './utils/gemini';
 import { markdownToJpegBuffer } from './utils/imageGenerator';
 import { executeWalletCreditTransaction } from './transaction-router';
 import { isNINLockDisabled } from './utils/ninLock';
+import { recordGeminiSuccess, recordGeminiFailure } from './utils/geminiHealth';
 
 
 export async function handleAssetGenerationRoute(req: Request, res: Response): Promise<void> {
@@ -239,6 +240,7 @@ ${educationBlock}`;
     });
 
     const assetContent = response.text ? response.text.trim() : `Dear Hiring Team,\n\nI am writing to express my strong interest in the ${finalJobTitle} position at ${finalCompanyName}...`;
+    recordGeminiSuccess();
 
     // Generate a real JPEG preview at creation time so the candidate can view/download
     // it from their archive immediately, not just when an application is sent.
@@ -304,6 +306,8 @@ ${educationBlock}`;
       res.status(402).json({ error: "Atomic validation checked: Wallet has insufficient NGN balance." });
       return;
     }
+
+    recordGeminiFailure();
 
     // The wallet was already debited but no document was actually produced (Gemini
     // failure, quota exhaustion, etc.) — refund it. Charging for nothing is a bug,
