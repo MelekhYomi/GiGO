@@ -510,6 +510,11 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
                       <span style={{ fontSize: '0.6rem', fontWeight: 700, color: statusColor, background: statusBg, padding: '0.12rem 0.45rem', borderRadius: '999px', border: `1px solid ${statusColor}33` }}>
                         {statusText}
                       </span>
+                      {thread.isSimulated && (
+                        <span title="The real email couldn't be sent (no mail backend configured or the send failed) — this was logged but not actually delivered to the employer." style={{ fontSize: '0.6rem', fontWeight: 700, color: '#f59e0b', background: 'rgba(245, 158, 11, 0.1)', padding: '0.12rem 0.45rem', borderRadius: '999px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                          ⚠️ Not Delivered
+                        </span>
+                      )}
                       {lastMessage && (
                         <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>
                           {lastMessage.sender === 'user' ? 'You replied' : 'They replied'}
@@ -538,6 +543,12 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             
+            {selectedThread.isSimulated && (
+              <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '1rem', fontSize: '0.78rem', color: '#fde047', lineHeight: 1.4 }}>
+                ⚠️ <strong>This application was not actually delivered.</strong> The real email send failed or no mail backend was configured, so this was logged for your records but never reached the employer. Consider re-sending it manually.
+              </div>
+            )}
+
             {/* ACTIVE THREAD HEADER */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '1rem', marginBottom: '1rem' }}>
               <div>
