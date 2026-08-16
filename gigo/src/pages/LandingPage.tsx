@@ -67,9 +67,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp }) 
       <nav className="w-full max-w-7xl mx-auto px-6 py-5 flex justify-between items-center border-b border-brandBorder relative z-10">
         <div className="flex items-center gap-2">
           <GiGOLogo size={38} />
-          <span className="font-heading font-extrabold text-xl tracking-tight bg-gradient-to-r from-brandPrimary to-brandSecondary bg-clip-text text-transparent">
-            GiGO
-          </span>
         </div>
         
         <div className="flex items-center gap-4 sm:gap-6">

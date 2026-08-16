@@ -8,6 +8,7 @@ import PermissionConsentModal from './components/PermissionConsentModal';
 import WaitlistCommitmentModal from './components/WaitlistCommitmentModal';
 import BankTransferPanel from './components/BankTransferPanel';
 import ManualDocumentModal from './components/ManualDocumentModal';
+import { GiGOLogo } from './components/GiGOLogo';
 
 const AdminCockpit = lazy(() => import('./components/AdminCockpit').then(module => ({ default: module.AdminCockpit })));
 const MailroomTab = lazy(() => import('./components/MailroomTab').then(module => ({ default: module.MailroomTab })));
@@ -4612,7 +4613,9 @@ ${profile.name || '[   ]'}`;
             <div className="auth-card glass-panel animate-fade-in" style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
               <button className="close-btn" style={{ fontSize: '1.75rem', top: '0.75rem', right: '1rem' }} onClick={() => setShowAuthModal(false)}>&times;</button>
               
-              <div className="logo-icon" style={{ margin: '0 auto 1.25rem auto', width: '52px', height: '52px', fontSize: '1.6rem' }}>GiGO</div>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.25rem' }}>
+                <GiGOLogo size={52} showWordmark={false} />
+              </div>
               <h2 className="text-gradient-purple-pink" style={{ textAlign: 'center', fontSize: '1.9rem', fontWeight: 800 }}>GiGO PLATFORM</h2>
               <p style={{ textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '2rem' }}>
                 AI-Native Job Matching Scraper, Real-time Voice Onboarding & Secure Paystack Ledger
@@ -4937,7 +4940,7 @@ ${profile.name || '[   ]'}`;
       {/* HEADER BAR */}
       <header className="app-header">
         <div className="logo-container">
-          <div className="logo-icon">GiGO</div>
+          <GiGOLogo size={38} showWordmark={false} />
           <div>
             <h1 style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '0.05em' }}>
               GiGO PLATFORM
