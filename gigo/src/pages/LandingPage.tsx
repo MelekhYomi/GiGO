@@ -166,6 +166,134 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp }) 
         </div>
       </header>
 
+      {/* AI Agent Team Showcase — always visible, not hidden behind a click */}
+      <section className="border-t border-brandBorder relative z-10 py-16">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brandPrimary/10 border border-brandPrimary/20 text-[11px] font-semibold text-brandPrimary tracking-wide mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-brandPrimary" />
+              Meet your AI agent team
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-brandTextPrimary tracking-tight mb-3">
+              Eight agents working your career, around the clock
+            </h2>
+            <p className="text-sm sm:text-base text-brandTextSecondary max-w-2xl mx-auto leading-relaxed">
+              Not one chatbot wearing different hats — real, specialized agents that discover, write, apply, and coach, so you're never starting from a blank page.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { icon: '🎙️', name: 'Voice Onboarding Agent', desc: 'Just talk. It builds your entire profile — work history, skills, goals — from a short voice note. No forms.' },
+              { icon: '🔍', name: 'Job Scout Agent', desc: 'Continuously scans RemoteOK, The Muse, Arbeitnow, and admin-curated boards, filtering out anything below your match threshold.' },
+              { icon: '✍️', name: 'Document Composer Agent', desc: 'Writes ATS-optimized CVs, cover letters, and portfolios tailored to each specific job in seconds, grounded in your real history.' },
+              { icon: '🚀', name: 'Auto-Apply Agent', desc: 'Submits applications on your behalf for high-confidence matches while you sleep — or review every one manually, your call.' },
+              { icon: '📬', name: 'GiGO Mailroom', desc: 'One inbox for every application response. Connect Gmail once — GiGO tracks recruiter replies automatically from there.' },
+              { icon: '🧠', name: 'AI Career Coach', desc: 'Chat anytime for career advice grounded in your actual profile and goals, not generic scripts.' },
+              { icon: '🎤', name: 'Mock Interview Room', desc: 'Practice voice-to-voice with an AI interviewer tailored to your target role. Free and unlimited.' },
+              { icon: '📊', name: 'GiGO Brain', desc: 'Your personal analytics dashboard — match trends, application velocity, and career momentum score at a glance.' },
+            ].map((agent) => (
+              <div key={agent.name} className="p-5 rounded-2xl bg-brandCard/40 border border-brandBorder space-y-3 text-left hover:border-brandPrimary/40 transition-colors">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-brandPrimary/20 to-brandSecondary/20 border border-brandBorder flex items-center justify-center text-xl">
+                  {agent.icon}
+                </div>
+                <h4 className="text-sm font-bold text-brandTextPrimary">{agent.name}</h4>
+                <p className="text-[12px] text-brandTextSecondary leading-relaxed">{agent.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* See Inside GiGO — real in-app UI previews, styled with the same tokens as the live app */}
+      <section className="border-t border-brandBorder relative z-10 bg-brandCard/25 py-16">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brandSecondary/10 border border-brandSecondary/20 text-[11px] font-semibold text-brandSecondary tracking-wide mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-brandSecondary" />
+              See inside GiGO
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-brandTextPrimary tracking-tight mb-3">
+              A real look at the dashboard you'll be using
+            </h2>
+            <p className="text-sm sm:text-base text-brandTextSecondary max-w-2xl mx-auto leading-relaxed">
+              Not marketing screenshots — this is the actual UI, before you've even signed up.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {/* Mini preview: Track Board */}
+            <div className="rounded-2xl bg-brandSurface border border-brandBorder p-4 shadow-lg">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Track Board</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-brandPrimary/10 text-brandPrimary font-semibold">Live</span>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { label: 'Matched', color: 'bg-brandPrimary', items: ['Backend Eng · Stripe', 'Product Designer · Notion'] },
+                  { label: 'Applied', color: 'bg-brandSecondary', items: ['Data Analyst · Flutterwave'] },
+                  { label: 'Interviews', color: 'bg-emerald-500', items: ['DevOps Eng · Paystack'] },
+                ].map(col => (
+                  <div key={col.label}>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className={`w-1.5 h-1.5 rounded-full ${col.color}`} />
+                      <span className="text-[10px] font-bold uppercase text-brandTextMuted">{col.label}</span>
+                    </div>
+                    {col.items.map(item => (
+                      <div key={item} className="text-[11px] text-brandTextPrimary bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-1.5 mb-1">
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Mini preview: Wallet */}
+            <div className="rounded-2xl bg-brandSurface border border-brandBorder p-4 shadow-lg">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Wallet</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-brandPrimary/10 text-brandPrimary font-semibold">Pay-as-you-go</span>
+              </div>
+              <div className="rounded-xl bg-gradient-to-br from-brandPrimary/15 to-brandSecondary/15 border border-brandBorder p-4 mb-3">
+                <div className="text-[10px] text-brandTextMuted uppercase font-bold mb-1">Career Momentum</div>
+                <div className="text-2xl font-black text-brandTextPrimary">250 <span className="text-sm font-semibold text-brandTextSecondary">Pace</span></div>
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-[11px] text-brandTextSecondary bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-1.5">
+                  <span>ATS CV compiled</span><span className="text-brandTextPrimary font-semibold">-5 Pace</span>
+                </div>
+                <div className="flex justify-between text-[11px] text-brandTextSecondary bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-1.5">
+                  <span>Bank transfer top-up</span><span className="text-emerald-400 font-semibold">+200 Pace</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Mini preview: Mailroom */}
+            <div className="rounded-2xl bg-brandSurface border border-brandBorder p-4 shadow-lg">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Mailroom</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-brandSecondary/10 text-brandSecondary font-semibold">2 new</span>
+              </div>
+              <div className="space-y-1.5">
+                <div className="bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-2">
+                  <div className="flex justify-between text-[11px] font-semibold text-brandTextPrimary mb-0.5">
+                    <span>Flutterwave Recruiting</span><span className="text-brandTextMuted font-normal">2h</span>
+                  </div>
+                  <div className="text-[11px] text-brandTextSecondary truncate">Thanks for applying — next steps for Data Analyst...</div>
+                </div>
+                <div className="bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-2">
+                  <div className="flex justify-between text-[11px] font-semibold text-brandTextPrimary mb-0.5">
+                    <span>Paystack Careers</span><span className="text-brandTextMuted font-normal">1d</span>
+                  </div>
+                  <div className="text-[11px] text-brandTextSecondary truncate">We'd like to schedule an interview for DevOps...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Double-Action: Engaging GiGO Ambassador & Referrals Module */}
       <section className="border-t border-brandBorder relative z-10 bg-brandCard/25 py-16">
         <div className="max-w-4xl mx-auto px-6 text-center">
