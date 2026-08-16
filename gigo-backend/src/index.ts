@@ -23,6 +23,7 @@ import legalRouter from './routes/legal';
 import waitlistRouter from './routes/waitlist';
 import manualPaymentRouter from './routes/manual-payment';
 import manualFallbackRouter from './routes/manual-fallback';
+import adminManagementRouter from './routes/admin-management';
 import axios from 'axios';
 import { Type } from '@google/genai';
 import { getGeminiClient } from './utils/gemini';
@@ -68,6 +69,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 import { mapErrorResponse } from './utils/errorMapper';
+import { isAuthorizedAdminEmail } from './utils/adminAuth';
 
 // ----------------------------------------------------
 // USER PORTFOLIO & SEED ENDPOINTS
@@ -1577,7 +1579,7 @@ app.post('/api/admin/users/:userId/verify-nin', async (req: Request, res: Respon
   const { userId } = req.params;
   const { isNINVerified, adminEmail } = req.body;
 
-  if (adminEmail !== 'admin@gigo.com') {
+  if (!(await isAuthorizedAdminEmail(adminEmail))) {
     res.status(403).json({ error: "Unauthorized. Only the primary super admin (admin@gigo.com) can toggle NIN verification." });
     return;
   }
@@ -2075,9 +2077,9 @@ app.get('/api/system-config', async (req: Request, res: Response) => {
 
 // Fetch complete global system configurations including obfuscated Paystack keys (Admin Only)
 app.get('/api/admin/system-config', async (req: Request, res: Response) => {
-  const adminEmail = req.query.adminEmail;
+  const adminEmail = req.query.adminEmail as string | undefined;
 
-  if (adminEmail !== 'admin@gigo.com') {
+  if (!(await isAuthorizedAdminEmail(adminEmail))) {
     res.status(403).json({ error: "Unauthorized. Only the super admin (admin@gigo.com) can access sensitive system configurations." });
     return;
   }
@@ -3087,6 +3089,7 @@ app.use('/api', legalRouter);
 app.use('/api', waitlistRouter);
 app.use('/api', manualPaymentRouter);
 app.use('/api', manualFallbackRouter);
+app.use('/api', adminManagementRouter);
 app.use('/api/test', testAudioRouter);
 
 const PORT = process.env.PORT || 8080;

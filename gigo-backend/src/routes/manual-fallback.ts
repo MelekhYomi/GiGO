@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { db } from '../firebase-config';
 import { markdownToJpegBuffer } from '../utils/imageGenerator';
+import { isAuthorizedAdminEmail } from '../utils/adminAuth';
 
 const router = express.Router();
 
@@ -16,7 +17,7 @@ router.get('/manual-fallback/status', async (req: Request, res: Response) => {
 
 router.put('/admin/manual-fallback/toggle', async (req: Request, res: Response) => {
   const { adminEmail, enabled } = req.body;
-  if (adminEmail !== 'admin@gigo.com') {
+  if (!(await isAuthorizedAdminEmail(adminEmail))) {
     res.status(403).json({ error: "Unauthorized. Only the primary super admin (admin@gigo.com) can change this setting." });
     return;
   }
@@ -94,7 +95,7 @@ router.get('/ai-auto-apply-gate/status', async (req: Request, res: Response) => 
 
 router.put('/admin/ai-auto-apply-gate/toggle', async (req: Request, res: Response) => {
   const { adminEmail, enabled } = req.body;
-  if (adminEmail !== 'admin@gigo.com') {
+  if (!(await isAuthorizedAdminEmail(adminEmail))) {
     res.status(403).json({ error: "Unauthorized. Only the primary super admin (admin@gigo.com) can change this setting." });
     return;
   }

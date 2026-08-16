@@ -6,6 +6,7 @@ import JobSourcesManager from './JobSourcesManager';
 import LegalDocumentsEditor from './LegalDocumentsEditor';
 import WaitlistPanel from './WaitlistPanel';
 import ManualPaymentAdmin from './ManualPaymentAdmin';
+import AdminAccessManagement from './AdminAccessManagement';
 
 // Simple Refresh SVG Icon
 const RefreshIcon = () => (
@@ -1059,6 +1060,8 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               )}
             </div>
           )}
+
+          <AdminAccessManagement API_BASE_URL={API_BASE_URL} userEmail={userEmail || 'admin@gigo.com'} addLog={addLog} />
 
           <ManualPaymentAdmin API_BASE_URL={API_BASE_URL} userEmail={userEmail || 'admin@gigo.com'} addLog={addLog} />
 

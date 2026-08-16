@@ -1,12 +1,13 @@
 import express, { Request, Response } from 'express';
 import { db } from '../firebase-config';
 import { fetchGenericJobSource } from '../scraper-agent';
+import { isAuthorizedAdminEmail } from '../utils/adminAuth';
 
 const router = express.Router();
 
-function requireAdmin(req: Request, res: Response): boolean {
+async function requireAdmin(req: Request, res: Response): Promise<boolean> {
   const adminEmail = req.body?.adminEmail || req.query?.adminEmail;
-  if (adminEmail !== 'admin@gigo.com') {
+  if (!(await isAuthorizedAdminEmail(adminEmail))) {
     res.status(403).json({ error: "Unauthorized. Only the primary super admin (admin@gigo.com) can manage job sources." });
     return false;
   }
@@ -33,7 +34,7 @@ router.get('/admin/job-sources', async (req: Request, res: Response) => {
 });
 
 router.post('/admin/job-sources', async (req: Request, res: Response) => {
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
   const { name, apiUrl, resultsPath, fieldMap } = req.body;
 
   if (!name || !apiUrl || !fieldMap?.company || !fieldMap?.title) {
@@ -67,7 +68,7 @@ router.post('/admin/job-sources', async (req: Request, res: Response) => {
 });
 
 router.post('/admin/job-sources/:id/toggle', async (req: Request, res: Response) => {
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
   const { enabled } = req.body;
   try {
     await db.collection('job_sources').doc(req.params.id).update({ enabled: !!enabled });
@@ -78,7 +79,7 @@ router.post('/admin/job-sources/:id/toggle', async (req: Request, res: Response)
 });
 
 router.delete('/admin/job-sources/:id', async (req: Request, res: Response) => {
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
   try {
     await db.collection('job_sources').doc(req.params.id).delete();
     res.status(200).json({ success: true });
@@ -90,7 +91,7 @@ router.delete('/admin/job-sources/:id', async (req: Request, res: Response) => {
 // Lets the admin test a new source's field mapping immediately instead of waiting
 // for the next scheduled sweep.
 router.post('/admin/job-sources/:id/run-now', async (req: Request, res: Response) => {
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
   try {
     const docSnap = await db.collection('job_sources').doc(req.params.id).get();
     if (!docSnap.exists) {
