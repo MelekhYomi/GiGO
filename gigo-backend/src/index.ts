@@ -2640,22 +2640,8 @@ app.get('/api/discovered-jobs', async (req: Request, res: Response) => {
         });
       });
 
-      // Seeding fallback if filtering returns empty, ensuring the marquee is functional
       if (jobs.length === 0) {
-        console.log(`No jobs matched custom channels [${tickerTargetDomains.join(', ')}]. Seeding dynamic entries...`);
-        jobs = tickerTargetDomains.map((dom, idx) => ({
-          id: `job_sim_ticker_${idx}_${Date.now()}`,
-          companyName: dom === 'twitter.com' ? "Twitter Hiring Partner" : dom === 'linkedin.com' ? "LinkedIn Premium Recruiter" : `${dom.split('.')[0].toUpperCase()} Talent Hub`,
-          jobTitle: (userData?.targetRoles && userData.targetRoles[0]) || "Specialist Developer",
-          workType: "Remote",
-          applicationLinkOrEmail: `https://${dom}/gigo/apply/${idx}`,
-          sourcePlatform: dom,
-          keyRequirementsSummary: (userData?.skills && userData.skills.slice(0, 3)) || ["Experience", "Adaptability", "Execution"],
-          scrapedAt: new Date().toISOString(),
-          applicationEmail: `apply@${dom}`,
-          applicationPhone: "+234-80-TICKER-MATCH",
-          applicationLink: `https://${dom}/gigo/apply/${idx}`
-        }));
+        console.log(`No real jobs currently match custom channels [${tickerTargetDomains.join(', ')}].`);
       }
     }
 

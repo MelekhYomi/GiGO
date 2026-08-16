@@ -316,12 +316,8 @@ Redundant Power & Fiber Enabled Remote Candidate.
 
     res.status(200).json({
       success: true,
-      message: isMock 
-        ? (mailBackend === 'gigomail'
-            ? "Application dispatched successfully via GiGO Mail Agent."
-            : mailBackend === 'zapier'
-              ? "Application email queued for simulated dispatch (missing webhook URL)."
-              : "Application dispatched successfully via GiGO Platform Network Simulator.")
+      message: isMock
+        ? "The real send failed or no mail backend is configured — this application was logged but not actually delivered to the employer. Check Mailroom to resend manually."
         : (mailBackend === 'zapier'
             ? "Application email dispatched successfully via Zapier Automation."
             : "Application email dispatched successfully via custom SMTP."),
