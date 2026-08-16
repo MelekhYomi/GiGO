@@ -7,6 +7,7 @@ import LegalDocumentModal from './components/LegalDocumentModal';
 import PermissionConsentModal from './components/PermissionConsentModal';
 import WaitlistCommitmentModal from './components/WaitlistCommitmentModal';
 import BankTransferPanel from './components/BankTransferPanel';
+import ManualDocumentModal from './components/ManualDocumentModal';
 
 const AdminCockpit = lazy(() => import('./components/AdminCockpit').then(module => ({ default: module.AdminCockpit })));
 const MailroomTab = lazy(() => import('./components/MailroomTab').then(module => ({ default: module.MailroomTab })));
@@ -459,6 +460,7 @@ export default function App() {
   const [showLegalModal, setShowLegalModal] = useState<'terms' | 'privacy' | null>(null);
   const [micConsentRequest, setMicConsentRequest] = useState<{ onAllow: () => void; onCancel?: () => void } | null>(null);
   const [topUpMethod, setTopUpMethod] = useState<'paystack' | 'bank'>('paystack');
+  const [manualFallbackRequest, setManualFallbackRequest] = useState<{ assetType: 'COVER_LETTER' | 'CV' | 'PORTFOLIO'; jobTitle: string; companyName: string; jobId?: string } | null>(null);
   const [showLocationConsent, setShowLocationConsent] = useState<boolean>(false);
   const [isDetectingLocation, setIsDetectingLocation] = useState<boolean>(false);
   const [isWaitlistSignup] = useState<boolean>(() => {
@@ -3774,6 +3776,10 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
         await fetchUserProfile();
         await fetchTransactions();
         await fetchDocuments();
+      } else if (data.manualFallbackAvailable) {
+        addLog(`[Document Agent] AI generation unavailable${data.refunded ? ' — wallet refunded' : ''}. Offering manual fallback for ${displayLabel}.`);
+        setManualFallbackRequest({ assetType, jobTitle: job.jobTitle, companyName: job.companyName, jobId: job.id });
+        if (data.refunded) await fetchUserProfile();
       } else {
         alert(data.error || `Failed to generate ${displayLabel}.`);
         addLog(`[Document Agent] Generation failed: ${data.error}`);
@@ -7372,6 +7378,16 @@ ${profile.name || '[   ]'}`;
             )}
           </div>
         </div>
+      )}
+
+      {manualFallbackRequest && (
+        <ManualDocumentModal
+          API_BASE_URL={API_BASE_URL}
+          userId={userId}
+          request={manualFallbackRequest}
+          onClose={() => setManualFallbackRequest(null)}
+          onSaved={() => { addLog(`Manual ${manualFallbackRequest.assetType.replace('_', ' ')} saved to your archive.`); fetchDocuments(); }}
+        />
       )}
 
       {/* TRACK NEW TASK MODAL */}

@@ -20,11 +20,15 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
 
   const [audit, setAudit] = useState<any[]>([]);
 
+  const [manualFallbackEnabled, setManualFallbackEnabled] = useState(false);
+  const [isTogglingFallback, setIsTogglingFallback] = useState(false);
+
   const fetchAll = async () => {
     try {
-      const [detailsRes, auditRes] = await Promise.all([
+      const [detailsRes, auditRes, fallbackRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/manual-payment/details`),
-        fetch(`${API_BASE_URL}/api/admin/manual-payment/audit`)
+        fetch(`${API_BASE_URL}/api/admin/manual-payment/audit`),
+        fetch(`${API_BASE_URL}/api/manual-fallback/status`)
       ]);
       const details = await detailsRes.json();
       setBankName(details.bankName || '');
@@ -32,8 +36,28 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
       setAccountNumber(details.accountNumber || '');
       setWhatsappNumber(details.whatsappNumber || '');
       setAudit(await auditRes.json());
+      const fallbackStatus = await fallbackRes.json();
+      setManualFallbackEnabled(!!fallbackStatus.enabled);
     } catch (err) {
       console.error("Failed to fetch manual payment admin data:", err);
+    }
+  };
+
+  const handleToggleFallback = async () => {
+    const next = !manualFallbackEnabled;
+    setIsTogglingFallback(true);
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/manual-fallback/toggle`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminEmail: userEmail, enabled: next })
+      });
+      setManualFallbackEnabled(next);
+      addLog(`🛟 Manual AI fallback ${next ? 'enabled' : 'disabled'} platform-wide.`);
+    } catch (err: any) {
+      alert(`Failed to update setting: ${err.message}`);
+    } finally {
+      setIsTogglingFallback(false);
     }
   };
 
@@ -95,6 +119,29 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
         <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
           Real money, real revenue — these credits feed the actual P&L above, tagged BANK_TRANSFER_MANUAL for audit.
         </p>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
+        <div>
+          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>🛟 Manual AI Fallback</div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
+            When AI generation fails (e.g. Gemini quota exhausted), let candidates write their own CV/cover letter for free and apply manually to already-discovered jobs instead of hitting a dead end.
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={handleToggleFallback}
+          disabled={isTogglingFallback}
+          style={{
+            flexShrink: 0, marginLeft: '1rem', width: '46px', height: '26px', borderRadius: '13px', border: 'none',
+            background: manualFallbackEnabled ? '#10b981' : 'rgba(255,255,255,0.15)', position: 'relative', cursor: 'pointer', transition: 'background 0.2s'
+          }}
+        >
+          <div style={{
+            position: 'absolute', top: '3px', left: manualFallbackEnabled ? '23px' : '3px', width: '20px', height: '20px',
+            borderRadius: '50%', background: '#fff', transition: 'left 0.2s'
+          }} />
+        </button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>

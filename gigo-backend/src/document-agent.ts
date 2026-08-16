@@ -4,6 +4,7 @@ import { db, FieldValue } from './firebase-config';
 import { mapErrorResponse } from './utils/errorMapper';
 import { getGeminiClient } from './utils/gemini';
 import { markdownToJpegBuffer } from './utils/imageGenerator';
+import { executeWalletCreditTransaction } from './transaction-router';
 
 
 export async function handleAssetGenerationRoute(req: Request, res: Response): Promise<void> {
@@ -23,6 +24,8 @@ export async function handleAssetGenerationRoute(req: Request, res: Response): P
   let cost = 60.00; // 300 Tokens (₦60.00 NGN)
   if (type === 'CV') cost = 100.00; // 500 Tokens (₦100.00 NGN)
   if (type === 'PORTFOLIO') cost = 80.00; // 400 Tokens (₦80.00 NGN)
+
+  let walletWasDebited = false;
 
   try {
     const userRef = db.collection('users').doc(userId);
@@ -116,6 +119,7 @@ export async function handleAssetGenerationRoute(req: Request, res: Response): P
     });
 
     console.log(`Wallet debit complete. Running Gemini to generate ${type} for ${userData.fullName} -> ${finalJobTitle} at ${finalCompanyName}...`);
+    walletWasDebited = true;
 
     let prompt = '';
     const candidateRoleName = (userData.targetRoles && userData.targetRoles.length > 0 && userData.targetRoles[0] !== '[   ]')
@@ -299,6 +303,19 @@ ${educationBlock}`;
       return;
     }
 
+    // The wallet was already debited but no document was actually produced (Gemini
+    // failure, quota exhaustion, etc.) — refund it. Charging for nothing is a bug,
+    // not an acceptable cost of AI flakiness.
+    let refunded = false;
+    if (walletWasDebited) {
+      try {
+        await executeWalletCreditTransaction(userId, cost, 'NGN', `gigo-refund-${Date.now()}`, 'AI_GENERATION_FAILURE_REFUND');
+        refunded = true;
+      } catch (refundErr) {
+        console.error(`Failed to refund ₦${cost} to user ${userId} after generation failure:`, refundErr);
+      }
+    }
+
     try {
       await db.collection('agent_execution_logs').add({
         timestamp: new Date().toISOString(),
@@ -308,14 +325,30 @@ ${educationBlock}`;
           status: "FAILED"
         },
         businessDecisionsExecuted: [
-          `Encountered backend pipeline lapse: ${error.message}`
-        ]
+          `Encountered backend pipeline lapse: ${error.message}`,
+          refunded ? `Refunded ₦${cost} to candidate wallet since no document was produced.` : ''
+        ].filter(Boolean)
       });
     } catch (logErr) {
       console.error("Failed to write document-agent error log:", logErr);
     }
 
+    let manualFallbackEnabled = false;
+    try {
+      const configDoc = await db.collection('system_configs').doc('global').get();
+      manualFallbackEnabled = !!configDoc.data()?.manualFallbackEnabled;
+    } catch { /* default false */ }
+
     const { statusCode, error: errTitle, details } = mapErrorResponse(error, "Failed to compile ATS cover letter due to internal AI processing error.");
-    res.status(statusCode).json({ error: errTitle, details });
+    res.status(statusCode).json({
+      error: errTitle,
+      details,
+      refunded,
+      manualFallbackAvailable: manualFallbackEnabled,
+      assetType: type,
+      jobTitle: req.body.jobTitle,
+      companyName: req.body.companyName,
+      jobId: req.body.jobId
+    });
   }
 }

@@ -22,6 +22,7 @@ import jobSourcesRouter from './routes/job-sources';
 import legalRouter from './routes/legal';
 import waitlistRouter from './routes/waitlist';
 import manualPaymentRouter from './routes/manual-payment';
+import manualFallbackRouter from './routes/manual-fallback';
 import axios from 'axios';
 import { Type } from '@google/genai';
 import { getGeminiClient } from './utils/gemini';
@@ -3085,6 +3086,7 @@ app.use('/api', jobSourcesRouter);
 app.use('/api', legalRouter);
 app.use('/api', waitlistRouter);
 app.use('/api', manualPaymentRouter);
+app.use('/api', manualFallbackRouter);
 app.use('/api/test', testAudioRouter);
 
 const PORT = process.env.PORT || 8080;
