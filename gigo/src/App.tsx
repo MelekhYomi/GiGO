@@ -3364,56 +3364,46 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
     setNinError('');
     setIsScanningNIN(true);
     setScanProgress(0);
-    setScanLogs(["[SYSTEM] Connecting to National Identity Management Commission (NIMC) API v3...", "[SYSTEM] Establishing cryptographic tunneling secure socket..."]);
+    setScanLogs(["[AGENT] Uploading NIN card image to verification agent...", "[AGENT] Gemini is reviewing the document — this is a real check, not a simulation."]);
 
-    const steps = [
-      { p: 15, log: "[OCR] Initializing Secure Holographic OCR Scanner Core..." },
-      { p: 30, log: "[OCR] Scanning card edges and watermarks for structural integrity..." },
-      { p: 45, log: "[NIMC] Reading National Database Schema Indexes for NIN: " + ninInput.replace(/(\d{3})\d{5}(\d{3})/, "$1*****$2") },
-      { p: 60, log: "[AI-AGENT] Extracting candidate portrait and facial metrics..." },
-      { p: 75, log: "[AI-AGENT] Matching age, name alignment ('" + (profile?.name || "") + "'), and regional workable age bounds..." },
-      { p: 90, log: "[SYSTEM] Generating cryptographic verification hash, checking ledger thresholds..." },
-      { p: 100, log: "[SUCCESS] Holographic Match Confirmed! Verification payload signed and sealed." }
-    ];
+    // Visual progress only — the actual outcome below comes from a real Gemini
+    // vision call reviewing the uploaded document, not from this timer.
+    const progressTimer = setInterval(() => {
+      setScanProgress(prev => (prev < 85 ? prev + 5 : prev));
+    }, 200);
 
-    let currentProgress = 0;
-    const interval = setInterval(async () => {
-      currentProgress += 5;
-      if (currentProgress > 100) currentProgress = 100;
-      setScanProgress(currentProgress);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/users/${userId}/verify-nin-real`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ninValue: ninInput,
+          ninCardImageBase64: ninImageBase64.includes(',') ? ninImageBase64.split(',')[1] : ninImageBase64,
+          mimeType: 'image/jpeg'
+        })
+      });
+      const data = await res.json();
+      clearInterval(progressTimer);
+      setScanProgress(100);
 
-      const matchingStep = steps.find(s => s.p === currentProgress);
-      if (matchingStep) {
-        setScanLogs(prev => [...prev, matchingStep.log]);
+      if (data.isNINVerified) {
+        setScanLogs(prev => [...prev, `[VERIFIED] ${data.verdict?.reasoning || 'Document matched — wallet lock lifted.'}`]);
+        addLog(`🎉 NIN Verified — Gemini confirmed the document and details match. Wallet lock lifted.`);
+        await fetchUserProfile();
+      } else if (data.verdict) {
+        const reason = data.verdict.reasoning || "The uploaded document didn't match the details provided.";
+        setScanLogs(prev => [...prev, `[REJECTED] ${reason}`]);
+        setNinError(reason);
+      } else {
+        setNinError(data.error || "Verification service unavailable right now — please try again shortly.");
       }
-
-      if (currentProgress >= 100) {
-        clearInterval(interval);
-        try {
-          const res = await fetch(`${API_BASE_URL}/api/users/${userId}/update`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              isNINVerified: true,
-              ninValue: ninInput,
-              ninCardImage: ninImageBase64
-            })
-          });
-
-          if (res.ok) {
-            addLog(`🎉 NIN Verified successfully! Ledger freeze has been defrosted.`);
-            await fetchUserProfile();
-          } else {
-            const data = await res.json();
-            setNinError(data.error || "NIMC Gateway Verification rejected the submitted details.");
-          }
-        } catch (err) {
-          setNinError("Failed to reach identity verification servers.");
-        } finally {
-          setIsScanningNIN(false);
-        }
-      }
-    }, 150);
+    } catch (err) {
+      clearInterval(progressTimer);
+      setScanProgress(0);
+      setNinError("Failed to reach the verification service. Please try again.");
+    } finally {
+      setIsScanningNIN(false);
+    }
   };
 
   const handleToggleBiometrics = () => {
