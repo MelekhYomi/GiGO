@@ -28,6 +28,7 @@ import paceTransferRouter from './routes/pace-transfer';
 import documentUploadRouter from './routes/document-upload';
 import ninVerificationRouter from './routes/nin-verification';
 import adminAuditLogRouter from './routes/admin-audit-log';
+import mailDiagnosticsRouter from './routes/mail-diagnostics';
 import axios from 'axios';
 import { Type } from '@google/genai';
 import { getGeminiClient } from './utils/gemini';
@@ -3085,6 +3086,7 @@ app.use('/api', paceTransferRouter);
 app.use('/api', documentUploadRouter);
 app.use('/api', ninVerificationRouter);
 app.use('/api', adminAuditLogRouter);
+app.use('/api', mailDiagnosticsRouter);
 app.use('/api/test', testAudioRouter);
 
 const PORT = process.env.PORT || 8080;

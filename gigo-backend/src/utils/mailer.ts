@@ -32,6 +32,22 @@ export function getSystemMailTransport(): { transporter: import('nodemailer').Tr
   return { transporter, fromAddress: user };
 }
 
+// Real, live diagnostic - actually authenticates against the SMTP server
+// (nodemailer's verify(), no email sent) rather than just checking whether env
+// vars exist, since a var can be set to a wrong/expired value and still "exist".
+export async function checkSystemMailHealth(): Promise<{ configured: boolean; verified: boolean; fromAddress: string | null; error: string | null }> {
+  const system = getSystemMailTransport();
+  if (!system) {
+    return { configured: false, verified: false, fromAddress: null, error: "GIGO_SYSTEM_SMTP_USER and/or GIGO_SYSTEM_SMTP_PASS are not set." };
+  }
+  try {
+    await system.transporter.verify();
+    return { configured: true, verified: true, fromAddress: system.fromAddress, error: null };
+  } catch (err: any) {
+    return { configured: true, verified: false, fromAddress: system.fromAddress, error: err.message };
+  }
+}
+
 export interface SendGigoMailParams {
   candidateName: string;
   candidateEmail: string;
