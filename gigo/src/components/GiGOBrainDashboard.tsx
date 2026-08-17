@@ -1135,7 +1135,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                       <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700 }}>NEWLY COMPILED ASSET</span>
                       <button 
                         className="btn-glass" 
-                        style={{ padding: '0.15rem 0.4rem', fontSize: '0.65rem', color: '#f8fafc' }}
+                        style={{ padding: '0.15rem 0.4rem', fontSize: '0.65rem', color: 'var(--text-primary)' }}
                         onClick={() => {
                           navigator.clipboard.writeText(generatedCoverLetter);
                           alert("Asset copied to clipboard!");
@@ -1205,7 +1205,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                           <textarea
                             value={editContent}
                             onChange={(e) => setEditContent(e.target.value)}
-                            style={{ fontSize: '0.7rem', color: '#fff', whiteSpace: 'pre-wrap', minHeight: '160px', background: 'rgba(0,0,0,0.25)', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-glass)', fontFamily: 'monospace', resize: 'vertical' }}
+                            style={{ fontSize: '0.7rem', color: 'var(--text-primary)', whiteSpace: 'pre-wrap', minHeight: '160px', background: 'rgba(0,0,0,0.25)', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-glass)', fontFamily: 'monospace', resize: 'vertical' }}
                           />
                           <button
                             className="btn-glass btn-primary"

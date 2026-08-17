@@ -79,11 +79,11 @@ export default function ManualDocumentModal({ API_BASE_URL, userId, request, onC
 
         {step === 'write' ? (
           <>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '0.5rem', color: '#fff' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
               ✍️ Write Your Own {LABELS[request.assetType]}
             </h3>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem', lineHeight: 1.4 }}>
-              AI generation is temporarily unavailable — your wallet was refunded. Write your own {LABELS[request.assetType].toLowerCase()} for <strong style={{ color: '#fff' }}>{request.jobTitle}</strong> at <strong style={{ color: '#fff' }}>{request.companyName}</strong> below. It's saved to your archive free of charge, and you can apply with it manually.
+              AI generation is temporarily unavailable — your wallet was refunded. Write your own {LABELS[request.assetType].toLowerCase()} for <strong style={{ color: 'var(--text-primary)' }}>{request.jobTitle}</strong> at <strong style={{ color: 'var(--text-primary)' }}>{request.companyName}</strong> below. It's saved to your archive free of charge, and you can apply with it manually.
             </p>
             <textarea
               value={content}
@@ -92,7 +92,7 @@ export default function ManualDocumentModal({ API_BASE_URL, userId, request, onC
               rows={12}
               style={{
                 width: '100%', background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)',
-                borderRadius: '10px', padding: '0.85rem', fontSize: '0.85rem', color: '#fff',
+                borderRadius: '10px', padding: '0.85rem', fontSize: '0.85rem', color: 'var(--text-primary)',
                 lineHeight: 1.5, resize: 'vertical', fontFamily: 'inherit', marginBottom: '1rem'
               }}
             />
@@ -112,11 +112,11 @@ export default function ManualDocumentModal({ API_BASE_URL, userId, request, onC
 
             {!markedApplied ? (
               <>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', margin: '0 0 0.5rem 0' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 0.5rem 0' }}>
                   {LABELS[request.assetType]} Saved
                 </h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0 0 1.5rem 0', lineHeight: 1.4 }}>
-                  Have you already sent this application to <strong style={{ color: '#fff' }}>{request.companyName}</strong>? Mark it as applied to track it on your board.
+                  Have you already sent this application to <strong style={{ color: 'var(--text-primary)' }}>{request.companyName}</strong>? Mark it as applied to track it on your board.
                 </p>
                 <div style={{ display: 'flex', gap: '0.6rem' }}>
                   <button className="btn-glass" style={{ flex: 1, padding: '0.7rem', fontWeight: 700 }} onClick={onClose} disabled={isLoggingApplication}>
@@ -129,7 +129,7 @@ export default function ManualDocumentModal({ API_BASE_URL, userId, request, onC
               </>
             ) : (
               <>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', margin: '0 0 0.5rem 0' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 0.5rem 0' }}>
                   Logged on Your Track Board
                 </h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0 0 1.5rem 0', lineHeight: 1.4 }}>

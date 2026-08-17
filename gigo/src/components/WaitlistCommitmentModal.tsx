@@ -61,7 +61,7 @@ export default function WaitlistCommitmentModal({ API_BASE_URL, userId, onDone }
         </p>
 
         <div style={{ marginBottom: '1.25rem' }}>
-          <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '0.6rem' }}>
+          <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.6rem' }}>
             Are you a friend, family member, or otherwise personally connected to the GiGO team?
           </label>
           <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: '0 0 0.6rem 0' }}>
@@ -78,7 +78,7 @@ export default function WaitlistCommitmentModal({ API_BASE_URL, userId, onDone }
         </div>
 
         <div style={{ marginBottom: '1.25rem' }}>
-          <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '0.6rem' }}>
+          <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.6rem' }}>
             Which plan would you subscribe to once GiGO is fully live?
           </label>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -90,7 +90,7 @@ export default function WaitlistCommitmentModal({ API_BASE_URL, userId, onDone }
               }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <input type="radio" name="tier" checked={selectedTier === tier.id} onChange={() => setSelectedTier(tier.id)} style={{ accentColor: 'var(--primary)' }} />
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>{tier.label}</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>{tier.label}</span>
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>₦{tier.priceNGN.toLocaleString()}/mo · {tier.applicationsPerMonth === 999 ? 'Unlimited' : tier.applicationsPerMonth} apps</span>
               </label>
@@ -99,7 +99,7 @@ export default function WaitlistCommitmentModal({ API_BASE_URL, userId, onDone }
         </div>
 
         <div style={{ marginBottom: '1.25rem' }}>
-          <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '0.5rem' }}>
+          <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.5rem' }}>
             How was talking to GiGO like an interview, instead of filling out forms? (1–5)
           </label>
           <div style={{ display: 'flex', gap: '0.4rem' }}>
@@ -114,14 +114,14 @@ export default function WaitlistCommitmentModal({ API_BASE_URL, userId, onDone }
         </div>
 
         <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '0.5rem' }}>
+          <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.5rem' }}>
             Anything else about the voice onboarding experience? (optional)
           </label>
           <textarea
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
             placeholder="e.g. Felt natural, wish it asked more about my portfolio..."
-            style={{ width: '100%', minHeight: '80px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.6rem', fontSize: '0.8rem', color: '#fff', resize: 'vertical' }}
+            style={{ width: '100%', minHeight: '80px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.6rem', fontSize: '0.8rem', color: 'var(--text-primary)', resize: 'vertical' }}
           />
         </div>
 

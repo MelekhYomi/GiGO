@@ -251,7 +251,7 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
 
   const inputStyle: React.CSSProperties = {
     background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px',
-    padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: '#fff', width: '100%'
+    padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)', width: '100%'
   };
 
   return (
@@ -265,7 +265,7 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
         <div>
-          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>🛟 Manual AI Fallback</div>
+          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>🛟 Manual AI Fallback</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
             When AI generation fails (e.g. Gemini quota exhausted), let candidates write their own CV/cover letter for free and apply manually to already-discovered jobs instead of hitting a dead end.
           </div>
@@ -288,7 +288,7 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
         <div>
-          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>🧠 Gemini Auto-Apply Judgment Gate</div>
+          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>🧠 Gemini Auto-Apply Judgment Gate</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
             When on, a real Gemini call makes the final go/no-go decision on every autonomous application (the heuristic score only pre-filters candidates for it) — reasoning is logged to agent_execution_logs. Off by default so it doesn't spend quota until you're ready; falls back to heuristic-only automatically if a Gemini call ever fails.
           </div>
@@ -311,7 +311,7 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
         <div>
-          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>🪪 Bypass NIN Verification Wallet Lock</div>
+          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>🪪 Bypass NIN Verification Wallet Lock</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
             Normally 80% of a candidate's welcome bonus stays locked until they complete NIN verification. Turn this on to give every candidate full spendable balance immediately — useful while sorting out verification-related issues, so it never blocks a real paying candidate.
           </div>
@@ -334,7 +334,7 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
         <div>
-          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>💳 Hide Paystack in Refuel Modal</div>
+          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>💳 Hide Paystack in Refuel Modal</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
             When on, every candidate only sees Bank Transfer as a payment option — useful while Paystack billing/keys are being sorted out. Turn off to show both options again.
           </div>
@@ -358,7 +358,7 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
       <div style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.6rem' }}>
           <div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>📤 Upload-Your-Own-CV Fallback</div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>📤 Upload-Your-Own-CV Fallback</div>
             <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
               Auto mode shows the upload button to candidates only when the last Gemini document-generation attempt failed, and hides it again once Gemini succeeds — no manual watching required. Force it on/off to override.
             </div>
@@ -406,7 +406,7 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
       </button>
 
       <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '1.25rem' }}>
-        <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#fff', margin: '0 0 0.75rem 0' }}>💰 Credit a Verified Receipt</h4>
+        <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 0.75rem 0' }}>💰 Credit a Verified Receipt</h4>
         <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', margin: '0 0 0.75rem 0' }}>
           Upload the receipt screenshot sent via WhatsApp and let AI read the amount, or just type it in directly — either way, nothing is credited until you review and click Credit Wallet.
         </p>

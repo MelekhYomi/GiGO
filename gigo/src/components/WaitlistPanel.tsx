@@ -51,7 +51,7 @@ export default function WaitlistPanel({ API_BASE_URL }: WaitlistPanelProps) {
           { label: 'Avg. Voice Onboarding Rating', value: data.avgVoiceRating ? `${data.avgVoiceRating} / 5` : '—' },
         ].map(stat => (
           <div key={stat.label} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '10px', padding: '1rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#fff' }}>{stat.value}</div>
+            <div style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--text-primary)' }}>{stat.value}</div>
             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{stat.label}</div>
           </div>
         ))}

@@ -150,7 +150,7 @@ export default function JobSourcesManager({ API_BASE_URL, userEmail, addLog }: J
 
   const inputStyle: React.CSSProperties = {
     background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px',
-    padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: '#fff', width: '100%'
+    padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)', width: '100%'
   };
 
   return (

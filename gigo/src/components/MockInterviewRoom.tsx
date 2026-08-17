@@ -532,11 +532,11 @@ export default function MockInterviewRoom({
                   value={selectedJobId}
                   onChange={(e) => setSelectedJobId(e.target.value)}
                   className="input-glass"
-                  style={{ flex: 1, padding: '0.6rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#fff', fontSize: '0.8rem', outline: 'none' }}
+                  style={{ flex: 1, padding: '0.6rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.8rem', outline: 'none' }}
                 >
                   <option value="">-- Choose an active matched job ({allUniqueJobs.length} available) --</option>
                   {allUniqueJobs.map(job => (
-                    <option key={job.id} value={job.id} style={{ background: '#0a0819', color: '#fff' }}>
+                    <option key={job.id} value={job.id} style={{ background: '#0a0819', color: 'var(--text-primary)' }}>
                       {job.jobTitle} at {job.companyName}
                     </option>
                   ))}
@@ -561,7 +561,7 @@ export default function MockInterviewRoom({
                       value={customJobTitle}
                       onChange={(e) => setCustomJobTitle(e.target.value)}
                       className="input-glass"
-                      style={{ padding: '0.55rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#fff', fontSize: '0.8rem', outline: 'none' }}
+                      style={{ padding: '0.55rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.8rem', outline: 'none' }}
                     />
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
@@ -572,7 +572,7 @@ export default function MockInterviewRoom({
                       value={customCompany}
                       onChange={(e) => setCustomCompany(e.target.value)}
                       className="input-glass"
-                      style={{ padding: '0.55rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#fff', fontSize: '0.8rem', outline: 'none' }}
+                      style={{ padding: '0.55rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.8rem', outline: 'none' }}
                     />
                   </div>
                 </div>
@@ -584,7 +584,7 @@ export default function MockInterviewRoom({
                       value={customJobStyle}
                       onChange={(e: any) => setCustomJobStyle(e.target.value)}
                       className="input-glass"
-                      style={{ padding: '0.55rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#fff', fontSize: '0.8rem', outline: 'none' }}
+                      style={{ padding: '0.55rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.8rem', outline: 'none' }}
                     >
                       <option value="Remote">Remote</option>
                       <option value="Hybrid">Hybrid</option>
@@ -609,7 +609,7 @@ export default function MockInterviewRoom({
           <div className="glass-panel search-loader-panel animate-pulse animate-fade-in" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', border: '1px solid rgba(138, 92, 246, 0.3)', background: 'rgba(138, 92, 246, 0.03)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <div className="spinner-glow" style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid rgba(138, 92, 246, 0.1)', borderTopColor: 'var(--primary)', animation: 'spin 1s linear infinite' }}></div>
-              <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#fff', letterSpacing: '0.05em' }}>
+              <span style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '0.05em' }}>
                 FINDING CURRENT QUESTIONS ON THE WEB...
               </span>
             </div>

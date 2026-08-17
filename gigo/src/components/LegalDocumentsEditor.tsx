@@ -95,7 +95,7 @@ export default function LegalDocumentsEditor({ API_BASE_URL, userEmail, addLog }
           onChange={(e) => activeDoc === 'terms' ? setTermsOfService(e.target.value) : setPrivacyPolicy(e.target.value)}
           style={{
             width: '100%', minHeight: '420px', background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)',
-            borderRadius: '8px', padding: '1rem', fontSize: '0.8rem', color: '#fff', fontFamily: 'monospace', resize: 'vertical', lineHeight: 1.6
+            borderRadius: '8px', padding: '1rem', fontSize: '0.8rem', color: 'var(--text-primary)', fontFamily: 'monospace', resize: 'vertical', lineHeight: 1.6
           }}
         />
       )}

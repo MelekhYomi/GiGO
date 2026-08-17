@@ -1103,7 +1103,7 @@ export default function ResumeTailorPanel({
       {/* Upper Suite Header Banner */}
       <div className="glass-panel" style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(138, 92, 246, 0.25)', background: 'linear-gradient(135deg, rgba(138,92,246,0.05) 0%, rgba(0,0,0,0.4) 100%)' }}>
         <div>
-          <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
             <span style={{ fontSize: '1.8rem' }}>💼</span> Resume & Letter Builder
           </h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.35rem 0 0 0' }}>
@@ -1117,7 +1117,7 @@ export default function ResumeTailorPanel({
             onClick={() => setActiveSubTab('resume')}
             style={{
               background: activeSubTab === 'resume' ? 'var(--primary)' : 'transparent',
-              color: '#fff',
+              color: 'var(--text-primary)',
               border: 'none',
               padding: '0.5rem 1rem',
               borderRadius: '6px',
@@ -1136,7 +1136,7 @@ export default function ResumeTailorPanel({
             onClick={() => setActiveSubTab('cover_letter')}
             style={{
               background: activeSubTab === 'cover_letter' ? 'var(--primary)' : 'transparent',
-              color: '#fff',
+              color: 'var(--text-primary)',
               border: 'none',
               padding: '0.5rem 1rem',
               borderRadius: '6px',
@@ -1155,7 +1155,7 @@ export default function ResumeTailorPanel({
             onClick={() => setActiveSubTab('portfolio')}
             style={{
               background: activeSubTab === 'portfolio' ? 'var(--primary)' : 'transparent',
-              color: '#fff',
+              color: 'var(--text-primary)',
               border: 'none',
               padding: '0.5rem 1rem',
               borderRadius: '6px',
@@ -1181,7 +1181,7 @@ export default function ResumeTailorPanel({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span style={{ fontSize: '1rem' }}>⚙️</span>
             <div>
-              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#fff' }}>Design Settings</span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)' }}>Design Settings</span>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>Configure your details and choose template designs.</p>
             </div>
           </div>
@@ -1192,13 +1192,13 @@ export default function ResumeTailorPanel({
               <div style={{ display: 'flex', background: 'rgba(0,0,0,0.3)', padding: '0.25rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <button
                   onClick={() => setResumeUseLive(false)}
-                  style={{ background: !resumeUseLive ? 'var(--primary)' : 'transparent', color: '#fff', border: 'none', padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
+                  style={{ background: !resumeUseLive ? 'var(--primary)' : 'transparent', color: 'var(--text-primary)', border: 'none', padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
                 >
                   📂 Example Data
                 </button>
                 <button
                   onClick={() => setResumeUseLive(true)}
-                  style={{ background: resumeUseLive ? 'linear-gradient(135deg, var(--emerald) 0%, var(--primary) 100%)' : 'transparent', color: '#fff', border: 'none', padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: resumeUseLive ? '0 0 10px rgba(16,185,129,0.25)' : 'none' }}
+                  style={{ background: resumeUseLive ? 'linear-gradient(135deg, var(--emerald) 0%, var(--primary) 100%)' : 'transparent', color: 'var(--text-primary)', border: 'none', padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: resumeUseLive ? '0 0 10px rgba(16,185,129,0.25)' : 'none' }}
                 >
                   ✨ Use My Profile Details
                 </button>
@@ -1209,13 +1209,13 @@ export default function ResumeTailorPanel({
               <div style={{ display: 'flex', background: 'rgba(0,0,0,0.3)', padding: '0.25rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <button
                   onClick={() => setLetterUseLive(false)}
-                  style={{ background: !letterUseLive ? 'var(--primary)' : 'transparent', color: '#fff', border: 'none', padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
+                  style={{ background: !letterUseLive ? 'var(--primary)' : 'transparent', color: 'var(--text-primary)', border: 'none', padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
                 >
                   📂 Example Data
                 </button>
                 <button
                   onClick={() => setLetterUseLive(true)}
-                  style={{ background: letterUseLive ? 'linear-gradient(135deg, var(--emerald) 0%, var(--primary) 100%)' : 'transparent', color: '#fff', border: 'none', padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: letterUseLive ? '0 0 10px rgba(16,185,129,0.25)' : 'none' }}
+                  style={{ background: letterUseLive ? 'linear-gradient(135deg, var(--emerald) 0%, var(--primary) 100%)' : 'transparent', color: 'var(--text-primary)', border: 'none', padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: letterUseLive ? '0 0 10px rgba(16,185,129,0.25)' : 'none' }}
                 >
                   ✨ Use My Profile Details
                 </button>
@@ -1226,13 +1226,13 @@ export default function ResumeTailorPanel({
               <div style={{ display: 'flex', background: 'rgba(0,0,0,0.3)', padding: '0.25rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <button
                   onClick={() => setPortfolioUseLive(false)}
-                  style={{ background: !portfolioUseLive ? 'var(--primary)' : 'transparent', color: '#fff', border: 'none', padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
+                  style={{ background: !portfolioUseLive ? 'var(--primary)' : 'transparent', color: 'var(--text-primary)', border: 'none', padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
                 >
                   📂 Example Data
                 </button>
                 <button
                   onClick={() => setPortfolioUseLive(true)}
-                  style={{ background: portfolioUseLive ? 'linear-gradient(135deg, var(--emerald) 0%, var(--primary) 100%)' : 'transparent', color: '#fff', border: 'none', padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: portfolioUseLive ? '0 0 10px rgba(16,185,129,0.25)' : 'none' }}
+                  style={{ background: portfolioUseLive ? 'linear-gradient(135deg, var(--emerald) 0%, var(--primary) 100%)' : 'transparent', color: 'var(--text-primary)', border: 'none', padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: portfolioUseLive ? '0 0 10px rgba(16,185,129,0.25)' : 'none' }}
                 >
                   ✨ Use My Profile Details
                 </button>
@@ -1369,7 +1369,7 @@ export default function ResumeTailorPanel({
                   <div style={{ display: 'flex', gap: '1.5rem' }}>
                     <div style={{ width: '35%', background: '#092d24', color: '#e6f4f1', padding: '1.25rem', borderRadius: '6px', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
                       <div>
-                        <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff' }}>{data.name}</div>
+                        <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)' }}>{data.name}</div>
                         <div style={{ color: '#10b981', fontWeight: 700, fontSize: '0.9rem', marginTop: '0.25rem' }}>{data.role}</div>
                       </div>
                       <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '0.8rem' }}>
@@ -1787,7 +1787,7 @@ export default function ResumeTailorPanel({
                     <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#feb47b', marginTop: '0.5rem' }}>Featured Systems Engineering Projects</div>
                     {data.projects.map((p, idx) => (
                       <div key={idx} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', padding: '0.8rem' }}>
-                        <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#fff', marginBottom: '0.35rem' }}>{p.name}</div>
+                        <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: 'var(--text-primary)', marginBottom: '0.35rem' }}>{p.name}</div>
                         <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.75rem', color: '#9ca3af', lineHeight: 1.4 }}>{p.desc}</p>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
                           {p.tech.map((t, tIdx) => (
@@ -1811,17 +1811,17 @@ export default function ResumeTailorPanel({
                 return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div style={{ borderBottom: '1px solid #333', paddingBottom: '0.75rem' }}>
-                      <h1 style={{ fontSize: '1.4rem', color: '#fff', margin: 0 }}>{data.name}</h1>
+                      <h1 style={{ fontSize: '1.4rem', color: 'var(--text-primary)', margin: 0 }}>{data.name}</h1>
                       <div style={{ color: '#6366f1', fontWeight: 'bold', fontSize: '0.85rem' }}>{data.role} Showcase</div>
                       <p style={{ color: '#888', fontSize: '0.75rem', margin: '0.5rem 0 0 0', lineHeight: 1.4 }}>{data.bio}</p>
                     </div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#fff' }}>Timeline: Systems & Projects Milestone</div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>Timeline: Systems & Projects Milestone</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                       {data.projects.map((p, idx) => (
                         <div key={idx} style={{ borderLeft: '2px solid #6366f1', paddingLeft: '1rem', marginLeft: '6px', position: 'relative' }}>
                           <span style={{ width: '8px', height: '8px', background: '#6366f1', borderRadius: '50%', position: 'absolute', left: '-5px', top: '4px' }} />
                           <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: '#6366f1', fontWeight: 'bold', display: 'block', marginBottom: '0.15rem' }}>Phase 0{idx + 1}</span>
-                          <strong style={{ fontSize: '0.85rem', color: '#fff', display: 'block', marginBottom: '0.25rem' }}>{p.name}</strong>
+                          <strong style={{ fontSize: '0.85rem', color: 'var(--text-primary)', display: 'block', marginBottom: '0.25rem' }}>{p.name}</strong>
                           <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.75rem', color: '#b1b5b5', lineHeight: 1.4 }}>{p.desc}</p>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
                             {p.tech.map((t, tIdx) => (
@@ -1861,7 +1861,7 @@ export default function ResumeTailorPanel({
                           <div key={idx} style={{ borderLeft: '1px solid #1a2d1d', paddingLeft: '6px' }}>
                             <span style={{ color: '#ffff00' }}>./run_project --name="{p.name}"</span>
                             <p style={{ margin: '0.15rem 0', color: '#888', fontSize: '0.75rem' }}>{p.desc}</p>
-                            <div><span style={{ color: '#fff' }}>Tech:</span> {p.tech.join(', ')}</div>
+                            <div><span style={{ color: 'var(--text-primary)' }}>Tech:</span> {p.tech.join(', ')}</div>
                           </div>
                         ))}
                       </div>
@@ -1881,7 +1881,7 @@ export default function ResumeTailorPanel({
                 return (
                   <div style={{ display: 'flex', gap: '1.25rem' }}>
                     <div style={{ width: '35%', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '6px', padding: '1rem', fontSize: '0.8rem' }}>
-                      <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff' }}>{data.name}</div>
+                      <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}>{data.name}</div>
                       <div style={{ color: '#38bdf8', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.8rem' }}>{data.role}</div>
                       <p style={{ fontSize: '0.75rem', color: '#9ca3af', lineHeight: 1.45, margin: '0 0 1rem 0' }}>{data.bio}</p>
                       <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
@@ -1890,10 +1890,10 @@ export default function ResumeTailorPanel({
                       </div>
                     </div>
                     <div style={{ width: '65%', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#fff' }}>Featured Engineering Cases</div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>Featured Engineering Cases</div>
                       {data.projects.map((p, idx) => (
                         <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '6px', padding: '0.8rem' }}>
-                          <div style={{ fontWeight: 700, color: '#fff', fontSize: '0.85rem', marginBottom: '0.25rem' }}>{p.name}</div>
+                          <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.85rem', marginBottom: '0.25rem' }}>{p.name}</div>
                           <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.75rem', color: '#9ca3af', lineHeight: 1.4 }}>{p.desc}</p>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
                             {p.tech.map((t, tIdx) => (
@@ -1912,18 +1912,18 @@ export default function ResumeTailorPanel({
                 return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem' }}>
-                      <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#fff', margin: 0 }}>{data.title}</h1>
+                      <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-primary)', margin: 0 }}>{data.title}</h1>
                       <div style={{ fontSize: '0.85rem', color: '#888', marginTop: '0.2rem' }}>{data.role}</div>
                     </div>
                     <p style={{ fontSize: '0.8rem', lineHeight: 1.5, color: '#b1b5b5', margin: 0 }}>{data.bio}</p>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#fff' }}>Engineering Cases</div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>Engineering Cases</div>
                     {data.projects.map((p, idx) => (
                       <div key={idx} style={{ border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', padding: '1rem', background: '#0d0d12' }}>
-                        <div style={{ fontWeight: 'bold', fontSize: '0.85rem', color: '#fff', marginBottom: '0.25rem' }}>{p.name}</div>
+                        <div style={{ fontWeight: 'bold', fontSize: '0.85rem', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>{p.name}</div>
                         <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.75rem', color: '#b1b5b5', lineHeight: 1.45 }}>{p.desc}</p>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
                           {p.tech.map((t, tIdx) => (
-                            <span key={tIdx} style={{ border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '0.15rem 0.4rem', borderRadius: '2px', fontSize: '0.7rem' }}>{t}</span>
+                            <span key={tIdx} style={{ border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)', padding: '0.15rem 0.4rem', borderRadius: '2px', fontSize: '0.7rem' }}>{t}</span>
                           ))}
                         </div>
                       </div>
@@ -1954,11 +1954,11 @@ export default function ResumeTailorPanel({
               value={selectedJobId}
               onChange={(e) => setSelectedJobId(e.target.value)}
               className="input-glass"
-              style={{ width: '100%', padding: '0.65rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#fff', fontSize: '0.85rem', outline: 'none' }}
+              style={{ width: '100%', padding: '0.65rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none' }}
             >
               <option value="">-- Choose a target job --</option>
               {allUniqueJobs.map(job => (
-                <option key={job.id} value={job.id} style={{ background: '#0a0819', color: '#fff' }}>
+                <option key={job.id} value={job.id} style={{ background: '#0a0819', color: 'var(--text-primary)' }}>
                   {job.jobTitle} at {job.companyName}
                 </option>
               ))}

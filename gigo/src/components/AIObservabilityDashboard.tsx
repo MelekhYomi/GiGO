@@ -87,7 +87,7 @@ export default function AIObservabilityDashboard({ API_BASE_URL }: AIObservabili
           <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             💵 Monthly Accumulated Cost
           </span>
-          <span style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff' }}>
+          <span style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-primary)' }}>
             ${stats.estimatedCost.toFixed(3)}
           </span>
           <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: 0 }}>
@@ -100,7 +100,7 @@ export default function AIObservabilityDashboard({ API_BASE_URL }: AIObservabili
           <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--emerald)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             🧠 Total Token Overhead
           </span>
-          <span style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff' }}>
+          <span style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-primary)' }}>
             {(stats.totalTokens / 1000).toFixed(1)}k
           </span>
           <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: 0 }}>
@@ -113,7 +113,7 @@ export default function AIObservabilityDashboard({ API_BASE_URL }: AIObservabili
           <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             ⚡ P95 Query Latency
           </span>
-          <span style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff' }}>
+          <span style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-primary)' }}>
             {(stats.latencyP95 / 1000).toFixed(2)}s
           </span>
           <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: 0 }}>
@@ -126,7 +126,7 @@ export default function AIObservabilityDashboard({ API_BASE_URL }: AIObservabili
           <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             🔍 Grounding Success Rate
           </span>
-          <span style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff' }}>
+          <span style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-primary)' }}>
             {stats.groundingSuccessRate}%
           </span>
           <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: 0 }}>
@@ -142,7 +142,7 @@ export default function AIObservabilityDashboard({ API_BASE_URL }: AIObservabili
         {/* Line Chart: Cost Distribution */}
         <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div>
-            <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+            <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
               📈 Estimated API Daily Cost (USD)
             </h4>
             <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: '0.1rem 0 0 0' }}>
@@ -196,7 +196,7 @@ export default function AIObservabilityDashboard({ API_BASE_URL }: AIObservabili
           {/* Model Usage Share Donut */}
           <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
             <div style={{ flex: 1 }}>
-              <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
                 🤖 Model Usage Share
               </h4>
               <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', margin: '0.2rem 0 0 0', lineHeight: 1.3 }}>
@@ -228,7 +228,7 @@ export default function AIObservabilityDashboard({ API_BASE_URL }: AIObservabili
           {/* Bar Chart: Latency Distribution */}
           <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
             <div>
-              <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
                 ⚡ Query Latency Profile
               </h4>
               <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', margin: '0.1rem 0 0 0' }}>
@@ -246,7 +246,7 @@ export default function AIObservabilityDashboard({ API_BASE_URL }: AIObservabili
                   <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem' }}>
                       <span style={{ color: 'var(--text-secondary)' }}>{item.bucket}</span>
-                      <span style={{ fontWeight: 800, color: '#fff' }}>{(item.latency / 1000).toFixed(2)}s</span>
+                      <span style={{ fontWeight: 800, color: 'var(--text-primary)' }}>{(item.latency / 1000).toFixed(2)}s</span>
                     </div>
                     <div style={{ height: '6px', background: 'rgba(255,255,255,0.03)', borderRadius: '3px', overflow: 'hidden' }}>
                       <div style={{ width: `${pct}%`, height: '100%', background: colors[idx % 3], borderRadius: '3px', transition: 'width 0.8s ease' }} />

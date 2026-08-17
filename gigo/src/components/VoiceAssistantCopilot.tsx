@@ -409,7 +409,7 @@ export default function VoiceAssistantCopilot({
         ) : orbState === 'processing' ? (
           <div className="spinner-border" style={{ width: '14px', height: '14px', border: '2px solid transparent', borderRightColor: '#fff', borderRadius: '50%', animation: 'spinner-border .5s linear infinite' }}></div>
         ) : (
-          <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#fff' }}>Gi</span>
+          <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--text-primary)' }}>Gi</span>
         )}
       </div>
 

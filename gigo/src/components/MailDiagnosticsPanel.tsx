@@ -10,7 +10,7 @@ function StatusRow({ label, ok, summary }: { label: string; ok: boolean; summary
     <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', padding: '0.6rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
       <span style={{ fontSize: '1rem', flexShrink: 0 }}>{ok ? '✅' : '⚠️'}</span>
       <div>
-        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff' }}>{label}</div>
+        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>{label}</div>
         <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '0.1rem', lineHeight: 1.4 }}>{summary}</div>
       </div>
     </div>

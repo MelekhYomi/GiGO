@@ -4961,7 +4961,7 @@ ${profile.name || '[   ]'}`;
                   <span style={{ fontSize: '1.1rem' }}>{item.icon}</span>
                   <span style={{ flex: 1 }}>{item.label}</span>
                   {!!item.badge && (
-                    <span style={{ minWidth: '18px', height: '18px', padding: '0 4px', borderRadius: '999px', background: 'var(--rose, #f43f5e)', color: '#fff', fontSize: '0.65rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{item.badge}</span>
+                    <span style={{ minWidth: '18px', height: '18px', padding: '0 4px', borderRadius: '999px', background: 'var(--rose, #f43f5e)', color: 'var(--text-primary)', fontSize: '0.65rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{item.badge}</span>
                   )}
                 </button>
               ))}
@@ -5114,7 +5114,7 @@ ${profile.name || '[   ]'}`;
                                 className="btn-glass"
                                 style={{
                                   background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%)',
-                                  border: '1px solid var(--primary)', color: '#fff', fontWeight: 700, padding: '0.65rem',
+                                  border: '1px solid var(--primary)', color: 'var(--text-primary)', fontWeight: 700, padding: '0.65rem',
                                   borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem'
                                 }}
                                 disabled={isParsingPipelineResume || !pipelineRawResume.trim()}
@@ -5163,7 +5163,7 @@ ${profile.name || '[   ]'}`;
                             </div>
 
                             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.25rem' }}>
-                              <button className="btn-glass" style={{ background: 'var(--primary)', color: '#fff', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }}
+                              <button className="btn-glass" style={{ background: 'var(--primary)', color: 'var(--text-primary)', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }}
                                 disabled={!profile?.name || !profile?.role}
                                 onClick={() => setCareerProfileSubStep(2)}
                               >
@@ -5213,7 +5213,7 @@ ${profile.name || '[   ]'}`;
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem' }}>
                               <button className="btn-glass" style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', fontSize: '0.85rem', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(1)}>← Back</button>
-                              <button className="btn-glass" style={{ background: 'var(--primary)', color: '#fff', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(3)}>Continue to Experience →</button>
+                              <button className="btn-glass" style={{ background: 'var(--primary)', color: 'var(--text-primary)', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(3)}>Continue to Experience →</button>
                             </div>
                           </div>
                         )}
@@ -5259,7 +5259,7 @@ ${profile.name || '[   ]'}`;
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem' }}>
                               <button className="btn-glass" style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', fontSize: '0.85rem', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(2)}>← Back</button>
-                              <button className="btn-glass" style={{ background: 'var(--primary)', color: '#fff', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(4)}>Continue to Skills →</button>
+                              <button className="btn-glass" style={{ background: 'var(--primary)', color: 'var(--text-primary)', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(4)}>Continue to Skills →</button>
                             </div>
                           </div>
                         )}
@@ -5304,7 +5304,7 @@ ${profile.name || '[   ]'}`;
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem' }}>
                               <button className="btn-glass" style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', fontSize: '0.85rem', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(3)}>← Back</button>
-                              <button className="btn-glass" style={{ background: 'var(--primary)', color: '#fff', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }}
+                              <button className="btn-glass" style={{ background: 'var(--primary)', color: 'var(--text-primary)', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }}
                                 disabled={(profile?.skills || []).length === 0}
                                 onClick={() => setCareerProfileSubStep(5)}
                               >Continue to Goals →</button>
@@ -5362,7 +5362,7 @@ ${profile.name || '[   ]'}`;
                               <button className="btn-glass" style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', fontSize: '0.85rem', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(4)}>← Back</button>
                               <button
                                 className="btn-glass"
-                                style={{ background: 'var(--primary)', color: '#fff', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }}
+                                style={{ background: 'var(--primary)', color: 'var(--text-primary)', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }}
                                 disabled={!profile?.role}
                                 onClick={async () => {
                                   setProfile(prev => ({
@@ -5470,7 +5470,7 @@ ${profile.name || '[   ]'}`;
                               className="btn-glass"
                               style={{
                                 background: 'var(--primary)',
-                                color: '#fff',
+                                color: 'var(--text-primary)',
                                 fontWeight: 700,
                                 padding: '0.6rem 1.5rem',
                                 borderRadius: '10px',
@@ -6421,7 +6421,7 @@ ${profile.name || '[   ]'}`;
                     }}>
                       <div style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-secondary)' }}>Pace Balance</div>
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.6rem', marginTop: '0.3rem', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: '2.4rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>⚡ {paceNow.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                        <span style={{ fontSize: '2.4rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>⚡ {paceNow.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                         {deltaThisMonth !== 0 && (
                           <span className="badge badge-emerald" style={{ fontSize: '0.65rem' }}>{deltaThisMonth > 0 ? '+' : ''}{deltaThisMonth} this month</span>
                         )}
@@ -6564,7 +6564,7 @@ ${profile.name || '[   ]'}`;
                       animation: 'subtlePulse 2s infinite ease-in-out'
                     }}>🎁</div>
                     <div>
-                      <h4 style={{ margin: 0, fontWeight: 900, fontSize: '1.15rem', color: '#fff', letterSpacing: '0.5px', textShadow: '0 2px 10px rgba(249, 115, 22, 0.4)' }}>
+                      <h4 style={{ margin: 0, fontWeight: 900, fontSize: '1.15rem', color: 'var(--text-primary)', letterSpacing: '0.5px', textShadow: '0 2px 10px rgba(249, 115, 22, 0.4)' }}>
                         REFER & WIN 250 PACE!
                       </h4>
                       <div style={{ display: 'inline-block', fontSize: '0.62rem', color: '#000', background: 'linear-gradient(90deg, #facc15, #f97316)', fontWeight: 900, marginTop: '0.2rem', padding: '0.1rem 0.4rem', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -6587,7 +6587,7 @@ ${profile.name || '[   ]'}`;
                       boxShadow: 'inset 0 0 8px rgba(249, 115, 22, 0.05)'
                     }}>
                       <div style={{ fontSize: '0.6rem', color: '#fdba74', fontWeight: 700, textTransform: 'uppercase' }}>YOU RECEIVE</div>
-                      <div style={{ fontSize: '1rem', fontWeight: 950, color: '#fff', marginTop: '0.2rem' }}>⚡ 250 Pace</div>
+                      <div style={{ fontSize: '1rem', fontWeight: 950, color: 'var(--text-primary)', marginTop: '0.2rem' }}>⚡ 250 Pace</div>
                       <div style={{ fontSize: '0.62rem', color: '#cbd5e1', marginTop: '0.1rem' }}>(160+ Autopilot Hours)</div>
                     </div>
                     <div style={{
@@ -6599,7 +6599,7 @@ ${profile.name || '[   ]'}`;
                       boxShadow: 'inset 0 0 8px rgba(234, 179, 8, 0.05)'
                     }}>
                       <div style={{ fontSize: '0.6rem', color: '#fef08a', fontWeight: 700, textTransform: 'uppercase' }}>THEY RECEIVE</div>
-                      <div style={{ fontSize: '1rem', fontWeight: 950, color: '#fff', marginTop: '0.2rem' }}>⚡ 250 Pace</div>
+                      <div style={{ fontSize: '1rem', fontWeight: 950, color: 'var(--text-primary)', marginTop: '0.2rem' }}>⚡ 250 Pace</div>
                       <div style={{ fontSize: '0.62rem', color: '#cbd5e1', marginTop: '0.1rem' }}>(Welcome Gift)</div>
                     </div>
                   </div>
@@ -6948,7 +6948,7 @@ ${profile.name || '[   ]'}`;
                       referrals.map((ref: any) => (
                         <div key={ref.referralId} className="glass-card animate-fade-in" style={{ padding: '0.65rem 0.85rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', border: '1px solid rgba(255,255,255,0.03)', borderRadius: '8px' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ fontWeight: 800, fontSize: '0.8rem', color: '#fff' }}>{ref.friendName}</div>
+                            <div style={{ fontWeight: 800, fontSize: '0.8rem', color: 'var(--text-primary)' }}>{ref.friendName}</div>
                             <span 
                               className={`badge ${ref.status === 'COMPLETED' ? 'badge-emerald' : 'badge-purple'}`} 
                               style={{ fontSize: '0.55rem', padding: '0.12rem 0.45rem', fontWeight: 800 }}
@@ -7157,7 +7157,7 @@ ${profile.name || '[   ]'}`;
         <div className="modal-overlay">
           <div className="modal-content animate-fade-in" style={{ maxWidth: '520px', width: '95%' }}>
             <button className="close-btn" onClick={() => setShowTopUpModal(false)}>&times;</button>
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fff' }}>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
               <WalletIcon /> Refuel Career Momentum
             </h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem', lineHeight: '1.4' }}>
@@ -7200,7 +7200,7 @@ ${profile.name || '[   ]'}`;
                     <span style={{ fontSize: '0.75rem', fontWeight: 800, color: topUpAmount === '500' ? '#10b981' : 'var(--text-muted)', textTransform: 'uppercase' }}>Starter</span>
                     {topUpAmount === '500' && <span style={{ color: '#10b981', fontSize: '0.9rem' }}>✓</span>}
                   </div>
-                  <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#fff', margin: '0.4rem 0 0.15rem 0' }}>25 Pace</div>
+                  <div style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0.4rem 0 0.15rem 0' }}>25 Pace</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.3' }}>Build 5 CVs or 8 Cover Letters</div>
                   <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#10b981', marginTop: '0.75rem' }}>500 NGN</div>
                 </div>
@@ -7224,7 +7224,7 @@ ${profile.name || '[   ]'}`;
                     <span style={{ fontSize: '0.75rem', fontWeight: 800, color: topUpAmount === '2000' ? '#3b82f6' : 'var(--text-muted)', textTransform: 'uppercase' }}>Professional</span>
                     {topUpAmount === '2000' && <span style={{ color: '#3b82f6', fontSize: '0.9rem' }}>✓</span>}
                   </div>
-                  <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#fff', margin: '0.4rem 0 0.15rem 0' }}>100 Pace</div>
+                  <div style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0.4rem 0 0.15rem 0' }}>100 Pace</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.3' }}>Build 20 CVs or 33 Cover Letters</div>
                   <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#3b82f6', marginTop: '0.75rem' }}>2,000 NGN</div>
                 </div>
@@ -7248,7 +7248,7 @@ ${profile.name || '[   ]'}`;
                     <span style={{ fontSize: '0.75rem', fontWeight: 800, color: topUpAmount === '5000' ? '#8b5cf6' : 'var(--text-muted)', textTransform: 'uppercase' }}>Executive</span>
                     {topUpAmount === '5000' && <span style={{ color: '#8b5cf6', fontSize: '0.9rem' }}>✓</span>}
                   </div>
-                  <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#fff', margin: '0.4rem 0 0.15rem 0' }}>250 Pace</div>
+                  <div style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0.4rem 0 0.15rem 0' }}>250 Pace</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.3' }}>Build 50 CVs or 83 Cover Letters</div>
                   <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#8b5cf6', marginTop: '0.75rem' }}>5,000 NGN</div>
                 </div>
@@ -7272,7 +7272,7 @@ ${profile.name || '[   ]'}`;
                     <span style={{ fontSize: '0.75rem', fontWeight: 800, color: topUpAmount === '10000' ? '#ec4899' : 'var(--text-muted)', textTransform: 'uppercase' }}>Enterprise</span>
                     {topUpAmount === '10000' && <span style={{ color: '#ec4899', fontSize: '0.9rem' }}>✓</span>}
                   </div>
-                  <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#fff', margin: '0.4rem 0 0.15rem 0' }}>500 Pace</div>
+                  <div style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0.4rem 0 0.15rem 0' }}>500 Pace</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.3' }}>Build 100 CVs or 166 Cover Letters</div>
                   <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#ec4899', marginTop: '0.75rem' }}>10,000 NGN</div>
                 </div>
@@ -7577,7 +7577,7 @@ ${profile.name || '[   ]'}`;
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   flexDirection: 'column'
                 }}>
-                  <span style={{ fontSize: '1rem', fontWeight: 800, color: '#f8fafc' }}>{selectedJob.score || 85}%</span>
+                  <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>{selectedJob.score || 85}%</span>
                   <span style={{ fontSize: '0.5rem', textTransform: 'uppercase', color: 'var(--text-secondary)', fontWeight: 700 }}>Match</span>
                 </div>
               </div>
@@ -7639,7 +7639,7 @@ ${profile.name || '[   ]'}`;
                         {selectedJob.emailSubject && (
                           <div style={{ background: 'rgba(0,0,0,0.15)', padding: '0.4rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border-glass)' }}>
                             <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}><strong>Subject Line Template:</strong></div>
-                            <code style={{ fontSize: '0.75rem', color: '#fff', wordBreak: 'break-all' }}>{selectedJob.emailSubject}</code>
+                            <code style={{ fontSize: '0.75rem', color: 'var(--text-primary)', wordBreak: 'break-all' }}>{selectedJob.emailSubject}</code>
                           </div>
                         )}
                         {selectedJob.emailBodyRequirements && (
@@ -7741,7 +7741,7 @@ ${profile.name || '[   ]'}`;
                         {/* CV CARD */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
                           <div>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff' }}>ATS Custom CV / Resume</div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>ATS Custom CV / Resume</div>
                             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
                               {tailoredCV ? '✅ Generated & Ready' : '❌ Not generated yet'}
                             </div>
@@ -7783,7 +7783,7 @@ ${profile.name || '[   ]'}`;
                         {/* COVER LETTER CARD */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
                           <div>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff' }}>ATS Custom Cover Letter</div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>ATS Custom Cover Letter</div>
                             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
                               {tailoredCoverLetter ? '✅ Generated & Ready' : '❌ Not generated yet'}
                             </div>
@@ -8252,7 +8252,7 @@ ${profile.name || '[   ]'}`;
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Registered Email</div>
-                <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc' }}>{inspectUser.email}</div>
+                <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>{inspectUser.email}</div>
                 {inspectUser.phoneNumber && (
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{inspectUser.phoneNumber}</div>
                 )}
@@ -8306,7 +8306,7 @@ ${profile.name || '[   ]'}`;
 
             {/* Dynamic Candidate Usage & Performance Analytics */}
             <div className="glass-panel" style={{ padding: '1.25rem', background: 'rgba(15, 23, 42, 0.4)', border: '1px solid var(--border-glass)', borderRadius: '12px', marginBottom: '1.5rem' }}>
-              <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+              <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
                 <span>📈 Dynamic Candidate Usage & Performance Analytics</span>
                 <span className="badge badge-purple" style={{ fontSize: '0.65rem' }}>Real-time</span>
               </h4>
@@ -8376,7 +8376,7 @@ ${profile.name || '[   ]'}`;
                     <div>
                       <div style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em' }}>Direct Ledger Balance Summary</div>
                       <div style={{ display: 'flex', gap: '1rem', marginTop: '0.2rem' }}>
-                        <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#fff' }}>
+                        <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                           {((inspectUser.financials?.walletBalanceNGN || 0.0) / 20).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 1 })} Pace
                         </div>
                       </div>
@@ -8495,7 +8495,7 @@ ${profile.name || '[   ]'}`;
               <button 
                 className="close-btn" 
                 onClick={() => setShowSearchResults(false)} 
-                style={{ fontSize: '2rem', top: '1rem', right: '1.5rem', border: 'none', background: 'none', color: '#fff', cursor: 'pointer' }}
+                style={{ fontSize: '2rem', top: '1rem', right: '1.5rem', border: 'none', background: 'none', color: 'var(--text-primary)', cursor: 'pointer' }}
               >
                 &times;
               </button>
@@ -8573,7 +8573,7 @@ ${profile.name || '[   ]'}`;
                     fontSize: '0.75rem',
                     fontWeight: 700,
                     borderColor: 'var(--primary)',
-                    color: '#fff',
+                    color: 'var(--text-primary)',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.4rem',
@@ -8642,7 +8642,7 @@ ${profile.name || '[   ]'}`;
                         </div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                           {(job.keyRequirementsSummary || []).map((req: string, i: number) => (
-                            <span key={i} style={{ fontSize: '0.7rem', background: 'rgba(255,255,255,0.04)', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '3px', border: '1px solid rgba(255,255,255,0.02)' }}>
+                            <span key={i} style={{ fontSize: '0.7rem', background: 'rgba(255,255,255,0.04)', color: 'var(--text-primary)', padding: '0.2rem 0.5rem', borderRadius: '3px', border: '1px solid rgba(255,255,255,0.02)' }}>
                               ✓ {req}
                             </span>
                           ))}
@@ -8691,7 +8691,7 @@ ${profile.name || '[   ]'}`;
                 target="_blank" 
                 rel="noreferrer" 
                 className="btn-glass" 
-                style={{ flex: 1, justifyContent: 'center', textDecoration: 'none', color: '#fff', fontSize: '0.8rem' }}
+                style={{ flex: 1, justifyContent: 'center', textDecoration: 'none', color: 'var(--text-primary)', fontSize: '0.8rem' }}
               >
                 🔗 External Apply Sandbox
               </a>
@@ -8726,14 +8726,14 @@ ${profile.name || '[   ]'}`;
             {/* FRIEND CARD SUMMARY */}
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.25rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem 1.5rem', fontSize: '0.8rem' }}>
               <div>
-                <span style={{ color: 'var(--text-muted)' }}>Recipient Name:</span> <strong style={{ color: '#fff' }}>{lastGeneratedInvite.friendName}</strong>
+                <span style={{ color: 'var(--text-muted)' }}>Recipient Name:</span> <strong style={{ color: 'var(--text-primary)' }}>{lastGeneratedInvite.friendName}</strong>
               </div>
               <div>
-                <span style={{ color: 'var(--text-muted)' }}>Email:</span> <strong style={{ color: '#fff' }}>{lastGeneratedInvite.friendEmail}</strong>
+                <span style={{ color: 'var(--text-muted)' }}>Email:</span> <strong style={{ color: 'var(--text-primary)' }}>{lastGeneratedInvite.friendEmail}</strong>
               </div>
               {lastGeneratedInvite.friendPhone && (
                 <div>
-                  <span style={{ color: 'var(--text-muted)' }}>Phone:</span> <strong style={{ color: '#fff' }}>{lastGeneratedInvite.friendPhone}</strong>
+                  <span style={{ color: 'var(--text-muted)' }}>Phone:</span> <strong style={{ color: 'var(--text-primary)' }}>{lastGeneratedInvite.friendPhone}</strong>
                 </div>
               )}
             </div>
@@ -8794,7 +8794,7 @@ ${profile.name || '[   ]'}`;
                 <a 
                   href={`mailto:${lastGeneratedInvite.friendEmail}?subject=${encodeURIComponent(lastGeneratedInvite.subject || '')}&body=${encodeURIComponent(lastGeneratedInvite.emailBody || '')}`}
                   className="btn-glass btn-primary"
-                  style={{ flex: 1.2, justifyContent: 'center', textDecoration: 'none', color: '#fff', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center' }}
+                  style={{ flex: 1.2, justifyContent: 'center', textDecoration: 'none', color: 'var(--text-primary)', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center' }}
                 >
                   🚀 Launch Mail Client
                 </a>
@@ -8838,7 +8838,7 @@ ${profile.name || '[   ]'}`;
                   target="_blank"
                   rel="noreferrer"
                   className="btn-glass btn-secondary"
-                  style={{ flex: 1.2, justifyContent: 'center', textDecoration: 'none', color: '#fff', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center' }}
+                  style={{ flex: 1.2, justifyContent: 'center', textDecoration: 'none', color: 'var(--text-primary)', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center' }}
                 >
                   💬 Open WhatsApp
                 </a>
@@ -8856,7 +8856,7 @@ ${profile.name || '[   ]'}`;
                   className="form-control font-mono" 
                   readOnly 
                   value={lastGeneratedInvite.referralLink || `${systemConfig.frontendDomain}/?ref=${userId}`} 
-                  style={{ fontSize: '0.75rem', background: 'rgba(0,0,0,0.3)', color: '#fff', border: 'none' }}
+                  style={{ fontSize: '0.75rem', background: 'rgba(0,0,0,0.3)', color: 'var(--text-primary)', border: 'none' }}
                 />
                 <button 
                   type="button"
@@ -9130,10 +9130,10 @@ ${profile.name || '[   ]'}`;
                   borderRadius: 'var(--radius-sm)',
                   padding: '0.75rem 1rem'
                 }}>
-                  <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Candidate: <strong style={{ color: '#fff' }}>{settingsName || profile?.name || '[   ]'}</strong></div>
-                  <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Scraping: <strong style={{ color: '#fff' }}>Every {settingsScanInterval}m</strong></div>
-                  <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Feed Sync: <strong style={{ color: '#fff' }}>Every {settingsFeedRefreshInterval}m</strong></div>
-                  <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Assets: <strong style={{ color: '#fff' }}>{compiledDocuments.length} compiled</strong></div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Candidate: <strong style={{ color: 'var(--text-primary)' }}>{settingsName || profile?.name || '[   ]'}</strong></div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Scraping: <strong style={{ color: 'var(--text-primary)' }}>Every {settingsScanInterval}m</strong></div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Feed Sync: <strong style={{ color: 'var(--text-primary)' }}>Every {settingsFeedRefreshInterval}m</strong></div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Assets: <strong style={{ color: 'var(--text-primary)' }}>{compiledDocuments.length} compiled</strong></div>
                   <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Wallet: <strong style={{ color: '#10b981' }}>{((walletNGN * 5) / 100).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 1 })} Pace</strong></div>
                 </div>
               </div>
@@ -9144,7 +9144,7 @@ ${profile.name || '[   ]'}`;
                   <div style={{ flex: 1 }}>
                     {settingsActiveTab === 'profile' && (
                       <div className="animate-fade-in">
-                        <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem', color: '#fff' }}>👤 Candidate Profile & Target Specs</h4>
+                        <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem', color: 'var(--text-primary)' }}>👤 Candidate Profile & Target Specs</h4>
                         
                         <div className="grid-2-cols" style={{ gap: '1.5rem', marginBottom: '1.5rem' }}>
                           <div className="form-group">
@@ -9236,7 +9236,7 @@ ${profile.name || '[   ]'}`;
                               value={settingsLocation}
                               onChange={(e) => setSettingsLocation(e.target.value)}
                               className="form-control"
-                              style={{ background: 'rgba(15, 12, 33, 0.8)', color: '#fff', border: '1px solid var(--border-glass)' }}
+                              style={{ background: 'rgba(15, 12, 33, 0.8)', color: 'var(--text-primary)', border: '1px solid var(--border-glass)' }}
                               disabled={isUpdatingSettings}
                             >
                               <option value="[   ]">[   ]</option>
@@ -9338,7 +9338,7 @@ ${profile.name || '[   ]'}`;
 
                     {settingsActiveTab === 'scan' && (
                       <div className="animate-fade-in">
-                        <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem', color: '#fff' }}>⏱️ Scraping Velox & Feed Sync Calibration</h4>
+                        <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem', color: 'var(--text-primary)' }}>⏱️ Scraping Velox & Feed Sync Calibration</h4>
                         
                         <div style={{ marginBottom: '2rem', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-glass)', padding: '1.5rem', borderRadius: 'var(--radius-md)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
@@ -9466,7 +9466,7 @@ ${profile.name || '[   ]'}`;
 
                     {settingsActiveTab === 'keys' && (
                       <div className="animate-fade-in">
-                        <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem', color: '#fff' }}>🔑 SMTP & API Relay Core Calibrations</h4>
+                        <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem', color: 'var(--text-primary)' }}>🔑 SMTP & API Relay Core Calibrations</h4>
                         
                         {/* MAILING BACKEND SELECTOR */}
                         <div style={{
@@ -9479,7 +9479,7 @@ ${profile.name || '[   ]'}`;
                           backdropFilter: 'blur(12px)',
                           WebkitBackdropFilter: 'blur(12px)'
                         }}>
-                          <h5 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <h5 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             📬 Active Mailing Backend Preference
                           </h5>
                           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.45', margin: '0 0 1.25rem 0' }}>
@@ -9602,7 +9602,7 @@ ${profile.name || '[   ]'}`;
                           backdropFilter: 'blur(12px)',
                           WebkitBackdropFilter: 'blur(12px)'
                         }}>
-                          <h5 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <h5 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             ⚡ GiGO Job Dispatch Delivery Preferences
                           </h5>
                           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.45', margin: '0 0 1.25rem 0' }}>
@@ -9686,7 +9686,7 @@ ${profile.name || '[   ]'}`;
                               <>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                   <div>
-                                    <strong style={{ fontSize: '0.8rem', color: '#fff', display: 'block' }}>🤖 Autonomous Auto-Apply on Scan</strong>
+                                    <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)', display: 'block' }}>🤖 Autonomous Auto-Apply on Scan</strong>
                                     <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Automatically send job applications immediately when a matching job is scanned.</span>
                                   </div>
                                   <label className="switch" style={{ position: 'relative', display: 'inline-block', width: '40px', height: '20px' }}>
@@ -9713,7 +9713,7 @@ ${profile.name || '[   ]'}`;
 
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                   <div>
-                                    <strong style={{ fontSize: '0.8rem', color: '#fff', display: 'block' }}>📧 Connect to SMTP Mail Dispatcher</strong>
+                                    <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)', display: 'block' }}>📧 Connect to SMTP Mail Dispatcher</strong>
                                     <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Send live applicant emails via your Gmail SMTP (uncheck for safe sandbox/simulation testing).</span>
                                   </div>
                                   <label className="switch" style={{ position: 'relative', display: 'inline-block', width: '40px', height: '20px' }}>
@@ -9764,7 +9764,7 @@ ${profile.name || '[   ]'}`;
                             }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
                                 <span style={{ fontSize: '1.5rem' }}>🎯</span>
-                                <h5 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+                                <h5 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
                                   SMTP Handshake Calibration Guide — Why It Matters
                                 </h5>
                               </div>
@@ -9904,7 +9904,7 @@ ${profile.name || '[   ]'}`;
                             }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
                                 <span style={{ fontSize: '1.5rem' }}>⚡</span>
-                                <h5 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+                                <h5 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
                                   Zapier Automation Integration Setup
                                 </h5>
                               </div>
@@ -9972,7 +9972,7 @@ ${profile.name || '[   ]'}`;
                               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                 <span style={{ fontSize: '1.75rem', filter: 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.5))' }}>🤖</span>
                                 <div>
-                                  <h5 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                  <h5 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     GiGO Virtual Mailroom Active
                                     <span style={{ 
                                       display: 'inline-block', 
@@ -10026,7 +10026,7 @@ ${profile.name || '[   ]'}`;
                     {settingsActiveTab === 'security' && (
                       <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                         <div>
-                          <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem', color: '#fff' }}>🔐 Security Settings</h4>
+                          <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem', color: 'var(--text-primary)' }}>🔐 Security Settings</h4>
                           
                           {/* CHANGE PASSWORD PANEL */}
                           <div style={{
@@ -10039,7 +10039,7 @@ ${profile.name || '[   ]'}`;
                             WebkitBackdropFilter: 'blur(12px)',
                             marginBottom: '1.5rem'
                           }}>
-                            <h5 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <h5 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                               🔑 Change Workspace Password
                             </h5>
                             
@@ -10094,7 +10094,7 @@ ${profile.name || '[   ]'}`;
                             WebkitBackdropFilter: 'blur(12px)',
                             marginBottom: '1.5rem'
                           }}>
-                            <h5 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <h5 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                               🧬 Touch ID / Face ID Biometrics
                             </h5>
                             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.45', margin: '0 0 1.25rem 0' }}>
@@ -10103,7 +10103,7 @@ ${profile.name || '[   ]'}`;
 
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.02)', padding: '1rem 1.25rem', borderRadius: '10px', border: '1px solid var(--border-glass)' }}>
                               <div>
-                                <h6 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#fff', margin: '0 0 0.25rem 0' }}>
+                                <h6 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 0.25rem 0' }}>
                                   {isBiometricsEnrolled ? '🟢 Biometric Authentication Enrolled' : '🔴 Biometrics De-enrolled'}
                                 </h6>
                                 <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>
@@ -10167,7 +10167,7 @@ ${profile.name || '[   ]'}`;
                               }
                             `}</style>
 
-                            <h5 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <h5 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                               🔐 NIN National Identity Verification
                             </h5>
                             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.45', margin: '0 0 1.25rem 0' }}>
@@ -10183,7 +10183,7 @@ ${profile.name || '[   ]'}`;
                                   </span>
                                 </div>
                                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                                  Verified NIN: <strong style={{ color: '#fff' }}>*******{profile?.ninValue?.slice(-4) || '3821'}</strong>
+                                  Verified NIN: <strong style={{ color: 'var(--text-primary)' }}>*******{profile?.ninValue?.slice(-4) || '3821'}</strong>
                                 </div>
                                 {profile?.ninCardImage && (
                                   <div style={{ marginTop: '0.5rem' }}>
@@ -10207,7 +10207,7 @@ ${profile.name || '[   ]'}`;
                                 {!isScanningNIN ? (
                                   <>
                                     <div className="form-group" style={{ marginBottom: 0 }}>
-                                      <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#fff' }}>11-Digit NIN Number</label>
+                                      <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>11-Digit NIN Number</label>
                                       <input 
                                         type="text" 
                                         className="form-control" 
@@ -10220,7 +10220,7 @@ ${profile.name || '[   ]'}`;
                                     </div>
 
                                     <div className="form-group" style={{ marginBottom: 0 }}>
-                                      <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#fff' }}>Upload or Photograph NIN Document Slip / Card (JPEG/PNG)</label>
+                                      <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>Upload or Photograph NIN Document Slip / Card (JPEG/PNG)</label>
                                       <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: '0.2rem 0 0.5rem 0' }}>
                                         On mobile, this opens your camera directly — GiGO only uses the photo to verify your identity, and it's never shared outside your account.
                                       </p>
@@ -10332,7 +10332,7 @@ ${profile.name || '[   ]'}`;
                             backdropFilter: 'blur(12px)',
                             WebkitBackdropFilter: 'blur(12px)'
                           }}>
-                            <h5 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <h5 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                               ⚠️ Permanent Account Self-Deletion
                             </h5>
                             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.45', margin: '0 0 1.25rem 0' }}>
@@ -10386,7 +10386,7 @@ ${profile.name || '[   ]'}`;
                             WebkitBackdropFilter: 'blur(12px)',
                             marginTop: '1.5rem'
                           }}>
-                            <h5 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <h5 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                               📜 Legal & Privacy
                             </h5>
                             <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem' }}>
@@ -11265,12 +11265,12 @@ ${profile.name || '[   ]'}`;
             <div style={{ margin: '0 auto 1.25rem auto', width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem', border: '1px solid rgba(239, 68, 68, 0.3)' }}>⚠️</div>
             <h2 style={{ textAlign: 'center', fontSize: '1.6rem', fontWeight: 800, color: '#fca5a5', marginBottom: '0.5rem' }}>WORKSPACE PURGE GOVERNANCE</h2>
             <p style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.45' }}>
-              You are about to delete your candidate profile recursively from the GiGO Platform. This will permanently clear all nested collections including <strong style={{ color: '#fff' }}>ledgers, tasks, cover letters, and mail threads</strong>.
+              You are about to delete your candidate profile recursively from the GiGO Platform. This will permanently clear all nested collections including <strong style={{ color: 'var(--text-primary)' }}>ledgers, tasks, cover letters, and mail threads</strong>.
             </p>
 
             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
               <label style={{ display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#fca5a5', fontWeight: 700, marginBottom: '0.5rem', textAlign: 'center' }}>
-                Type <strong style={{ color: '#fff' }}>DELETE</strong> in all caps to confirm
+                Type <strong style={{ color: 'var(--text-primary)' }}>DELETE</strong> in all caps to confirm
               </label>
               <input 
                 type="text"
@@ -11282,7 +11282,7 @@ ${profile.name || '[   ]'}`;
                   background: 'rgba(0, 0, 0, 0.4)',
                   textAlign: 'center',
                   borderColor: selfDeletionConfirmText === 'DELETE' ? 'rgba(239, 68, 68, 0.6)' : 'var(--border-glass)',
-                  color: '#fff',
+                  color: 'var(--text-primary)',
                   fontWeight: 800,
                   fontSize: '1rem',
                   letterSpacing: '0.1em'

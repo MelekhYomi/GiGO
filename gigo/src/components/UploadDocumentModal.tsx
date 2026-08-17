@@ -91,11 +91,11 @@ export default function UploadDocumentModal({ API_BASE_URL, userId, request, onC
 
         {step === 'upload' ? (
           <>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '0.5rem', color: '#fff' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
               📤 Upload Your Own {LABELS[assetType]}
             </h3>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem', lineHeight: 1.4 }}>
-              Already have a {LABELS[assetType].toLowerCase()}? Upload it directly for <strong style={{ color: '#fff' }}>{request.jobTitle}</strong> at <strong style={{ color: '#fff' }}>{request.companyName}</strong> — free, no AI generation needed, saved straight to your archive.
+              Already have a {LABELS[assetType].toLowerCase()}? Upload it directly for <strong style={{ color: 'var(--text-primary)' }}>{request.jobTitle}</strong> at <strong style={{ color: 'var(--text-primary)' }}>{request.companyName}</strong> — free, no AI generation needed, saved straight to your archive.
             </p>
             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
               {(['CV', 'COVER_LETTER', 'PORTFOLIO'] as AssetType[]).map(t => (
@@ -132,9 +132,9 @@ export default function UploadDocumentModal({ API_BASE_URL, userId, request, onC
 
             {!markedApplied ? (
               <>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', margin: '0 0 0.5rem 0' }}>{LABELS[assetType]} Uploaded</h3>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 0.5rem 0' }}>{LABELS[assetType]} Uploaded</h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0 0 1.5rem 0', lineHeight: 1.4 }}>
-                  Have you already sent this application to <strong style={{ color: '#fff' }}>{request.companyName}</strong>? Mark it as applied to track it on your board.
+                  Have you already sent this application to <strong style={{ color: 'var(--text-primary)' }}>{request.companyName}</strong>? Mark it as applied to track it on your board.
                 </p>
                 <div style={{ display: 'flex', gap: '0.6rem' }}>
                   <button className="btn-glass" style={{ flex: 1, padding: '0.7rem', fontWeight: 700 }} onClick={onClose} disabled={isLoggingApplication}>Not Yet</button>
@@ -145,7 +145,7 @@ export default function UploadDocumentModal({ API_BASE_URL, userId, request, onC
               </>
             ) : (
               <>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', margin: '0 0 0.5rem 0' }}>Logged on Your Track Board</h3>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 0.5rem 0' }}>Logged on Your Track Board</h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0 0 1.5rem 0', lineHeight: 1.4 }}>
                   {request.jobTitle} at {request.companyName} is now showing under Applied.
                 </p>

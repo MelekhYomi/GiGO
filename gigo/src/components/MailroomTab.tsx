@@ -488,7 +488,7 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
                     borderRadius: '12px'
                   }}
                 >
-                  <div className="avatar-badge" style={{ width: '38px', height: '38px', borderRadius: '11px', background: avatarGradient, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.78rem', color: '#fff', flexShrink: 0 }}>
+                  <div className="avatar-badge" style={{ width: '38px', height: '38px', borderRadius: '11px', background: avatarGradient, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.78rem', color: 'var(--text-primary)', flexShrink: 0 }}>
                     {initials}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>

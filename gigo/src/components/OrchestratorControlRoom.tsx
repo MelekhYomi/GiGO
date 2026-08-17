@@ -241,7 +241,7 @@ export default function OrchestratorControlRoom({ API_BASE_URL, addLog }: Orches
                   </div>
                 </div>
 
-                <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#fff', marginBottom: '0.15rem' }}>{node.name}</div>
+                <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.15rem' }}>{node.name}</div>
                 <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Runs: {node.runs} cycles</div>
                 
                 <div style={{ display: 'flex', gap: '0.4rem' }}>
@@ -278,14 +278,14 @@ export default function OrchestratorControlRoom({ API_BASE_URL, addLog }: Orches
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem' }}>
             <div>
-              <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+              <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
                 {selectedAgent.label}
               </h4>
               <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Calibration & Console</span>
             </div>
             <button 
               onClick={() => setSelectedAgent(null)} 
-              style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '1.2rem' }}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '1.2rem' }}
             >
               ×
             </button>
@@ -315,7 +315,7 @@ export default function OrchestratorControlRoom({ API_BASE_URL, addLog }: Orches
                     background: 'rgba(0,0,0,0.4)',
                     border: '1px solid rgba(255,255,255,0.08)',
                     borderRadius: '6px',
-                    color: '#fff',
+                    color: 'var(--text-primary)',
                     padding: '0.5rem',
                     fontSize: '0.75rem',
                     fontFamily: 'monospace',
@@ -371,7 +371,7 @@ export default function OrchestratorControlRoom({ API_BASE_URL, addLog }: Orches
                       <span>[{new Date(log.timestamp).toLocaleTimeString()}]</span>
                       <span style={{ color: log.status === 'COMPLETED' ? 'var(--emerald)' : 'red' }}>{log.status}</span>
                     </div>
-                    <div style={{ color: '#fff', margin: '0.15rem 0' }}>Cycle: {log.cycleType}</div>
+                    <div style={{ color: 'var(--text-primary)', margin: '0.15rem 0' }}>Cycle: {log.cycleType}</div>
                     {log.autonomousDecisionsExecuted && log.autonomousDecisionsExecuted.map((d, i) => (
                       <div key={i} style={{ paddingLeft: '0.5rem', color: '#6366f1' }}>➔ {d}</div>
                     ))}

@@ -179,7 +179,7 @@ Vercel Recruiting`
               background: 'rgba(0,0,0,0.3)',
               border: '1px solid rgba(255,255,255,0.08)',
               borderRadius: '8px',
-              color: '#fff',
+              color: 'var(--text-primary)',
               padding: '0.75rem',
               fontSize: '0.8rem',
               lineHeight: 1.45,

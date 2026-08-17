@@ -49,6 +49,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
     if (autoShowWalkthrough) setShowWalkthrough(true);
   }, [autoShowWalkthrough]);
 
+  // For waitlist visitors specifically, closing the walkthrough should flow
+  // straight into signup (the whole point of the link) rather than dropping
+  // them back on the plain landing page with no obvious next step.
+  const closeWalkthrough = () => {
+    setShowWalkthrough(false);
+    if (autoShowWalkthrough) onSignUp();
+  };
+
   // Interactive Cost Calculator state inside walkthrough
   const [calcPace, setCalcPace] = useState<number>(50);
 
@@ -549,14 +557,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
       {/* WALKTHROUGH DETAILS DRAWER / MODAL                   */}
       {/* ==================================================== */}
       {showWalkthrough && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fade-in" onClick={() => setShowWalkthrough(false)}>
-          <div 
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fade-in" onClick={closeWalkthrough}>
+          <div
             className="w-full max-w-4xl bg-brandBg border border-brandBorder rounded-3xl p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto space-y-8"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
-            <button 
-              onClick={() => setShowWalkthrough(false)}
+            <button
+              onClick={closeWalkthrough}
               className="absolute top-4 right-4 sm:top-6 sm:right-6 text-2xl font-bold text-brandTextSecondary hover:text-brandTextPrimary"
             >
               &times;
@@ -689,11 +697,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
 
             {/* Footer Buttons inside Modal */}
             <div className="flex justify-end pt-4 border-t border-brandBorder">
-              <button 
-                onClick={() => setShowWalkthrough(false)}
+              <button
+                onClick={closeWalkthrough}
                 className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brandPrimary to-brandSecondary text-white text-xs font-bold uppercase tracking-wider"
               >
-                Got It, Thanks!
+                {autoShowWalkthrough ? 'Join the Waitlist →' : 'Got It, Thanks!'}
               </button>
             </div>
           </div>

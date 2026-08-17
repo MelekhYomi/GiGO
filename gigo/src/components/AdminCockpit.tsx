@@ -506,7 +506,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
           <div style={{ padding: '0.75rem', background: 'rgba(139, 92, 246, 0.15)', borderRadius: '12px', fontSize: '1.5rem', color: '#8b5cf6' }}>👥</div>
           <div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ecosystem Candidates</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginTop: '0.2rem' }}>{adminUsers.length}</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '0.2rem' }}>{adminUsers.length}</div>
           </div>
         </div>
 
@@ -631,7 +631,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                           <span style={{ fontWeight: 700 }}>{log.operator || 'SYSTEM_CORE'}</span>
                           <span>{log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : 'N/A'}</span>
                         </div>
-                        <div style={{ color: '#fff', lineHeight: 1.4, fontFamily: 'monospace' }}>{log.message}</div>
+                        <div style={{ color: 'var(--text-primary)', lineHeight: 1.4, fontFamily: 'monospace' }}>{log.message}</div>
                       </div>
                     );
                   })}
@@ -739,7 +739,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   placeholder="Search ledger (purpose, email, candidate name)..."
                   value={ledgerSearch}
                   onChange={(e) => setLedgerSearch(e.target.value)}
-                  style={{ flex: 1, minWidth: '240px', background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: '#fff' }}
+                  style={{ flex: 1, minWidth: '240px', background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}
                 />
                 
                 {/* Currency Filter Button Group */}
@@ -824,7 +824,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                                     {displayDate ? new Date(displayDate).toLocaleString('en-NG') : 'N/A'}
                                   </td>
                                   <td style={{ padding: '0.75rem' }}>
-                                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff' }}>{displayName}</div>
+                                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>{displayName}</div>
                                     <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{displayEmail}</div>
                                   </td>
                                   <td style={{ padding: '0.75rem' }}>
@@ -899,15 +899,15 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                     {/* XPRIZE Branded Header Panel */}
                     <div style={{ display: 'flex', flexDirection: 'column', borderRadius: '16px 16px 0 0', overflow: 'hidden', boxShadow: '0 12px 36px rgba(0, 0, 0, 0.5)', border: '1px solid var(--border-glass)', borderBottom: 'none' }}>
                       <div style={{ background: '#0b1329', padding: '0.85rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-                        <h2 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>Build with Gemini XPRIZE</h2>
+                        <h2 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>Build with Gemini XPRIZE</h2>
                         <span className="badge-glow" style={{ fontSize: '0.65rem', padding: '0.2rem 0.5rem', borderRadius: '4px', background: 'rgba(239, 68, 68, 0.15)', color: '#fca5a5', fontWeight: 800, border: '1px solid rgba(239, 68, 68, 0.3)' }}>CONFIDENTIAL</span>
                       </div>
                       <div style={{ background: '#f25f22', padding: '0.6rem 1.5rem', display: 'flex', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.9rem', fontWeight: 900, color: '#fff', letterSpacing: '0.05em' }}>PROFIT & LOSS STATEMENT</span>
+                        <span style={{ fontSize: '0.9rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '0.05em' }}>PROFIT & LOSS STATEMENT</span>
                       </div>
                       <div style={{ background: '#00c58e', height: '0.45rem', width: '100%' }}></div>
                       <div style={{ background: '#0f172a', padding: '0.75rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                        <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>Program Period: <strong style={{ color: '#fff' }}>May 19 - August 17</strong></span>
+                        <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>Program Period: <strong style={{ color: 'var(--text-primary)' }}>May 19 - August 17</strong></span>
                         <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>Currency: <strong style={{ color: '#38bdf8' }}>USD</strong></span>
                       </div>
                     </div>
@@ -925,11 +925,11 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                       const row = (label: string, data: any, indent = true, bold = false) => (
                         <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }}>
                           <td style={{ padding: `0.55rem 1rem 0.55rem ${indent ? '1.5rem' : '1rem'}`, color: bold ? '#fff' : '#cbd5e1', fontWeight: bold ? 700 : 400 }}>{label}</td>
-                          <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(data.may)}</td>
-                          <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(data.june)}</td>
-                          <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(data.july)}</td>
-                          <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: '#fff' }}>{formatUSD(data.august)}</td>
-                          <td style={{ padding: '0.55rem 1rem', textAlign: 'right', color: '#fff', fontWeight: 700, background: 'rgba(251, 146, 60, 0.02)' }}>{formatUSD(data.total)}</td>
+                          <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)' }}>{formatUSD(data.may)}</td>
+                          <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)' }}>{formatUSD(data.june)}</td>
+                          <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)' }}>{formatUSD(data.july)}</td>
+                          <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)' }}>{formatUSD(data.august)}</td>
+                          <td style={{ padding: '0.55rem 1rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 700, background: 'rgba(251, 146, 60, 0.02)' }}>{formatUSD(data.total)}</td>
                         </tr>
                       );
 
@@ -938,7 +938,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
                             <thead>
                               <tr style={{ background: '#0b1329', borderBottom: '2px solid rgba(255, 255, 255, 0.1)' }}>
-                                <th style={{ padding: '0.75rem 1rem', textAlign: 'left', color: '#fff', fontWeight: 800 }}>Description</th>
+                                <th style={{ padding: '0.75rem 1rem', textAlign: 'left', color: 'var(--text-primary)', fontWeight: 800 }}>Description</th>
                                 <th style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fb923c', fontWeight: 800 }}>May</th>
                                 <th style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fb923c', fontWeight: 800 }}>June</th>
                                 <th style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fb923c', fontWeight: 800 }}>July</th>
@@ -952,10 +952,10 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                               {row('Related Party Revenue (ie. see Rules)', r.related)}
                               <tr style={{ background: '#0b1329', borderTop: '2px solid #fb923c', borderBottom: '2px solid #fb923c' }}>
                                 <td style={{ padding: '0.65rem 1rem', fontWeight: 800, color: '#fb923c' }}>TOTAL REVENUE</td>
-                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(r.total.may)}</td>
-                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(r.total.june)}</td>
-                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(r.total.july)}</td>
-                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(r.total.august)}</td>
+                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 700 }}>{formatUSD(r.total.may)}</td>
+                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 700 }}>{formatUSD(r.total.june)}</td>
+                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 700 }}>{formatUSD(r.total.july)}</td>
+                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 700 }}>{formatUSD(r.total.august)}</td>
                                 <td style={{ padding: '0.65rem 1rem', textAlign: 'right', color: '#fb923c', fontWeight: 900, background: 'rgba(251, 146, 60, 0.08)' }}>{formatUSD(r.total.total)}</td>
                               </tr>
 
@@ -972,19 +972,19 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                               {row('Other expenses (see Legend)', e.otherExpenses)}
                               <tr style={{ background: '#0b1329', borderTop: '2px solid #f43f5e', borderBottom: '2px solid #f43f5e' }}>
                                 <td style={{ padding: '0.65rem 1rem', fontWeight: 800, color: '#f43f5e' }}>TOTAL EXPENSES</td>
-                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(e.total.may)}</td>
-                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(e.total.june)}</td>
-                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(e.total.july)}</td>
-                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 700 }}>{formatUSD(e.total.august)}</td>
+                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 700 }}>{formatUSD(e.total.may)}</td>
+                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 700 }}>{formatUSD(e.total.june)}</td>
+                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 700 }}>{formatUSD(e.total.july)}</td>
+                                <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 700 }}>{formatUSD(e.total.august)}</td>
                                 <td style={{ padding: '0.65rem 1rem', textAlign: 'right', color: '#f43f5e', fontWeight: 900, background: 'rgba(244, 63, 94, 0.08)' }}>{formatUSD(e.total.total)}</td>
                               </tr>
 
                               <tr style={{ background: p.total >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)', borderTop: '2px solid rgba(255,255,255,0.15)' }}>
                                 <td style={{ padding: '0.75rem 1rem', fontWeight: 900, color: p.total >= 0 ? '#10b981' : '#f43f5e', fontSize: '0.85rem' }}>PROFIT (LOSS)</td>
-                                <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 800 }}>{formatUSD(p.may)}</td>
-                                <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 800 }}>{formatUSD(p.june)}</td>
-                                <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 800 }}>{formatUSD(p.july)}</td>
-                                <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fff', fontWeight: 800 }}>{formatUSD(p.august)}</td>
+                                <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 800 }}>{formatUSD(p.may)}</td>
+                                <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 800 }}>{formatUSD(p.june)}</td>
+                                <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 800 }}>{formatUSD(p.july)}</td>
+                                <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 800 }}>{formatUSD(p.august)}</td>
                                 <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: p.total >= 0 ? '#10b981' : '#f43f5e', fontWeight: 900, background: 'rgba(255,255,255,0.03)' }}>{formatUSD(p.total)}</td>
                               </tr>
                             </tbody>
@@ -997,10 +997,10 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                     <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
                       <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#fb923c', textTransform: 'uppercase', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>LEGEND:</div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                        <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.5 }}><span style={{ color: '#fb923c', marginRight: '0.4rem' }}>■</span> <strong style={{ color: '#fff' }}>COGS</strong> stands for Cost of Goods Sold and includes expenses to produce the service provided by the business.</div>
-                        <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.5 }}><span style={{ color: '#fb923c', marginRight: '0.4rem' }}>■</span> <strong style={{ color: '#fff' }}>SG&A</strong> stands for Selling, General, and Adminstrative Expenses and includes expenses to operate the business.</div>
-                        <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.5 }}><span style={{ color: '#fb923c', marginRight: '0.4rem' }}>■</span> <strong style={{ color: '#fff' }}>"Other Expenses"</strong> may include expenses like rent, travel, or other expenses not outlined in the P&L. You must explain each expense line in your Devpost submission.</div>
-                        <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.5 }}><span style={{ color: '#fb923c', marginRight: '0.4rem' }}>■</span> Recorded on a <strong style={{ color: '#fff' }}>cash basis</strong>: revenue when Paystack confirms payment, expenses when logged as actually paid.</div>
+                        <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.5 }}><span style={{ color: '#fb923c', marginRight: '0.4rem' }}>■</span> <strong style={{ color: 'var(--text-primary)' }}>COGS</strong> stands for Cost of Goods Sold and includes expenses to produce the service provided by the business.</div>
+                        <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.5 }}><span style={{ color: '#fb923c', marginRight: '0.4rem' }}>■</span> <strong style={{ color: 'var(--text-primary)' }}>SG&A</strong> stands for Selling, General, and Adminstrative Expenses and includes expenses to operate the business.</div>
+                        <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.5 }}><span style={{ color: '#fb923c', marginRight: '0.4rem' }}>■</span> <strong style={{ color: 'var(--text-primary)' }}>"Other Expenses"</strong> may include expenses like rent, travel, or other expenses not outlined in the P&L. You must explain each expense line in your Devpost submission.</div>
+                        <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.5 }}><span style={{ color: '#fb923c', marginRight: '0.4rem' }}>■</span> Recorded on a <strong style={{ color: 'var(--text-primary)' }}>cash basis</strong>: revenue when Paystack confirms payment, expenses when logged as actually paid.</div>
                       </div>
                     </div>
                   </div>
@@ -1008,28 +1008,28 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   {/* COLUMN 2: LOG A REAL EXPENSE + AUDIT LIST */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
-                      <h4 style={{ fontSize: '0.9rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <h4 style={{ fontSize: '0.9rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                         <span>📝</span> Log a Real Expense
                       </h4>
                       <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', margin: '0 0 1.25rem 0' }}>
                         Record actual money spent (hosting, API overage, contractor pay). Updates the P&L immediately.
                       </p>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                        <input type="date" value={newExpenseDate} onChange={(e) => setNewExpenseDate(e.target.value)} min="2026-05-19" max="2026-08-17" style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: '#fff' }} />
-                        <select value={newExpenseCategory} onChange={(e) => { const cat = e.target.value as 'COGS' | 'SG&A' | 'Other'; setNewExpenseCategory(cat); setNewExpenseSubcategory(cat === 'Other' ? 'Other' : 'Personnel'); }} style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: '#fff' }}>
+                        <input type="date" value={newExpenseDate} onChange={(e) => setNewExpenseDate(e.target.value)} min="2026-05-19" max="2026-08-17" style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }} />
+                        <select value={newExpenseCategory} onChange={(e) => { const cat = e.target.value as 'COGS' | 'SG&A' | 'Other'; setNewExpenseCategory(cat); setNewExpenseSubcategory(cat === 'Other' ? 'Other' : 'Personnel'); }} style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}>
                           <option value="COGS">COGS</option>
                           <option value="SG&A">SG&A</option>
                           <option value="Other">Other Expenses</option>
                         </select>
                         {newExpenseCategory !== 'Other' && (
-                          <select value={newExpenseSubcategory} onChange={(e) => setNewExpenseSubcategory(e.target.value)} style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: '#fff' }}>
+                          <select value={newExpenseSubcategory} onChange={(e) => setNewExpenseSubcategory(e.target.value)} style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}>
                             <option value="Personnel">Personnel</option>
                             <option value="Software Subscriptions">Software Subscriptions</option>
                             <option value="Tokens">Tokens</option>
                           </select>
                         )}
-                        <input type="number" step="0.01" min="0" placeholder="Amount (USD)" value={newExpenseAmount} onChange={(e) => setNewExpenseAmount(e.target.value)} style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: '#fff' }} />
-                        <input type="text" placeholder="Description (e.g. Render hosting - August)" value={newExpenseDescription} onChange={(e) => setNewExpenseDescription(e.target.value)} style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: '#fff' }} />
+                        <input type="number" step="0.01" min="0" placeholder="Amount (USD)" value={newExpenseAmount} onChange={(e) => setNewExpenseAmount(e.target.value)} style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }} />
+                        <input type="text" placeholder="Description (e.g. Render hosting - August)" value={newExpenseDescription} onChange={(e) => setNewExpenseDescription(e.target.value)} style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }} />
                         <button className="btn-glass btn-primary" onClick={handleAddExpense} disabled={isSubmittingExpense} style={{ justifyContent: 'center', fontWeight: 700 }}>
                           {isSubmittingExpense ? 'Logging...' : '+ Log Expense'}
                         </button>
@@ -1037,7 +1037,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                     </div>
 
                     <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
-                      <h4 style={{ fontSize: '0.9rem', fontWeight: 800, margin: '0 0 1rem 0', color: '#fff' }}>📋 Logged Expenses ({companyExpenses.length})</h4>
+                      <h4 style={{ fontSize: '0.9rem', fontWeight: 800, margin: '0 0 1rem 0', color: 'var(--text-primary)' }}>📋 Logged Expenses ({companyExpenses.length})</h4>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '320px', overflowY: 'auto' }}>
                         {companyExpenses.length === 0 ? (
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>No expenses logged yet.</span>
@@ -1045,7 +1045,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                           companyExpenses.map((exp) => (
                             <div key={exp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '6px', fontSize: '0.7rem' }}>
                               <div>
-                                <div style={{ color: '#fff', fontWeight: 700 }}>${Number(exp.amountUSD).toFixed(2)} — {exp.category}/{exp.subcategory}</div>
+                                <div style={{ color: 'var(--text-primary)', fontWeight: 700 }}>${Number(exp.amountUSD).toFixed(2)} — {exp.category}/{exp.subcategory}</div>
                                 <div style={{ color: 'var(--text-muted)' }}>{exp.date} {exp.description ? `— ${exp.description}` : ''}</div>
                               </div>
                               <button onClick={() => handleDeleteExpense(exp.id)} style={{ background: 'none', border: 'none', color: '#f43f5e', cursor: 'pointer', fontSize: '0.9rem' }}>✕</button>
@@ -1090,12 +1090,12 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               placeholder="Search applications (title, company, candidate)..."
               value={appSearch}
               onChange={(e) => setAppSearch(e.target.value)}
-              style={{ flex: 1, minWidth: '240px', background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: '#fff' }}
+              style={{ flex: 1, minWidth: '240px', background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}
             />
             <select 
               value={appStatusFilter} 
               onChange={(e: any) => setAppStatusFilter(e.target.value)}
-              style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem', fontSize: '0.8rem', color: '#fff', cursor: 'pointer' }}
+              style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem', fontSize: '0.8rem', color: 'var(--text-primary)', cursor: 'pointer' }}
             >
               <option value="ALL">All Kanban Column Statuses</option>
               <option value="matched">Matched Applications</option>
@@ -1154,12 +1154,12 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                         .map((app, idx) => (
                           <tr key={app.id || idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
                             <td style={{ padding: '0.75rem' }}>
-                              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff' }}>{app.fullName}</div>
+                              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>{app.fullName}</div>
                               <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{app.email}</div>
                             </td>
                             <td style={{ padding: '0.75rem' }}>
                               <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary-glow)' }}>{app.title}</div>
-                              <div style={{ fontSize: '0.75rem', color: '#fff' }}>{app.company}</div>
+                              <div style={{ fontSize: '0.75rem', color: 'var(--text-primary)' }}>{app.company}</div>
                             </td>
                             <td style={{ padding: '0.75rem' }}>
                               <span style={{ 
@@ -1217,7 +1217,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               placeholder="Search candidates by name, email, phone..."
               value={candSearch}
               onChange={(e) => setCandidateSearch(e.target.value)}
-              style={{ width: '100%', background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: '#fff' }}
+              style={{ width: '100%', background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}
             />
           </div>
 
@@ -1314,7 +1314,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                               <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>ID: {user.userId}</div>
                               {user.ninValue && (
                                 <div style={{ fontSize: '0.7rem', color: '#10b981', marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
-                                  <span>🪪 NIN: <strong style={{ color: '#fff' }}>{user.ninValue}</strong></span>
+                                  <span>🪪 NIN: <strong style={{ color: 'var(--text-primary)' }}>{user.ninValue}</strong></span>
                                   {user.ninCardImage && (
                                     <button 
                                       onClick={() => setSelectedNINCard(user)}
@@ -1327,7 +1327,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                               )}
                             </td>
                             <td style={{ padding: '0.75rem' }}>
-                              <div style={{ fontSize: '0.85rem', color: '#f8fafc' }}>{user.email}</div>
+                              <div style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}>{user.email}</div>
                               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{user.phoneNumber || 'No phone registered'}</div>
                             </td>
                             <td style={{ padding: '0.75rem' }}>
@@ -1816,7 +1816,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   setNewDomainInput('');
                   addLog(`Admin Console: Added domain "${clean}" to config scratch state.`);
                 }}
-                style={{ height: '36px', padding: '0 1rem', fontSize: '0.75rem', fontWeight: 700, borderColor: 'var(--primary)', color: '#fff', borderRadius: '8px', cursor: 'pointer' }}
+                style={{ height: '36px', padding: '0 1rem', fontSize: '0.75rem', fontWeight: 700, borderColor: 'var(--primary)', color: 'var(--text-primary)', borderRadius: '8px', cursor: 'pointer' }}
               >
                 ➕ Add Domain
               </button>
@@ -1833,7 +1833,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               {/* Flag 1 */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '10px' }}>
                 <div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>🎙️ Voice Response Agent</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>🎙️ Voice Response Agent</div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>Allow AI interactive vocal coaching.</div>
                 </div>
                 <input 
@@ -1851,7 +1851,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               {/* Flag 2 */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '10px' }}>
                 <div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>🕵️ Autonomous Scraper Loop</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>🕵️ Autonomous Scraper Loop</div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>Trigger background cron searches.</div>
                 </div>
                 <input 
@@ -1869,7 +1869,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               {/* Flag 3 */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '10px' }}>
                 <div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>🚧 System Maintenance Mode</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>🚧 System Maintenance Mode</div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>Lock down console access for candidates.</div>
                 </div>
                 <input 
@@ -1887,7 +1887,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               {/* Flag 4 */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '10px' }}>
                 <div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>💳 Paystack Payout Channel</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>💳 Paystack Payout Channel</div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>Allow manual or automated bank cashouts.</div>
                 </div>
                 <input 
@@ -1927,7 +1927,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                       <td style={{ padding: '0.6rem', fontSize: '0.7rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                         {new Date(log.timestamp).toLocaleString()}
                       </td>
-                      <td style={{ padding: '0.6rem', fontSize: '0.75rem', fontWeight: 600, color: '#fff' }}>
+                      <td style={{ padding: '0.6rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)' }}>
                         {log.adminEmail}
                       </td>
                       <td style={{ padding: '0.6rem' }}>
@@ -2312,7 +2312,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem 0.5rem' }}>
                     <div style={{ gridColumn: 'span 2' }}>
                       <div style={{ fontSize: '0.6rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Full Name</div>
-                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#f8fafc', textShadow: '0 0 4px rgba(255,255,255,0.1)' }}>{selectedNINCard.fullName}</div>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)', textShadow: '0 0 4px rgba(255,255,255,0.1)' }}>{selectedNINCard.fullName}</div>
                     </div>
 
                     <div>
@@ -2327,14 +2327,14 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
 
                     <div>
                       <div style={{ fontSize: '0.6rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Gender</div>
-                      <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#f8fafc' }}>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)' }}>
                         {selectedNINCard.fullName.toLowerCase().includes('female') || selectedNINCard.fullName.toLowerCase().includes('mrs') || selectedNINCard.fullName.toLowerCase().includes('miss') ? 'F' : 'M'} (Inferred)
                       </div>
                     </div>
 
                     <div>
                       <div style={{ fontSize: '0.6rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Date of Birth</div>
-                      <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#f8fafc' }}>15 OCT 1996 (Inferred)</div>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)' }}>15 OCT 1996 (Inferred)</div>
                     </div>
 
                     <div style={{ gridColumn: 'span 2' }}>
@@ -2449,7 +2449,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   style={{
                     background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                     border: '1px solid rgba(16, 185, 129, 0.3)',
-                    color: '#ffffff',
+                    color: 'var(--text-primary)',
                     borderRadius: '8px',
                     height: '42px',
                     padding: '0 1.75rem',

@@ -37,17 +37,17 @@ export default function BankTransferPanel({ API_BASE_URL }: BankTransferPanelPro
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 }}>
-        Transfer any amount from <strong style={{ color: '#fff' }}>₦{details.minimumAmountNGN.toLocaleString()}</strong> upward to the account below, then send your payment receipt to the WhatsApp number shown. Your wallet is credited manually once verified — usually within a few hours.
+        Transfer any amount from <strong style={{ color: 'var(--text-primary)' }}>₦{details.minimumAmountNGN.toLocaleString()}</strong> upward to the account below, then send your payment receipt to the WhatsApp number shown. Your wallet is credited manually once verified — usually within a few hours.
       </p>
 
       <div style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)', borderRadius: '12px', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         <div>
           <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Bank Name</div>
-          <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>{details.bankName}</div>
+          <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>{details.bankName}</div>
         </div>
         <div>
           <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Account Name</div>
-          <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>{details.accountName}</div>
+          <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>{details.accountName}</div>
         </div>
         <div>
           <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Account Number</div>

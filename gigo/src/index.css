@@ -21,12 +21,12 @@
   --font-heading: 'Outfit', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
 
-  /* Premium LIGHT Theme Palette (Default) — matches the approved Mailroom/
-     Wallet/Settings/Admin redesign reference exactly: same vibrant accent
-     colors as dark mode (not muted/dimmed for light), soft near-white cards
-     with a faint dark tint rather than flat opaque gray. */
-  --bg-dark-base: #eef2f8;
-  --bg-dark-surface: rgba(255, 255, 255, 0.72);
+  /* Premium LIGHT Theme Palette (Default) — same vibrant accent colors as
+     dark mode (not muted/dimmed for light), a true near-white base rather
+     than the reference's cooler blue-gray, soft cards with a faint dark
+     tint rather than flat opaque gray. */
+  --bg-dark-base: #fafbfc;
+  --bg-dark-surface: rgba(255, 255, 255, 0.85);
   --bg-dark-card: rgba(15, 23, 42, 0.03);
 
   --primary: #38bdf8; /* Sky Blue — same vibrant value as dark mode */
