@@ -12,6 +12,7 @@ import UploadDocumentModal from './components/UploadDocumentModal';
 import ManualDocumentModal from './components/ManualDocumentModal';
 import { GiGOLogo } from './components/GiGOLogo';
 
+import type { AdminTabId } from './components/AdminCockpit';
 const AdminCockpit = lazy(() => import('./components/AdminCockpit').then(module => ({ default: module.AdminCockpit })));
 const MailroomTab = lazy(() => import('./components/MailroomTab').then(module => ({ default: module.MailroomTab })));
 const MockInterviewRoom = lazy(() => import('./components/MockInterviewRoom'));
@@ -394,6 +395,7 @@ export default function App() {
 
   // App Dashboard Toggle Mode
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
+  const [adminTab, setAdminTab] = useState<AdminTabId>('candidates');
 
   // Cosmic Splash Booting Sequence States
   const [isBooting, setIsBooting] = useState<boolean>(true);
@@ -4899,6 +4901,14 @@ ${profile.name || '[   ]'}`;
                 <div style={{ fontSize: '0.95rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{userFullName || 'Vocal Identity Pending'}</div>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{profile.role}</div>
               </div>
+              <button
+                onClick={handleLogout}
+                title="Logout"
+                aria-label="Logout"
+                style={{ background: 'none', border: 'none', color: '#fca5a5', fontSize: '1.1rem', cursor: 'pointer', lineHeight: 1, padding: '0.3rem' }}
+              >
+                ⏻
+              </button>
               <button onClick={() => setShowNavDrawer(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.4rem', cursor: 'pointer', lineHeight: 1 }}>&times;</button>
             </div>
 
@@ -4937,36 +4947,71 @@ ${profile.name || '[   ]'}`;
               </div>
             )}
 
-            {/* Quick links */}
-            <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-              <div style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>Quick Links</div>
-              {[
-                { icon: '🚀', label: 'Autopilot Dashboard', onClick: () => handleSetWorkspaceTab('copilot') },
-                { icon: '📝', label: 'Interview & CV Prep', onClick: () => handleSetWorkspaceTab('career_prep') },
-                { icon: '📬', label: 'AI Inbox', onClick: () => handleSetWorkspaceTab('mailroom'), badge: mailThreads.filter((t: any) => t.status === 'replied' || t.status === 'interview_offered').length },
-                { icon: '💳', label: 'Wallet & Pace', onClick: () => handleSetWorkspaceTab('wallets') },
-                { icon: '🧠', label: 'GiGO Brain', onClick: () => handleSetWorkspaceTab('brain') },
-                { icon: '⚙️', label: 'Settings', onClick: () => { setSettingsActiveTab('profile'); setShowSettingsModal(true); } }
-              ].map(item => (
-                <button
-                  key={item.label}
-                  onClick={() => { item.onClick(); setShowNavDrawer(false); }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.65rem 0.5rem',
-                    background: 'none', border: 'none', borderRadius: '8px', cursor: 'pointer',
-                    fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', textAlign: 'left'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-                >
-                  <span style={{ fontSize: '1.1rem' }}>{item.icon}</span>
-                  <span style={{ flex: 1 }}>{item.label}</span>
-                  {!!item.badge && (
-                    <span style={{ minWidth: '18px', height: '18px', padding: '0 4px', borderRadius: '999px', background: 'var(--rose, #f43f5e)', color: '#fff', fontSize: '0.65rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{item.badge}</span>
-                  )}
-                </button>
-              ))}
-            </div>
+            {/* Quick links (candidate mode) / Admin nav (admin mode) - same slot,
+                swapped based on isAdminMode so the sidebar always shows the nav
+                relevant to whichever dashboard is currently showing. */}
+            {!isAdminMode ? (
+              <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                <div style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>Quick Links</div>
+                {[
+                  { icon: '🚀', label: 'Autopilot Dashboard', onClick: () => handleSetWorkspaceTab('copilot') },
+                  { icon: '📝', label: 'Interview & CV Prep', onClick: () => handleSetWorkspaceTab('career_prep') },
+                  { icon: '📬', label: 'AI Inbox', onClick: () => handleSetWorkspaceTab('mailroom'), badge: mailThreads.filter((t: any) => t.status === 'replied' || t.status === 'interview_offered').length },
+                  { icon: '💳', label: 'Wallet & Pace', onClick: () => handleSetWorkspaceTab('wallets') },
+                  { icon: '🧠', label: 'GiGO Brain', onClick: () => handleSetWorkspaceTab('brain') },
+                  { icon: '⚙️', label: 'Settings', onClick: () => { setSettingsActiveTab('profile'); setShowSettingsModal(true); } }
+                ].map(item => (
+                  <button
+                    key={item.label}
+                    onClick={() => { item.onClick(); setShowNavDrawer(false); }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.65rem 0.5rem',
+                      background: 'none', border: 'none', borderRadius: '8px', cursor: 'pointer',
+                      fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', textAlign: 'left'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                  >
+                    <span style={{ fontSize: '1.1rem' }}>{item.icon}</span>
+                    <span style={{ flex: 1 }}>{item.label}</span>
+                    {!!item.badge && (
+                      <span style={{ minWidth: '18px', height: '18px', padding: '0 4px', borderRadius: '999px', background: 'var(--rose, #f43f5e)', color: '#fff', fontSize: '0.65rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{item.badge}</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                <div style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>Admin Console</div>
+                {([
+                  { id: 'candidates', label: '👥 Candidate Directory' },
+                  { id: 'applications', label: '💼 Application Hub' },
+                  { id: 'activities', label: '📊 Activity Stream' },
+                  { id: 'financials', label: '💳 Financial Ledger' },
+                  { id: 'orchestrator', label: '🤖 Orchestrator' },
+                  { id: 'observability', label: '📈 Observability' },
+                  { id: 'jobSources', label: '🌐 Job Sources' },
+                  { id: 'sandbox', label: '🧪 Recruiter Sandbox' },
+                  { id: 'settings', label: '⚙️ System Control' }
+                ] as const).map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => { setAdminTab(item.id); setShowNavDrawer(false); }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.65rem 0.5rem',
+                      background: adminTab === item.id ? 'rgba(255,255,255,0.05)' : 'none',
+                      border: 'none', borderRadius: '8px', cursor: 'pointer',
+                      fontSize: '0.85rem', fontWeight: adminTab === item.id ? 700 : 600,
+                      color: adminTab === item.id ? 'var(--primary)' : 'var(--text-primary)', textAlign: 'left'
+                    }}
+                    onMouseEnter={(e) => { if (adminTab !== item.id) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
+                    onMouseLeave={(e) => { if (adminTab !== item.id) e.currentTarget.style.background = 'none'; }}
+                  >
+                    <span style={{ flex: 1 }}>{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Theme + admin toggle */}
             <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
@@ -4999,11 +5044,6 @@ ${profile.name || '[   ]'}`;
               )}
             </div>
 
-            <div style={{ padding: '1.25rem 1.5rem', marginTop: 'auto' }}>
-              <button className="btn-glass" style={{ width: '100%', justifyContent: 'center', padding: '0.65rem', fontSize: '0.85rem', fontWeight: 700, borderColor: 'rgba(239, 68, 68, 0.35)', color: '#fca5a5' }} onClick={handleLogout}>
-                Logout
-              </button>
-            </div>
           </div>
         </div>
 
@@ -7080,6 +7120,9 @@ ${profile.name || '[   ]'}`;
           <div>Loading Admin Cockpit...</div>
         </div>}>
           <AdminCockpit
+            externalAdminTab={adminTab}
+            onAdminTabChange={setAdminTab}
+            hideOwnNav={true}
             API_BASE_URL={API_BASE_URL}
             adminUsers={adminUsers}
             globalTransactions={globalTransactions}
