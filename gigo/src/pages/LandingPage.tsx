@@ -131,7 +131,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
       </nav>
 
       {/* Main Focus: Hero Section & Embedded Onboarding (The Act-Now Core) */}
-      <header className="max-w-7xl mx-auto px-6 pt-12 pb-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+      <header className="max-w-7xl mx-auto px-6 pt-12 pb-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-start relative z-10">
         
         {/* Left Column: Bold Action copywriting */}
         <div className="lg:col-span-7 space-y-8 text-left">
