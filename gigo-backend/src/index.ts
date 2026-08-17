@@ -2879,6 +2879,118 @@ app.post('/api/auth/signup-voice', upload.single('audio'), async (req: Request, 
   }
 });
 
+// Real Gemini-audio-based "Vocal Twin Calibration" verdict for onboarding
+// Step 2. Replaces what used to be a fake setTimeout that always succeeded
+// after 4 seconds regardless of whether anything was actually said. This
+// makes an honest judgment call - is there clear human speech, what was
+// actually said, how clear was it - and only marks calibration successful
+// when Gemini's real verdict passes a real bar, mirroring the same
+// fails-safe pattern as the real NIN verification and signup-voice routes.
+app.post('/api/users/:userId/calibrate-voice', upload.single('audio'), async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  if (!req.file) {
+    res.status(400).json({ error: "No audio file payload found in the request." });
+    return;
+  }
+
+  const filePath = req.file.path;
+  const mimeType = req.file.mimetype || 'audio/webm';
+  const startTime = Date.now();
+
+  console.log(`Received vocal calibration upload for user ${userId}: ${req.file.originalname} (${req.file.size} bytes)`);
+
+  try {
+    const { ai, modelFlash } = getGeminiClient();
+    const audioBuffer = fs.readFileSync(filePath);
+    const base64Audio = audioBuffer.toString('base64');
+
+    const response = await ai.models.generateContent({
+      model: modelFlash,
+      contents: [
+        {
+          inlineData: {
+            mimeType: mimeType,
+            data: base64Audio
+          }
+        },
+        {
+          text: `You are judging a "Vocal Twin Calibration" recording for GiGO. The candidate was asked to read this sentence aloud:
+
+"I authorize GiGO AI to coordinate my career hunt, screen incoming recruiter calls, and manage my matching pipeline using this secure tone calibration."
+
+Listen to the recording and be genuinely honest - this gates a real feature (an AI voice agent that will speak on the candidate's behalf), so do not assume success. Determine:
+1. Is there clear, audible human speech in this recording (not silence, noise, or an unintelligible mumble)?
+2. What did the candidate actually say, as best you can transcribe it?
+3. A clarity/quality score from 0-100 for how usable this sample is for voice calibration (articulation, audio quality, volume - not whether they matched the exact sentence word-for-word).
+4. Brief, honest feedback for the candidate.
+
+Do not invent a transcript or score if the audio is empty, silent, or unintelligible - report that honestly instead.`
+        }
+      ],
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            hasClearSpeech: { type: Type.BOOLEAN },
+            transcript: { type: Type.STRING, description: "What the candidate actually said. Empty string if no clear speech." },
+            clarityScore: { type: Type.NUMBER, description: "0-100 usability score for voice calibration." },
+            feedback: { type: Type.STRING, description: "Brief, honest feedback for the candidate." }
+          },
+          required: ['hasClearSpeech', 'transcript', 'clarityScore', 'feedback']
+        }
+      }
+    });
+
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    if (!response.text) throw new Error("Empty response from Gemini vocal calibration.");
+    const verdict = JSON.parse(response.text.trim());
+
+    const calibrated = !!(verdict.hasClearSpeech && verdict.clarityScore >= 40);
+
+    const userRef = db.collection('users').doc(userId);
+    const userDoc = await userRef.get();
+    if (userDoc.exists) {
+      await userRef.update({
+        hasVoiceCalibrated: calibrated,
+        voiceCalibrationVerdict: verdict,
+        voiceCalibratedAt: calibrated ? new Date().toISOString() : null
+      });
+    }
+
+    const latencyMs = Date.now() - startTime;
+    await db.collection('agent_execution_logs').add({
+      timestamp: new Date().toISOString(),
+      agentName: "Vocal_Calibration_Agent",
+      cycleType: "VOICE_CALIBRATION",
+      userId,
+      executionMetrics: {
+        latencyMs,
+        audioPayloadSizeBytes: audioBuffer.length,
+        modelUsed: modelFlash,
+        status: calibrated ? "CALIBRATED" : "REJECTED"
+      },
+      businessDecisionsExecuted: [
+        `Real Gemini-audio calibration verdict: clarity ${verdict.clarityScore}/100 - ${verdict.feedback}`,
+        calibrated ? 'Vocal twin calibration passed.' : 'Vocal twin calibration did not pass — candidate can retry or bypass with the default accent.'
+      ]
+    });
+
+    res.status(200).json({ success: true, calibrated, verdict });
+  } catch (error: any) {
+    console.error("Vocal calibration handler failed:", error);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+    const { statusCode, error: errTitle, details } = mapErrorResponse(error, "Failed to process vocal calibration audio.");
+    res.status(statusCode).json({ error: errTitle, details });
+  }
+});
+
 
 // ----------------------------------------------------
 // CORES & OPERATIONS

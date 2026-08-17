@@ -392,6 +392,10 @@ export default function App() {
   const signupChunksRef = useRef<Blob[]>([]);
   const signupStreamRef = useRef<MediaStream | null>(null);
   const [signupWaveActive, setSignupWaveActive] = useState<boolean>(false);
+  const pipelineVoiceMediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const pipelineVoiceChunksRef = useRef<Blob[]>([]);
+  const pipelineVoiceStreamRef = useRef<MediaStream | null>(null);
+  const [pipelineVoiceStatus, setPipelineVoiceStatus] = useState<string>('');
 
   // App Dashboard Toggle Mode
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
@@ -925,16 +929,101 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
     }
   };
 
-  const handlePipelineVoiceRecord = async () => {
-    if (isCalibratingPipelineVoice) return;
-    setIsCalibratingPipelineVoice(true);
-    addLog("[Voice Calibration] Recording vocal intro sample (simulated 4-second capture)...");
-    
-    // Simulate wave recording
-    await new Promise(resolve => setTimeout(resolve, 4000));
-    setIsCalibratingPipelineVoice(false);
-    setPipelineVoiceRecorded(true);
-    addLog("[Voice Calibration] Accent profiling complete! Communication twin verified.");
+  // Real vocal calibration capture: gated behind mic consent, records the
+  // candidate actually reading the prompt aloud, uploads the real audio to
+  // Gemini for an honest verdict, and only marks calibration successful when
+  // that verdict says so — not unconditionally after a timer.
+  const handlePipelineVoiceRecord = () => {
+    if (isCalibratingPipelineVoice) {
+      stopPipelineVoiceRecording();
+      return;
+    }
+    setMicConsentRequest({ onAllow: startPipelineVoiceRecordingInternal });
+  };
+
+  const startPipelineVoiceRecordingInternal = async () => {
+    try {
+      pipelineVoiceChunksRef.current = [];
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      pipelineVoiceStreamRef.current = stream;
+
+      const options = { mimeType: 'audio/webm' };
+      let mediaRecorder;
+      try {
+        mediaRecorder = new MediaRecorder(stream, options);
+      } catch (e) {
+        mediaRecorder = new MediaRecorder(stream);
+      }
+
+      pipelineVoiceMediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          pipelineVoiceChunksRef.current.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(pipelineVoiceChunksRef.current, { type: mediaRecorder.mimeType || 'audio/webm' });
+        setPipelineVoiceStatus('GiGO AI judging your vocal calibration...');
+        addLog("[Voice Calibration] Uploading real audio sample to Gemini for calibration verdict...");
+
+        const currentUserId = userId || localStorage.getItem('gigo_userId') || 'user_1780714671963_281';
+        try {
+          const formData = new FormData();
+          formData.append('audio', audioBlob, 'vocal-calibration.webm');
+
+          const res = await fetch(`${API_BASE_URL}/api/users/${currentUserId}/calibrate-voice`, {
+            method: 'POST',
+            body: formData
+          });
+          const result = await res.json();
+
+          if (res.ok && result.success) {
+            const v = result.verdict;
+            if (result.calibrated) {
+              setPipelineVoiceRecorded(true);
+              setPipelineVoiceStatus(`✅ Calibrated (clarity ${v.clarityScore}/100). ${v.feedback || ''}`);
+              addLog(`[Voice Calibration] Real Gemini verdict: PASSED (clarity ${v.clarityScore}/100). "${v.transcript}"`);
+            } else {
+              setPipelineVoiceRecorded(false);
+              setPipelineVoiceStatus(`⚠️ Not calibrated yet (clarity ${v.clarityScore}/100). ${v.feedback || 'Please try again, speaking clearly.'}`);
+              addLog(`[Voice Calibration] Real Gemini verdict: DID NOT PASS (clarity ${v.clarityScore}/100). ${v.feedback || ''}`);
+            }
+          } else {
+            setPipelineVoiceStatus(`⚠️ Calibration failed: ${result.error || 'Please try again or bypass with the default accent.'}`);
+            addLog(`[Voice Calibration] Calibration request failed: ${result.error || 'unknown error'}`);
+          }
+        } catch (err: any) {
+          setPipelineVoiceStatus("⚠️ Connection error reaching the calibration service. Try again or bypass with the default accent.");
+          addLog(`[Voice Calibration] Network error: ${err.message}`);
+        } finally {
+          setIsCalibratingPipelineVoice(false);
+        }
+      };
+
+      mediaRecorder.start();
+      setIsCalibratingPipelineVoice(true);
+      setPipelineVoiceStatus('Listening... read the prompt aloud, then click stop.');
+      addLog("[Voice Calibration] Recording real vocal calibration sample...");
+    } catch (err) {
+      console.warn("Microphone not allowed or not found during vocal calibration:", err);
+      setIsCalibratingPipelineVoice(false);
+      setPipelineVoiceStatus("⚠️ Microphone unavailable. Please bypass with the default accent instead.");
+    }
+  };
+
+  const stopPipelineVoiceRecording = () => {
+    if (pipelineVoiceMediaRecorderRef.current && pipelineVoiceMediaRecorderRef.current.state !== 'inactive') {
+      pipelineVoiceMediaRecorderRef.current.stop();
+    } else {
+      setIsCalibratingPipelineVoice(false);
+      setPipelineVoiceStatus("⚠️ No active recording found. Please try again.");
+    }
+
+    if (pipelineVoiceStreamRef.current) {
+      pipelineVoiceStreamRef.current.getTracks().forEach(t => t.stop());
+      pipelineVoiceStreamRef.current = null;
+    }
   };
 
   const handlePipelineBypassVoice = () => {
@@ -5475,15 +5564,14 @@ ${profile.name || '[   ]'}`;
                               <button
                                 className={`pulse-ring-btn ${isCalibratingPipelineVoice ? 'active' : ''}`}
                                 onClick={handlePipelineVoiceRecord}
-                                disabled={isCalibratingPipelineVoice}
-                                title="Click to calibrate voice twin"
+                                title={isCalibratingPipelineVoice ? 'Click to stop recording' : 'Click to calibrate voice twin'}
                               >
                                 {isCalibratingPipelineVoice ? '⏹️' : '🎙️'}
                               </button>
                             </div>
 
                             <span style={{ fontSize: '0.85rem', fontWeight: 600, color: isCalibratingPipelineVoice ? '#ef4444' : 'var(--text-secondary)' }}>
-                              {isCalibratingPipelineVoice ? 'Recording & analyzing tone modulation...' : pipelineVoiceRecorded ? '✅ Vocal twin calibrated!' : 'Click the microphone to begin calibration'}
+                              {pipelineVoiceStatus || (pipelineVoiceRecorded ? '✅ Vocal twin calibrated!' : 'Click the microphone, read the prompt aloud, then click again to stop')}
                             </span>
                           </div>
 
