@@ -54,8 +54,20 @@ export interface AdminUser {
   isRelatedParty?: boolean;
 }
 
+export type AdminTabId = 'activities' | 'financials' | 'applications' | 'candidates' | 'settings' | 'orchestrator' | 'observability' | 'sandbox' | 'jobSources';
+
 interface AdminCockpitProps {
   API_BASE_URL: string;
+  // Lets App.tsx render this same tab list in its own sidebar (replacing the
+  // candidate Quick Links while Admin Console is active) and drive which tab
+  // is selected from there, instead of the nav living twice - once here,
+  // once in the app-level drawer. Internal adminTab state stays the source
+  // of truth for the ~1400 lines of tab-content conditionals below; these
+  // props just keep it in sync with the outside world. When hideOwnNav is
+  // set, this component's own nav column isn't rendered at all.
+  externalAdminTab?: AdminTabId;
+  onAdminTabChange?: (tab: AdminTabId) => void;
+  hideOwnNav?: boolean;
   adminUsers: AdminUser[];
   globalTransactions: any[];
   globalApplications: any[];
@@ -109,6 +121,9 @@ interface AdminCockpitProps {
 
 export const AdminCockpit: React.FC<AdminCockpitProps> = ({
   API_BASE_URL,
+  externalAdminTab,
+  onAdminTabChange,
+  hideOwnNav,
   adminUsers,
   globalTransactions,
   globalApplications,
@@ -160,7 +175,15 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
   setShowOverrideModal,
 }) => {
   // Local states that were previously bloating App.tsx
-  const [adminTab, setAdminTab] = useState<'activities' | 'financials' | 'applications' | 'candidates' | 'settings' | 'orchestrator' | 'observability' | 'sandbox' | 'jobSources'>('candidates');
+  const [adminTab, setAdminTab] = useState<AdminTabId>(externalAdminTab || 'candidates');
+
+  // Keep internal state in sync when the app-level sidebar changes the tab.
+  useEffect(() => {
+    if (externalAdminTab && externalAdminTab !== adminTab) {
+      setAdminTab(externalAdminTab);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalAdminTab]);
   const [ledgerSearch, setLedgerSearch] = useState<string>('');
   const [ledgerCurrencyFilter, setLedgerCurrencyFilter] = useState<'ALL' | 'NGN' | 'USD'>('ALL');
   const [appSearch, setAppSearch] = useState<string>('');
@@ -440,8 +463,9 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
     };
   }, [isLiveFeed, adminTab, fetchAdminLogs, fetchAdminUsers, fetchGlobalTransactions, fetchGlobalApplications]);
 
-  const selectAdminTab = (tab: 'activities' | 'financials' | 'applications' | 'candidates' | 'settings' | 'orchestrator' | 'observability' | 'sandbox' | 'jobSources') => {
+  const selectAdminTab = (tab: AdminTabId) => {
     setAdminTab(tab);
+    onAdminTabChange?.(tab);
     addLog(`🔑 Administrative Dashboard: Switched tab view to "${tab.toUpperCase()}".`);
     if (tab === 'activities') fetchAdminLogs();
     if (tab === 'financials') fetchGlobalTransactions();
@@ -548,6 +572,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
           which is far lower-risk than physically relocating the huge content
           block below. */}
       <div className="admin-content-row">
+        {!hideOwnNav && (
         <div
           className="admin-tabs-scroller"
           style={{
@@ -602,6 +627,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
             );
           })}
         </div>
+        )}
 
         <div className="admin-content-main">
 

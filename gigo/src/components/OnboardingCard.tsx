@@ -39,7 +39,8 @@ export const OnboardingCard: React.FC<OnboardingCardProps> = ({ onGetStarted }) 
 
         <button
           onClick={handleMicTap}
-          className="w-16 h-16 rounded-full flex items-center justify-center mx-auto transition-all duration-300 bg-gradient-to-tr from-brandPrimary to-brandSecondary hover:shadow-[0_0_20px_var(--primary-glow)] hover:scale-105"
+          className="w-16 h-16 rounded-full flex items-center justify-center mx-auto transition-all duration-300 hover:shadow-[0_0_20px_var(--primary-glow)] hover:scale-105"
+          style={{ backgroundImage: 'linear-gradient(to top right, var(--primary), var(--secondary))' }}
         >
           <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -54,7 +55,8 @@ export const OnboardingCard: React.FC<OnboardingCardProps> = ({ onGetStarted }) 
       <div className="space-y-4">
         <button 
           onClick={onGetStarted}
-          className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-brandPrimary to-brandSecondary text-white font-bold tracking-wide hover:shadow-[0_0_20px_var(--primary-glow)] transition-all duration-300"
+          className="w-full py-4 px-6 rounded-xl text-white font-bold tracking-wide hover:shadow-[0_0_20px_var(--primary-glow)] transition-all duration-300"
+          style={{ backgroundImage: 'linear-gradient(to right, var(--primary), var(--secondary))' }}
         >
           Get Started Now
         </button>

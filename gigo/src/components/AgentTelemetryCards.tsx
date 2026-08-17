@@ -9,7 +9,7 @@ interface FeatureCardProps {
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, badge, description, agentLogic }) => (
-  <div className="p-6 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 shadow-xl relative group hover:border-slate-700 transition-all duration-300">
+  <div className="p-6 rounded-2xl border border-slate-800 shadow-xl relative group hover:border-slate-700 transition-all duration-300" style={{ backgroundImage: 'linear-gradient(to bottom, #0f172a, #020617)' }}>
     <div className="absolute top-4 right-4 text-[10px] uppercase font-bold tracking-widest bg-cyan-500/10 text-cyan-400 px-2.5 py-1 rounded-full border border-cyan-500/20">
       {badge}
     </div>

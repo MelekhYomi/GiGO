@@ -97,8 +97,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
       
       {/* Calm Backglow Effect */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[45%] h-[45%] bg-gradient-to-tr from-brandSecondary/8 to-transparent rounded-full blur-[140px]" />
-        <div className="absolute bottom-[20%] right-[-10%] w-[45%] h-[45%] bg-gradient-to-br from-brandPrimary/8 to-transparent rounded-full blur-[140px]" />
+        <div className="absolute top-[-10%] left-[-10%] w-[45%] h-[45%] rounded-full blur-[140px]" style={{ backgroundImage: 'linear-gradient(to top right, rgba(134, 59, 255, 0.08), transparent)' }} />
+        <div className="absolute bottom-[20%] right-[-10%] w-[45%] h-[45%] rounded-full blur-[140px]" style={{ backgroundImage: 'linear-gradient(to bottom right, rgba(56, 189, 248, 0.08), transparent)' }} />
       </div>
 
       {/* Simplified, Sleek Actionable Navbar */}
@@ -122,7 +122,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
           </button>
           <button
             onClick={onSignUp}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-brandPrimary to-brandSecondary text-sm font-semibold text-white hover:shadow-[0_0_20px_var(--primary-glow)] hover:scale-[1.02] active:scale-[0.98] transition-all"
+            className="px-4 py-2 rounded-xl text-sm font-semibold text-white hover:shadow-[0_0_20px_var(--primary-glow)] hover:scale-[1.02] active:scale-[0.98] transition-all"
+            style={{ backgroundImage: 'linear-gradient(to right, var(--primary), var(--secondary))' }}
           >
             Start now
           </button>
@@ -144,7 +145,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-5xl lg:text-[3.4rem] font-extrabold text-brandTextPrimary tracking-tight leading-[1.1]">
               Deploy your AI career mind clone,{' '}
-              <span className="bg-gradient-to-r from-brandPrimary to-brandSecondary bg-clip-text text-transparent">
+              <span
+                className="bg-clip-text text-transparent"
+                style={{ backgroundImage: 'linear-gradient(to right, var(--primary), var(--secondary))' }}
+              >
                 on autopilot
               </span>
             </h1>
@@ -188,7 +192,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
           <div className="flex gap-4 items-center">
             <button
               onClick={onSignUp}
-              className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-brandPrimary to-brandSecondary text-white font-semibold text-sm hover:shadow-[0_0_25px_var(--primary-glow)] hover:scale-[1.02] active:scale-95 transition-all"
+              className="px-6 py-3.5 rounded-xl text-white font-semibold text-sm hover:shadow-[0_0_25px_var(--primary-glow)] hover:scale-[1.02] active:scale-95 transition-all"
+              style={{ backgroundImage: 'linear-gradient(to right, var(--primary), var(--secondary))' }}
             >
               Claim your 250 Pace sign-up bonus
             </button>
@@ -197,7 +202,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
 
         {/* Right Column: Embedded Onboarding Micro-Card */}
         <div className="lg:col-span-5 w-full max-w-md mx-auto relative lg:justify-self-end">
-          <div className="absolute -inset-1.5 rounded-3xl bg-gradient-to-r from-brandPrimary to-brandSecondary opacity-20 blur-xl"></div>
+          <div className="absolute -inset-1.5 rounded-3xl opacity-20 blur-xl" style={{ backgroundImage: 'linear-gradient(to right, var(--primary), var(--secondary))' }}></div>
           <div className="relative">
             <OnboardingCard onGetStarted={onSignUp} />
           </div>
@@ -252,7 +257,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
               { icon: '📊', name: 'GiGO Brain', desc: 'Your personal analytics dashboard — match trends, application velocity, and career momentum score at a glance.' },
             ].map((agent) => (
               <div key={agent.name} className="p-5 rounded-2xl bg-brandCard/40 border border-brandBorder space-y-3 text-left hover:border-brandPrimary/40 transition-colors">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-brandPrimary/20 to-brandSecondary/20 border border-brandBorder flex items-center justify-center text-xl">
+                <div className="w-11 h-11 rounded-xl border border-brandBorder flex items-center justify-center text-xl" style={{ backgroundImage: 'linear-gradient(to bottom right, color-mix(in srgb, var(--primary) 20%, transparent), color-mix(in srgb, var(--secondary) 20%, transparent))' }}>
                   {agent.icon}
                 </div>
                 <h4 className="text-sm font-bold text-brandTextPrimary">{agent.name}</h4>
@@ -313,7 +318,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
                 <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Wallet</span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-brandPrimary/10 text-brandPrimary font-semibold">Pay-as-you-go</span>
               </div>
-              <div className="rounded-xl bg-gradient-to-br from-brandPrimary/15 to-brandSecondary/15 border border-brandBorder p-4 mb-3">
+              <div className="rounded-xl border border-brandBorder p-4 mb-3" style={{ backgroundImage: 'linear-gradient(to bottom right, color-mix(in srgb, var(--primary) 15%, transparent), color-mix(in srgb, var(--secondary) 15%, transparent))' }}>
                 <div className="text-[10px] text-brandTextMuted uppercase font-bold mb-1">Career Momentum</div>
                 <div className="text-2xl font-black text-brandTextPrimary">250 <span className="text-sm font-semibold text-brandTextSecondary">Pace</span></div>
               </div>
@@ -469,7 +474,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
 
                 <button 
                   type="submit"
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-brandPrimary to-brandSecondary text-white text-xs font-bold uppercase tracking-wider hover:shadow-[0_0_15px_var(--primary-glow)] transition-all"
+                  className="w-full py-3 px-4 rounded-xl text-white text-xs font-bold uppercase tracking-wider hover:shadow-[0_0_15px_var(--primary-glow)] transition-all"
+                  style={{ backgroundImage: 'linear-gradient(to right, var(--primary), var(--secondary))' }}
                 >
                   Recommend Job Seeker & Secure Spot 🚀
                 </button>
@@ -699,7 +705,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
             <div className="flex justify-end pt-4 border-t border-brandBorder">
               <button
                 onClick={closeWalkthrough}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brandPrimary to-brandSecondary text-white text-xs font-bold uppercase tracking-wider"
+                className="px-5 py-2.5 rounded-xl text-white text-xs font-bold uppercase tracking-wider"
+                style={{ backgroundImage: 'linear-gradient(to right, var(--primary), var(--secondary))' }}
               >
                 {autoShowWalkthrough ? 'Join the Waitlist →' : 'Got It, Thanks!'}
               </button>
