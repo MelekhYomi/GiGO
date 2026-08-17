@@ -700,7 +700,7 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
                         style={{ 
                           width: '100%', 
                           resize: 'none', 
-                          background: 'rgba(15, 13, 35, 0.5)', 
+                          background: 'var(--bg-dark-card)',
                           border: '1px solid var(--border-glass)',
                           padding: '0.75rem',
                           fontSize: '0.85rem',
@@ -742,7 +742,7 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
       {/* AI FOLLOW-UP MODAL */}
       {showFollowupModal && (
         <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(5, 3, 10, 0.85)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, backdropFilter: 'blur(8px)' }}>
-          <div className="glass-panel animate-scale-up" style={{ width: '650px', maxWidth: '90%', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem', background: 'rgba(15, 12, 30, 0.95)', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+          <div className="glass-panel animate-scale-up" style={{ width: '650px', maxWidth: '90%', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem', background: 'var(--bg-dark-surface)', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.75rem' }}>
               <h2 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }} className="text-gradient-purple-pink">
                 <span>🪄</span> AI Career Correspondence Wizard
@@ -766,10 +766,10 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
                   width: '100%',
                   fontFamily: 'monospace',
                   fontSize: '0.8rem',
-                  color: '#f3e8ff',
+                  color: 'var(--text-primary)',
                   lineHeight: 1.5,
                   padding: '0.75rem',
-                  background: 'rgba(5, 3, 10, 0.6)'
+                  background: 'var(--bg-dark-card)'
                 }}
                 value={followupDraftText}
                 onChange={(e) => setFollowupDraftText(e.target.value)}

@@ -249,22 +249,22 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.65rem', marginTop: '1rem' }}>
-          <div style={{ padding: '0.6rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '10px', textAlign: 'center' }}>
+          <div style={{ padding: '0.6rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px', textAlign: 'center' }}>
             <div style={{ fontSize: '0.62rem', color: 'var(--text-muted)' }}>Brain sync</div>
             <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-primary)' }}>{brainSyncPercentage >= 90 ? 'Stable' : 'Syncing'}</div>
           </div>
-          <div style={{ padding: '0.6rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '10px', textAlign: 'center' }}>
+          <div style={{ padding: '0.6rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px', textAlign: 'center' }}>
             <div style={{ fontSize: '0.62rem', color: 'var(--text-muted)' }}>Learning</div>
             <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-primary)' }}>{isAnalyzingGaps ? 'Active' : 'Idle'}</div>
           </div>
-          <div style={{ padding: '0.6rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '10px', textAlign: 'center' }}>
+          <div style={{ padding: '0.6rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px', textAlign: 'center' }}>
             <div style={{ fontSize: '0.62rem', color: 'var(--text-muted)' }}>Confidence</div>
             <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-primary)' }}>{confidenceScore >= 75 ? 'High' : confidenceScore >= 50 ? 'Medium' : 'Low'}</div>
           </div>
         </div>
 
         <div style={{ marginTop: '1rem' }}>
-          <div style={{ height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
+          <div style={{ height: '6px', background: 'var(--bg-dark-card)', borderRadius: '3px', overflow: 'hidden' }}>
             <div style={{ height: '100%', width: `${brainSyncPercentage}%`, background: 'linear-gradient(90deg, var(--primary), var(--secondary), #10b981)', transition: 'width 0.5s ease' }}></div>
           </div>
         </div>
@@ -293,10 +293,10 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
         <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{
             width: '64px', height: '64px', borderRadius: '50%', flexShrink: 0,
-            background: `conic-gradient(#10b981 ${confidenceScore}%, rgba(255,255,255,0.05) ${confidenceScore}%)`,
+            background: `conic-gradient(#10b981 ${confidenceScore}%, var(--bg-dark-card) ${confidenceScore}%)`,
             display: 'flex', alignItems: 'center', justifyContent: 'center'
           }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#0a0816', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--bg-dark-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
               {confidenceScore}%
             </div>
           </div>
@@ -323,7 +323,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                   <span style={{ fontWeight: 700, color: 'var(--cyan)' }}>💬 Speaking Style (How You Talk)</span>
                   <span style={{ fontWeight: 800, color: 'var(--cyan)' }}>{axes.cognitive}% Sync</span>
                 </div>
-                <div style={{ height: '5px', background: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
+                <div style={{ height: '5px', background: 'var(--bg-dark-card)', borderRadius: '3px', overflow: 'hidden' }}>
                   <div style={{ height: '100%', width: `${axes.cognitive}%`, background: 'var(--cyan)', boxShadow: '0 0 8px var(--cyan)', transition: 'width 0.5s ease' }}></div>
                 </div>
               </div>
@@ -334,7 +334,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                   <span style={{ fontWeight: 700, color: 'var(--secondary)' }}>📜 Experience & Education</span>
                   <span style={{ fontWeight: 800, color: 'var(--secondary)' }}>{axes.credential}% Sync</span>
                 </div>
-                <div style={{ height: '5px', background: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
+                <div style={{ height: '5px', background: 'var(--bg-dark-card)', borderRadius: '3px', overflow: 'hidden' }}>
                   <div style={{ height: '100%', width: `${axes.credential}%`, background: 'var(--secondary)', boxShadow: '0 0 8px var(--secondary)', transition: 'width 0.5s ease' }}></div>
                 </div>
               </div>
@@ -345,7 +345,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                   <span style={{ fontWeight: 700, color: 'var(--primary)' }}>🧠 Workplace Decisions</span>
                   <span style={{ fontWeight: 800, color: 'var(--primary)' }}>{axes.behavioral}% Sync</span>
                 </div>
-                <div style={{ height: '5px', background: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
+                <div style={{ height: '5px', background: 'var(--bg-dark-card)', borderRadius: '3px', overflow: 'hidden' }}>
                   <div style={{ height: '100%', width: `${axes.behavioral}%`, background: 'var(--primary)', boxShadow: '0 0 8px var(--primary)', transition: 'width 0.5s ease' }}></div>
                 </div>
               </div>
@@ -356,7 +356,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                   <span style={{ fontWeight: 700, color: '#10b981' }}>🔌 Account Setup (Location & Settings)</span>
                   <span style={{ fontWeight: 800, color: '#10b981' }}>{axes.operational}% Sync</span>
                 </div>
-                <div style={{ height: '5px', background: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
+                <div style={{ height: '5px', background: 'var(--bg-dark-card)', borderRadius: '3px', overflow: 'hidden' }}>
                   <div style={{ height: '100%', width: `${axes.operational}%`, background: '#10b981', boxShadow: '0 0 8px #10b981', transition: 'width 0.5s ease' }}></div>
                 </div>
               </div>
@@ -468,7 +468,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
           <div style={{ 
             display: 'flex', 
             gap: '0.35rem', 
-            background: 'rgba(255, 255, 255, 0.02)', 
+            background: 'var(--bg-dark-card)', 
             padding: '0.3rem', 
             borderRadius: '10px', 
             border: '1px solid var(--border-glass)',
@@ -611,7 +611,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                     type="button"
                     onClick={() => setCalibrationResponseText("I schedule a 1-on-1 first to understand what barriers they are facing. If it is high workloads, I offer team help. It is critical to collaborate and handle things with empathy, resolving mutual friction rather than immediate escalation.")}
                     className="btn-glass"
-                    style={{ display: 'block', width: '100%', textAlign: 'left', padding: '0.3rem 0.5rem', fontSize: '0.62rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '4px', cursor: 'pointer' }}
+                    style={{ display: 'block', width: '100%', textAlign: 'left', padding: '0.3rem 0.5rem', fontSize: '0.62rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '4px', cursor: 'pointer' }}
                   >
                     🤝 <span style={{ color: 'var(--cyan)', fontWeight: 700 }}>Friendly & Collaborative Answer:</span> "Collaborate first with empathy..."
                   </button>
@@ -619,7 +619,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                     type="button"
                     onClick={() => setCalibrationResponseText("I check the historic performance metrics and diagnostic logs immediately to inspect backlog creep. I then run standard test cycles, review missing SLAs, and compile structured priority guidelines to defend system SLA targets objectively.")}
                     className="btn-glass"
-                    style={{ display: 'block', width: '100%', textAlign: 'left', padding: '0.3rem 0.5rem', fontSize: '0.62rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '4px', cursor: 'pointer' }}
+                    style={{ display: 'block', width: '100%', textAlign: 'left', padding: '0.3rem 0.5rem', fontSize: '0.62rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '4px', cursor: 'pointer' }}
                   >
                     📊 <span style={{ color: 'var(--secondary)', fontWeight: 700 }}>Logical & Data-Driven Answer:</span> "Check logs and run diagnostic metrics..."
                   </button>
@@ -627,7 +627,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                     type="button"
                     onClick={() => setCalibrationResponseText("I take immediate triage action to resolve this backlog quick. Restoring business continuity and SLA uptime is priority number one. We fix the issue, mitigate customer impact, and schedule standard retrospective reviews afterward.")}
                     className="btn-glass"
-                    style={{ display: 'block', width: '100%', textAlign: 'left', padding: '0.3rem 0.5rem', fontSize: '0.62rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '4px', cursor: 'pointer' }}
+                    style={{ display: 'block', width: '100%', textAlign: 'left', padding: '0.3rem 0.5rem', fontSize: '0.62rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '4px', cursor: 'pointer' }}
                   >
                     ⚡ <span style={{ color: 'var(--rose)', fontWeight: 700 }}>Action-Oriented & Direct Answer:</span> "Take immediate uptime triage..."
                   </button>
@@ -755,7 +755,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                         <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>No professional positions added yet.</span>
                       ) : (
                         wizardWorkHistory.map((job, i) => (
-                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.4rem', borderRadius: '6px', border: '1px solid var(--border-glass)' }}>
+                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-dark-card)', padding: '0.4rem', borderRadius: '6px', border: '1px solid var(--border-glass)' }}>
                             <div>
                               <div style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--text-primary)' }}>{job.role} @ {job.company}</div>
                               <div style={{ fontSize: '0.6rem', color: 'var(--text-secondary)' }}>{job.startDate} - {job.endDate}</div>
@@ -776,7 +776,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                     </div>
 
                     {/* Add Position Form */}
-                    <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-glass)', padding: '0.5rem', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                    <div style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', padding: '0.5rem', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                       <div style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--secondary)' }}>➕ Add Work Experience</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.3rem' }}>
                         <input 
@@ -849,7 +849,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                         <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>No academic degrees listed yet.</span>
                       ) : (
                         wizardEducationList.map((edu, i) => (
-                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.4rem', borderRadius: '6px', border: '1px solid var(--border-glass)' }}>
+                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-dark-card)', padding: '0.4rem', borderRadius: '6px', border: '1px solid var(--border-glass)' }}>
                             <div>
                               <div style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--text-primary)' }}>{edu.degree} in {edu.fieldOfStudy}</div>
                               <div style={{ fontSize: '0.6rem', color: 'var(--text-secondary)' }}>{edu.institution} • {edu.gradYear}</div>
@@ -870,7 +870,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                     </div>
 
                     {/* Add Education Form */}
-                    <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-glass)', padding: '0.5rem', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                    <div style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', padding: '0.5rem', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                       <div style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--secondary)' }}>➕ Add School or Course</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.3rem' }}>
                         <input 
@@ -1082,7 +1082,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                   </div>
                 ) : (
                   [...profile.calibrationHistory].reverse().map((session, index) => (
-                    <div key={index} className="glass-card" style={{ padding: '0.55rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', background: 'rgba(255, 255, 255, 0.01)', border: '1px solid var(--border-glass)' }}>
+                    <div key={index} className="glass-card" style={{ padding: '0.55rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--secondary)' }}>
                           {session.dilemmaId === 'crisis_sla' ? 'Crisis SLA Scenario' : session.dilemmaId === 'boundary_shift' ? 'Boundary Shift Scenario' : 'Legacy Backlog Scenario'}

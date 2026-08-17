@@ -416,7 +416,7 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
             {isScanningReceipt ? 'Scanning...' : '🔍 Scan with AI'}
           </button>
         </div>
-        {scanNote && <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginBottom: '0.75rem', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>{scanNote}</div>}
+        {scanNote && <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginBottom: '0.75rem', padding: '0.5rem 0.75rem', background: 'var(--bg-dark-card)', borderRadius: '8px' }}>{scanNote}</div>}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
           <input style={inputStyle} value={creditEmail} onChange={e => setCreditEmail(e.target.value)} placeholder="Candidate email" />
           <input style={inputStyle} type="number" min="1000" value={creditAmount} onChange={e => setCreditAmount(e.target.value)} placeholder="Amount (₦, min 1000)" />
@@ -432,7 +432,7 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
           <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Recent Manual Credits</h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', maxHeight: '200px', overflowY: 'auto' }}>
             {audit.map((a: any) => (
-              <div key={a.id} style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', padding: '0.4rem 0.6rem', background: 'rgba(255,255,255,0.02)', borderRadius: '6px' }}>
+              <div key={a.id} style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', padding: '0.4rem 0.6rem', background: 'var(--bg-dark-card)', borderRadius: '6px' }}>
                 ₦{a.amountNGN?.toLocaleString()} → {a.userEmail} {a.receiptNote ? `(${a.receiptNote})` : ''} — {new Date(a.timestamp).toLocaleString()}
               </div>
             ))}

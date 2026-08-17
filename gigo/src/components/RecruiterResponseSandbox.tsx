@@ -235,7 +235,7 @@ Vercel Recruiting`
             </div>
 
             {/* Suggested Reply Draft */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, background: 'var(--bg-dark-card)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
               <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase' }}>
                 🎓 Structured Responder Draft (Gemini Core)
               </span>

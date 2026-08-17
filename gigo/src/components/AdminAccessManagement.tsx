@@ -90,7 +90,7 @@ export default function AdminAccessManagement({ API_BASE_URL, userEmail, addLog 
       {additionalAdmins.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
           {additionalAdmins.map(email => (
-            <div key={email} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
+            <div key={email} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '0.5rem 0.75rem', background: 'var(--bg-dark-card)', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
               <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{email}</span>
               <button className="btn-glass" style={{ padding: '0.25rem 0.75rem', fontSize: '0.7rem', color: '#f87171', borderColor: 'rgba(248, 113, 113, 0.3)' }} onClick={() => handleRevoke(email)}>
                 Revoke

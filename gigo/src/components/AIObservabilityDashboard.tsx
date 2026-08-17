@@ -248,7 +248,7 @@ export default function AIObservabilityDashboard({ API_BASE_URL }: AIObservabili
                       <span style={{ color: 'var(--text-secondary)' }}>{item.bucket}</span>
                       <span style={{ fontWeight: 800, color: 'var(--text-primary)' }}>{(item.latency / 1000).toFixed(2)}s</span>
                     </div>
-                    <div style={{ height: '6px', background: 'rgba(255,255,255,0.03)', borderRadius: '3px', overflow: 'hidden' }}>
+                    <div style={{ height: '6px', background: 'var(--bg-dark-card)', borderRadius: '3px', overflow: 'hidden' }}>
                       <div style={{ width: `${pct}%`, height: '100%', background: colors[idx % 3], borderRadius: '3px', transition: 'width 0.8s ease' }} />
                     </div>
                   </div>

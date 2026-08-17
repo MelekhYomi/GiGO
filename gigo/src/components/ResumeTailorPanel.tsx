@@ -1776,17 +1776,17 @@ export default function ResumeTailorPanel({
               if (portfolioTemplate === 0) {
                 return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '1rem', textAlign: 'center' }}>
+                    <div style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '1rem', textAlign: 'center' }}>
                       <h1 style={{ fontSize: '1.5rem', margin: 0, background: 'linear-gradient(45deg, #ff7e5f, #feb47b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontWeight: 'bold' }}>{data.title}</h1>
                       <div style={{ fontSize: '0.9rem', color: '#feb47b', marginTop: '0.25rem' }}>{data.role}</div>
                       <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.5rem' }}>📍 {data.location} &bull; {data.yearsOfExperience} Years Experience</div>
                     </div>
-                    <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '1rem' }}>
+                    <div style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '1rem' }}>
                       <p style={{ margin: 0, fontSize: '0.8rem', lineHeight: 1.5, color: '#d1d5db' }}>{data.bio}</p>
                     </div>
                     <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#feb47b', marginTop: '0.5rem' }}>Featured Systems Engineering Projects</div>
                     {data.projects.map((p, idx) => (
-                      <div key={idx} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '0.8rem' }}>
+                      <div key={idx} style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '0.8rem' }}>
                         <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: 'var(--text-primary)', marginBottom: '0.35rem' }}>{p.name}</div>
                         <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.75rem', color: '#9ca3af', lineHeight: 1.4 }}>{p.desc}</p>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
@@ -1880,7 +1880,7 @@ export default function ResumeTailorPanel({
               if (portfolioTemplate === 3) {
                 return (
                   <div style={{ display: 'flex', gap: '1.25rem' }}>
-                    <div style={{ width: '35%', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '1rem', fontSize: '0.8rem' }}>
+                    <div style={{ width: '35%', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '1rem', fontSize: '0.8rem' }}>
                       <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}>{data.name}</div>
                       <div style={{ color: '#38bdf8', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.8rem' }}>{data.role}</div>
                       <p style={{ fontSize: '0.75rem', color: '#9ca3af', lineHeight: 1.45, margin: '0 0 1rem 0' }}>{data.bio}</p>
@@ -1892,12 +1892,12 @@ export default function ResumeTailorPanel({
                     <div style={{ width: '65%', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                       <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>Featured Engineering Cases</div>
                       {data.projects.map((p, idx) => (
-                        <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '0.8rem' }}>
+                        <div key={idx} style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '0.8rem' }}>
                           <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.85rem', marginBottom: '0.25rem' }}>{p.name}</div>
                           <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.75rem', color: '#9ca3af', lineHeight: 1.4 }}>{p.desc}</p>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
                             {p.tech.map((t, tIdx) => (
-                              <span key={tIdx} style={{ background: 'rgba(255,255,255,0.04)', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.15)', padding: '0.15rem 0.45rem', borderRadius: '4px', fontSize: '0.7rem' }}>{t}</span>
+                              <span key={tIdx} style={{ background: 'var(--bg-dark-card)', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.15)', padding: '0.15rem 0.45rem', borderRadius: '4px', fontSize: '0.7rem' }}>{t}</span>
                             ))}
                           </div>
                         </div>
@@ -1958,7 +1958,7 @@ export default function ResumeTailorPanel({
             >
               <option value="">-- Choose a target job --</option>
               {allUniqueJobs.map(job => (
-                <option key={job.id} value={job.id} style={{ background: '#0a0819', color: 'var(--text-primary)' }}>
+                <option key={job.id} value={job.id} style={{ background: 'var(--bg-dark-card)', color: 'var(--text-primary)' }}>
                   {job.jobTitle} at {job.companyName}
                 </option>
               ))}
@@ -1971,19 +1971,19 @@ export default function ResumeTailorPanel({
 
               {/* Compact stat row */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem' }}>
-                <div style={{ textAlign: 'center', padding: '0.5rem 0.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
+                <div style={{ textAlign: 'center', padding: '0.5rem 0.25rem', background: 'var(--bg-dark-card)', borderRadius: '8px' }}>
                   <div style={{ fontSize: '0.58rem', color: 'var(--text-muted)' }}>Match</div>
                   <div style={{ fontSize: '1rem', fontWeight: 800 }}>{gapAnalysis.score}</div>
                 </div>
-                <div style={{ textAlign: 'center', padding: '0.5rem 0.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
+                <div style={{ textAlign: 'center', padding: '0.5rem 0.25rem', background: 'var(--bg-dark-card)', borderRadius: '8px' }}>
                   <div style={{ fontSize: '0.58rem', color: 'var(--text-muted)' }}>Keywords</div>
                   <div style={{ fontSize: '1rem', fontWeight: 800 }}>{gapAnalysis.matchingSkills.length}</div>
                 </div>
-                <div style={{ textAlign: 'center', padding: '0.5rem 0.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
+                <div style={{ textAlign: 'center', padding: '0.5rem 0.25rem', background: 'var(--bg-dark-card)', borderRadius: '8px' }}>
                   <div style={{ fontSize: '0.58rem', color: 'var(--text-muted)' }}>Gaps</div>
                   <div style={{ fontSize: '1rem', fontWeight: 800 }}>{gapAnalysis.missingSkills.length}</div>
                 </div>
-                <div style={{ textAlign: 'center', padding: '0.5rem 0.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
+                <div style={{ textAlign: 'center', padding: '0.5rem 0.25rem', background: 'var(--bg-dark-card)', borderRadius: '8px' }}>
                   <div style={{ fontSize: '0.58rem', color: 'var(--text-muted)' }}>ATS</div>
                   <div style={{ fontSize: '1rem', fontWeight: 800, color: gapAnalysis.score > 80 ? 'var(--emerald)' : '#f59e0b' }}>{gapAnalysis.score}</div>
                 </div>
@@ -1997,7 +1997,7 @@ export default function ResumeTailorPanel({
               </div>
 
               {/* Micro-gauge visualizer */}
-              <div style={{ height: '8px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px', overflow: 'hidden' }}>
+              <div style={{ height: '8px', background: 'var(--bg-dark-card)', borderRadius: '4px', overflow: 'hidden' }}>
                 <div style={{ width: `${gapAnalysis.score}%`, height: '100%', background: 'linear-gradient(90deg, var(--primary) 0%, var(--emerald) 100%)', borderRadius: '4px', transition: 'width 0.8s ease' }} />
               </div>
 

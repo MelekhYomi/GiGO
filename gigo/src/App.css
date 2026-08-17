@@ -236,7 +236,7 @@
 }
 
 .kanban-column {
-  background: rgba(15, 13, 35, 0.3);
+  background: var(--bg-dark-card);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-lg);
   padding: 1rem;
@@ -298,7 +298,7 @@
 }
 
 .modal-content {
-  background: #110f27;
+  background: var(--bg-dark-surface);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-lg);
   width: 92%;
@@ -361,7 +361,7 @@
 
 /* Activity Logs */
 .activity-log {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-dark-card);
   border-radius: var(--radius-md);
   padding: 1rem;
   font-family: monospace;
@@ -501,7 +501,7 @@
   max-width: 440px;
   padding: 2.5rem;
   z-index: 10;
-  background: rgba(17, 15, 39, 0.7);
+  background: var(--bg-dark-surface);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -581,7 +581,7 @@
 }
 
 .table-wrapper {
-  background: rgba(0, 0, 0, 0.15);
+  background: var(--bg-dark-card);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-glass);
 }
@@ -602,7 +602,7 @@
   height: 100%;
   width: 100%;
   max-width: 620px;
-  background: rgba(9, 8, 22, 0.96);
+  background: var(--bg-dark-surface);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-left: 1px solid rgba(255, 255, 255, 0.08);
@@ -783,7 +783,7 @@
   margin: 1.25rem auto 0 auto;
   max-width: 1600px;
   width: calc(100% - 3rem);
-  background: rgba(15, 13, 35, 0.45);
+  background: var(--bg-dark-surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -815,11 +815,11 @@
 }
 
 .workspace-tab-btn.active {
-  color: #fff;
+  color: var(--text-primary);
   background: linear-gradient(135deg, rgba(138, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.05) 100%);
   border: 1px solid rgba(138, 92, 246, 0.4);
   box-shadow: 0 0 15px rgba(138, 92, 246, 0.2), inset 0 0 8px rgba(138, 92, 246, 0.1);
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+  text-shadow: 0 0 8px rgba(138, 92, 246, 0.35);
 }
 
 /* Dual Column Grids for Command Radar, Brain cloner, and Wallets billing */
@@ -923,9 +923,9 @@
   height: 60px;
   padding: 0 1rem;
   margin: 1.5rem 0;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-dark-card);
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-glass);
   overflow: hidden;
 }
 
@@ -1068,9 +1068,9 @@
 }
 
 .status-pill:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: var(--bg-dark-card);
+  border-color: var(--border-glass-active);
+  color: var(--text-primary);
   transform: translateY(-1px);
 }
 
@@ -1224,11 +1224,11 @@
    =================================================== */
 
 .subnav-dropdown-trigger {
-  background: rgba(15, 13, 35, 0.65);
+  background: var(--bg-dark-surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(138, 92, 246, 0.4);
-  color: #fff;
+  color: var(--text-primary);
   font-weight: 700;
   font-size: 0.85rem;
   padding: 0.55rem 1.25rem;
@@ -1267,7 +1267,7 @@
   top: calc(100% + 0.5rem);
   left: 50%;
   transform: translateX(-50%) translateY(-10px);
-  background: rgba(10, 8, 25, 0.95);
+  background: var(--bg-dark-surface);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(138, 92, 246, 0.35);
@@ -1310,14 +1310,14 @@
 }
 
 .subnav-dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
+  background: var(--bg-dark-card);
+  color: var(--text-primary);
 }
 
 .subnav-dropdown-item.active {
   background: linear-gradient(135deg, rgba(138, 92, 246, 0.2) 0%, rgba(14, 165, 233, 0.1) 100%);
   border: 1px solid rgba(138, 92, 246, 0.3);
-  color: #fff;
+  color: var(--text-primary);
   font-weight: 700;
 }
 
@@ -1416,14 +1416,14 @@
 .pipeline-step.active .pipeline-step-circle {
   border-color: var(--primary);
   background: rgba(138, 92, 246, 0.15);
-  color: #fff;
+  color: var(--text-primary);
   box-shadow: 0 0 15px rgba(138, 92, 246, 0.4);
 }
 
 .pipeline-step.completed .pipeline-step-circle {
   border-color: var(--success);
   background: rgba(16, 185, 129, 0.15);
-  color: #fff;
+  color: var(--text-primary);
   box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
 }
 
@@ -1437,7 +1437,7 @@
 }
 
 .pipeline-step.active .pipeline-step-label {
-  color: #fff;
+  color: var(--text-primary);
   font-weight: 700;
 }
 
@@ -1472,7 +1472,7 @@
 .pipeline-card h3 {
   font-size: 1.4rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   margin-top: 0;
   margin-bottom: 0.5rem;
   display: flex;
@@ -1615,9 +1615,9 @@
 }
 
 .fast-track-bypass-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: #fff;
+  background: var(--bg-dark-card);
+  border-color: var(--border-glass-active);
+  color: var(--text-primary);
 }
 
 /* ====================================================================

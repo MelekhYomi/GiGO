@@ -302,7 +302,7 @@ const renderUserAvatar = (avatarPicId: string, size: string = '32px', style?: Re
       width: size, 
       height: size, 
       borderRadius: '50%', 
-      background: 'rgba(255,255,255,0.05)', 
+      background: 'var(--bg-dark-card)', 
       border: '1px solid var(--border-glass)', 
       display: 'flex', 
       alignItems: 'center', 
@@ -4649,7 +4649,7 @@ ${profile.name || '[   ]'}`;
                     </div>
 
                     {signupVoiceStatus && (
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-primary)', textAlign: 'center', background: 'rgba(255,255,255,0.05)', padding: '0.35rem', borderRadius: '4px' }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-primary)', textAlign: 'center', background: 'var(--bg-dark-card)', padding: '0.35rem', borderRadius: '4px' }}>
                         {isAnalyzingSignupVoice ? (
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
                             <span className="animate-float" style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--secondary)' }}></span>
@@ -4863,7 +4863,7 @@ ${profile.name || '[   ]'}`;
             onClick={() => setShowNavDrawer(true)}
             style={{
               width: '38px', height: '38px', borderRadius: '10px',
-              background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)',
+              background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)',
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px',
               cursor: 'pointer', flexShrink: 0
             }}
@@ -5222,7 +5222,7 @@ ${profile.name || '[   ]'}`;
                                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>No education added yet.</span>
                               ) : (
                                 wizardEducationList.map((edu, i) => (
-                                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
+                                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-dark-card)', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
                                     <div>
                                       <div style={{ fontSize: '0.82rem', fontWeight: 700 }}>{edu.degree} in {edu.fieldOfStudy}</div>
                                       <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{edu.institution} · {edu.gradYear}</div>
@@ -5267,7 +5267,7 @@ ${profile.name || '[   ]'}`;
                                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>No experience added yet.</span>
                               ) : (
                                 wizardWorkHistory.map((job, i) => (
-                                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
+                                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-dark-card)', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
                                     <div>
                                       <div style={{ fontSize: '0.82rem', fontWeight: 700 }}>{job.role} @ {job.company}</div>
                                       <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{job.startDate} – {job.endDate}</div>
@@ -5460,7 +5460,7 @@ ${profile.name || '[   ]'}`;
                         </p>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center', textAlign: 'center' }}>
-                          <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '16px', padding: '1.25rem', maxWidth: '500px', width: '100%' }}>
+                          <div style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px', padding: '1.25rem', maxWidth: '500px', width: '100%' }}>
                             <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Read This Prompt Aloud</span>
                             <p style={{ margin: '0.5rem 0 0 0', fontSize: '1rem', fontWeight: 500, color: 'var(--text-primary)', fontStyle: 'italic', lineHeight: '1.4' }}>
                               "I authorize GiGO AI to coordinate my career hunt, screen incoming recruiter calls, and manage my matching pipeline using this secure tone calibration."
@@ -5537,7 +5537,7 @@ ${profile.name || '[   ]'}`;
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                           {/* NIN verification block */}
-                          <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '18px', border: '1px solid var(--border-glass)', background: 'rgba(255,255,255,0.01)' }}>
+                          <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '18px', border: '1px solid var(--border-glass)', background: 'var(--bg-dark-card)' }}>
                             <h4 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', fontWeight: 700 }}>
                               🇳🇬 National Identity Verification (NIN)
                             </h4>
@@ -5657,7 +5657,7 @@ ${profile.name || '[   ]'}`;
                         style={{
                           height: '90px',
                           overflowY: 'auto',
-                          background: 'rgba(5, 5, 10, 0.4)',
+                          background: 'var(--bg-dark-card)',
                           borderRadius: '8px',
                           padding: '0.6rem',
                           fontFamily: 'monospace',
@@ -6139,7 +6139,7 @@ ${profile.name || '[   ]'}`;
               
               {/* Spinner Overlay for Voice Analysis */}
               {isAnalyzingVoice && (
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 13, 35, 0.85)', backdropFilter: 'blur(8px)', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', padding: '2rem' }}>
+                <div style={{ position: 'absolute', inset: 0, background: 'var(--bg-dark-surface)', backdropFilter: 'blur(8px)', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', padding: '2rem' }}>
                   <div className="spinner-micro" style={{ width: '40px', height: '40px', border: '3px solid var(--border-glass)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
                   <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', textAlign: 'center' }}>
                     Gemini 2.5 Pro Analyzing Voice Profile...
@@ -6254,7 +6254,7 @@ ${profile.name || '[   ]'}`;
               </div>
 
               {/* AGENT INTEL CARD */}
-              <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', marginBottom: '1.25rem', background: 'rgba(255, 255, 255, 0.02)' }}>
+              <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', marginBottom: '1.25rem', background: 'var(--bg-dark-card)' }}>
                 <div style={{ 
                   width: '42px', 
                   height: '42px', 
@@ -6300,7 +6300,7 @@ ${profile.name || '[   ]'}`;
                       className="form-control"
                       value={searchLocation}
                       onChange={(e) => setSearchLocation(e.target.value)}
-                      style={{ fontSize: '0.85rem', background: '#0f0d23', height: '42px' }}
+                      style={{ fontSize: '0.85rem', background: 'var(--bg-dark-card)', height: '42px' }}
                     >
                       <option value="">Anywhere</option>
                       <option value="Lagos">Lagos</option>
@@ -6320,7 +6320,7 @@ ${profile.name || '[   ]'}`;
                       className="form-control"
                       value={searchDomain}
                       onChange={(e) => setSearchDomain(e.target.value)}
-                      style={{ fontSize: '0.85rem', background: '#0f0d23', height: '42px' }}
+                      style={{ fontSize: '0.85rem', background: 'var(--bg-dark-card)', height: '42px' }}
                     >
                       <option value="all">🌐 All of Google</option>
                       {(systemConfig.scraperDomains || ['linkedin.com', 'twitter.com', 'instagram.com', 'facebook.com', 'reddit.com', 'github.com']).map((dom) => (
@@ -6671,7 +6671,7 @@ ${profile.name || '[   ]'}`;
                           <span style={{ color: '#fed7aa', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>🎯 MILESTONE TASK</span>
                           <span style={{ color: '#fb923c', fontStyle: 'italic' }}>{progressPct}% Completed</span>
                         </div>
-                        <div style={{ width: '100%', height: '8px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ width: '100%', height: '8px', background: 'var(--bg-dark-card)', borderRadius: '4px', overflow: 'hidden' }}>
                           <div style={{
                             width: `${progressPct}%`,
                             height: '100%',
@@ -7016,7 +7016,7 @@ ${profile.name || '[   ]'}`;
           )}
 
           {activeWorkspaceTab === 'mailroom' && (
-            <Suspense fallback={<div style={{ color: 'var(--text-secondary)', padding: '4rem 2rem', textAlign: 'center', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-md)' }}>
+            <Suspense fallback={<div style={{ color: 'var(--text-secondary)', padding: '4rem 2rem', textAlign: 'center', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-md)' }}>
               <div className="spinner-border" style={{ display: 'inline-block', width: '2rem', height: '2rem', border: '0.2em solid var(--primary)', borderRightColor: 'transparent', borderRadius: '50%', animation: 'spinner-border .75s linear infinite', marginBottom: '1rem' }}></div>
               <div>Loading Mailroom Engine...</div>
             </div>}>
@@ -7115,7 +7115,7 @@ ${profile.name || '[   ]'}`;
           )}
         </>
       ) : (
-        <Suspense fallback={<div style={{ color: 'var(--text-secondary)', padding: '4rem 2rem', textAlign: 'center', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-md)' }}>
+        <Suspense fallback={<div style={{ color: 'var(--text-secondary)', padding: '4rem 2rem', textAlign: 'center', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-md)' }}>
           <div className="spinner-border" style={{ display: 'inline-block', width: '2rem', height: '2rem', border: '0.2em solid var(--primary)', borderRightColor: 'transparent', borderRadius: '50%', animation: 'spinner-border .75s linear infinite', marginBottom: '1rem' }}></div>
           <div>Loading Admin Cockpit...</div>
         </div>}>
@@ -7629,7 +7629,7 @@ ${profile.name || '[   ]'}`;
             <div className="grid-2-cols" style={{ marginTop: '1rem' }}>
               {/* Left Column: Metadata & CTAs */}
               <div>
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-glass)', marginBottom: '1.25rem' }}>
+                <div style={{ background: 'var(--bg-dark-card)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-glass)', marginBottom: '1.25rem' }}>
                   <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                     📁 Regional Telemetry Metadata
                   </h5>
@@ -7649,7 +7649,7 @@ ${profile.name || '[   ]'}`;
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-glass)', marginBottom: '1.25rem' }}>
+                <div style={{ background: 'var(--bg-dark-card)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-glass)', marginBottom: '1.25rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.5rem' }}>
                     <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                       🔑 Application Specifications
@@ -7664,7 +7664,7 @@ ${profile.name || '[   ]'}`;
                       <span className="badge" style={{ textTransform: 'none', fontSize: '0.65rem', padding: '0.15rem 0.4rem', background: 'rgba(236, 72, 153, 0.1)', border: '1px solid #ec4899', color: '#ec4899' }}>📋 Google Form</span>
                     )}
                     {(selectedJob.applicationMethod === 'unknown' || !selectedJob.applicationMethod) && (
-                      <span className="badge" style={{ textTransform: 'none', fontSize: '0.65rem', padding: '0.15rem 0.4rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border-glass)' }}>❓ Direct Guidelines</span>
+                      <span className="badge" style={{ textTransform: 'none', fontSize: '0.65rem', padding: '0.15rem 0.4rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)' }}>❓ Direct Guidelines</span>
                     )}
                   </div>
 
@@ -8056,7 +8056,7 @@ ${profile.name || '[   ]'}`;
                   </p>
                 </div>
 
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-glass)', marginBottom: '1.25rem' }}>
+                <div style={{ background: 'var(--bg-dark-card)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-glass)', marginBottom: '1.25rem' }}>
                   <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 0.75rem 0', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>🚀 Recommended Next Actions</h5>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.75rem' }}>
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
@@ -8136,7 +8136,7 @@ ${profile.name || '[   ]'}`;
                       Attach Compiled Assets (Optional)
                     </label>
                     {compiledDocuments.length === 0 ? (
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.01)', padding: '0.75rem', borderRadius: '4px', border: '1px dashed var(--border-glass)' }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', background: 'var(--bg-dark-card)', padding: '0.75rem', borderRadius: '4px', border: '1px dashed var(--border-glass)' }}>
                         No compiled assets found. Compile a Cover Letter, CV, or Portfolio from the Job Details modal first!
                       </div>
                     ) : (
@@ -8238,7 +8238,7 @@ ${profile.name || '[   ]'}`;
                   })()}
 
                   <div style={{ 
-                    background: 'rgba(255, 255, 255, 0.02)', 
+                    background: 'var(--bg-dark-card)', 
                     backdropFilter: 'blur(10px)',
                     border: '1px solid var(--border-glass)', 
                     borderRadius: 'var(--radius-md)', 
@@ -8304,7 +8304,7 @@ ${profile.name || '[   ]'}`;
 
             {/* Profile Insights Sub-Panel */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', marginBottom: '1.5rem' }}>
-              <div className="glass-panel" style={{ padding: '1rem', background: 'rgba(255, 255, 255, 0.01)' }}>
+              <div className="glass-panel" style={{ padding: '1rem', background: 'var(--bg-dark-card)' }}>
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--primary)', marginBottom: '0.5rem' }}>Career & Skills Core</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.8rem' }}>
                   <div>
@@ -8327,7 +8327,7 @@ ${profile.name || '[   ]'}`;
                 </div>
               </div>
 
-              <div className="glass-panel" style={{ padding: '1rem', background: 'rgba(255, 255, 255, 0.01)' }}>
+              <div className="glass-panel" style={{ padding: '1rem', background: 'var(--bg-dark-card)' }}>
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--secondary)', marginBottom: '0.5rem' }}>Workplace Infrastructure</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.8rem' }}>
                   <div>
@@ -8364,7 +8364,7 @@ ${profile.name || '[   ]'}`;
                   {/* Dynamic Stats Cards */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
                     {/* Token Consumption */}
-                    <div style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(139, 92, 246, 0.2)', borderRadius: '8px' }}>
+                    <div style={{ padding: '0.75rem', background: 'var(--bg-dark-card)', border: '1px solid rgba(139, 92, 246, 0.2)', borderRadius: '8px' }}>
                       <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>LLM Resource Overhead</div>
                       <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#a78bfa', marginTop: '0.2rem' }}>
                         {(inspectUserAnalytics.tokenOverhead.totalTokens / 1000).toFixed(1)}k tokens
@@ -8378,7 +8378,7 @@ ${profile.name || '[   ]'}`;
                     </div>
 
                     {/* Applications Tracker */}
-                    <div style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(14, 165, 233, 0.2)', borderRadius: '8px' }}>
+                    <div style={{ padding: '0.75rem', background: 'var(--bg-dark-card)', border: '1px solid rgba(14, 165, 233, 0.2)', borderRadius: '8px' }}>
                       <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>Applications Funnel</div>
                       <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0ea5e9', marginTop: '0.2rem' }}>
                         {inspectUserAnalytics.applications.total} Active
@@ -8394,7 +8394,7 @@ ${profile.name || '[   ]'}`;
                     </div>
 
                     {/* Coach Evaluations */}
-                    <div style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(236, 72, 153, 0.2)', borderRadius: '8px' }}>
+                    <div style={{ padding: '0.75rem', background: 'var(--bg-dark-card)', border: '1px solid rgba(236, 72, 153, 0.2)', borderRadius: '8px' }}>
                       <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>Mock Coach sessions</div>
                       <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ec4899', marginTop: '0.2rem' }}>
                         {inspectUserAnalytics.interviews.count} Evaluations
@@ -8467,7 +8467,7 @@ ${profile.name || '[   ]'}`;
                 ) : (
                   <div style={{ maxHeight: '180px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                     {inspectUserTransactions.map((tx: any) => (
-                      <div key={tx.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.4rem 0.6rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '4px', border: '1px solid var(--border-glass)', fontSize: '0.75rem' }}>
+                      <div key={tx.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.4rem 0.6rem', background: 'var(--bg-dark-card)', borderRadius: '4px', border: '1px solid var(--border-glass)', fontSize: '0.75rem' }}>
                         <div>
                           <span style={{ fontWeight: 700, color: tx.type === 'CREDIT' ? '#10b981' : '#f43f5e' }}>{tx.type}</span>: {tx.currency} {tx.amount.toLocaleString()} ({tx.purpose})
                           <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{tx.id} • {new Date(tx.timestamp).toLocaleString()}</div>
@@ -8490,7 +8490,7 @@ ${profile.name || '[   ]'}`;
                 ) : (
                   <div style={{ maxHeight: '220px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                     {inspectUserDocuments.map((doc: any) => (
-                      <div key={doc.id} style={{ padding: '0.6rem 0.8rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '4px', border: '1px solid var(--border-glass)' }}>
+                      <div key={doc.id} style={{ padding: '0.6rem 0.8rem', background: 'var(--bg-dark-card)', borderRadius: '4px', border: '1px solid var(--border-glass)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', fontSize: '0.75rem' }}>
                           <div>
                             <strong>{doc.jobTitle}</strong> at <span style={{ color: 'var(--primary)' }}>{doc.companyName}</span>
@@ -8562,7 +8562,7 @@ ${profile.name || '[   ]'}`;
                     fontSize: '0.8rem',
                     color: 'var(--primary)',
                     fontFamily: 'monospace',
-                    background: '#09081a',
+                    background: 'var(--bg-dark-card)',
                     border: '1px solid var(--border-glass)',
                     borderRadius: '4px',
                     padding: '0.5rem',
@@ -8647,9 +8647,9 @@ ${profile.name || '[   ]'}`;
                         borderLeft: `3px solid ${scoreColor}`, 
                         padding: '1.25rem', 
                         display: 'flex', 
-                        flexDirection: 'column', 
+                        flexDirection: 'column',
                         gap: '0.75rem',
-                        background: 'rgba(15, 13, 35, 0.4)'
+                        background: 'var(--bg-dark-card)'
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -8685,7 +8685,7 @@ ${profile.name || '[   ]'}`;
                         </div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                           {(job.keyRequirementsSummary || []).map((req: string, i: number) => (
-                            <span key={i} style={{ fontSize: '0.7rem', background: 'rgba(255,255,255,0.04)', color: 'var(--text-primary)', padding: '0.2rem 0.5rem', borderRadius: '3px', border: '1px solid var(--border-glass)' }}>
+                            <span key={i} style={{ fontSize: '0.7rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)', padding: '0.2rem 0.5rem', borderRadius: '3px', border: '1px solid var(--border-glass)' }}>
                               ✓ {req}
                             </span>
                           ))}
@@ -8767,7 +8767,7 @@ ${profile.name || '[   ]'}`;
             </div>
 
             {/* FRIEND CARD SUMMARY */}
-            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.25rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem 1.5rem', fontSize: '0.8rem' }}>
+            <div style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.25rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem 1.5rem', fontSize: '0.8rem' }}>
               <div>
                 <span style={{ color: 'var(--text-muted)' }}>Recipient Name:</span> <strong style={{ color: 'var(--text-primary)' }}>{lastGeneratedInvite.friendName}</strong>
               </div>
@@ -8782,7 +8782,7 @@ ${profile.name || '[   ]'}`;
             </div>
 
             {/* CHANNEL 1: EMAIL */}
-            <div className="glass-card" style={{ padding: '1.25rem', marginBottom: '1.25rem', border: '1px solid rgba(139, 92, 246, 0.25)', background: 'rgba(15, 13, 35, 0.3)' }}>
+            <div className="glass-card" style={{ padding: '1.25rem', marginBottom: '1.25rem', border: '1px solid rgba(139, 92, 246, 0.25)', background: 'var(--bg-dark-card)' }}>
               <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--primary)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 📧 Option A: Send Personalized Email
               </h4>
@@ -8845,7 +8845,7 @@ ${profile.name || '[   ]'}`;
             </div>
 
             {/* CHANNEL 2: WHATSAPP */}
-            <div className="glass-card" style={{ padding: '1.25rem', marginBottom: '1.5rem', border: '1px solid rgba(16, 185, 129, 0.25)', background: 'rgba(15, 13, 35, 0.3)' }}>
+            <div className="glass-card" style={{ padding: '1.25rem', marginBottom: '1.5rem', border: '1px solid rgba(16, 185, 129, 0.25)', background: 'var(--bg-dark-card)' }}>
               <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--emerald)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 💬 Option B: Share via WhatsApp
               </h4>
@@ -8950,7 +8950,7 @@ ${profile.name || '[   ]'}`;
           <div style={{
             width: '100%',
             maxWidth: '550px',
-            background: '#0a0816',
+            background: 'var(--bg-dark-surface)',
             border: '1px solid rgba(138, 92, 246, 0.25)',
             borderRadius: '16px',
             padding: '1.75rem',
@@ -9095,7 +9095,7 @@ ${profile.name || '[   ]'}`;
             maxWidth: '1200px',
             height: '90%',
             maxHeight: '800px',
-            background: 'rgba(255, 255, 255, 0.03)',
+            background: 'var(--bg-dark-surface)',
             border: '1px solid var(--border-glass)',
             borderRadius: 'var(--radius-lg)',
             boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
@@ -9110,7 +9110,7 @@ ${profile.name || '[   ]'}`;
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              background: 'rgba(255,255,255,0.01)'
+              background: 'var(--bg-dark-card)'
             }}>
               <div>
                 <span className="badge badge-purple" style={{ marginBottom: '0.35rem' }}>🎛️ Control Deck</span>
@@ -9168,7 +9168,7 @@ ${profile.name || '[   ]'}`;
                   display: 'grid',
                   gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
                   gap: '0.5rem',
-                  background: 'rgba(255, 255, 255, 0.02)',
+                  background: 'var(--bg-dark-card)',
                   border: '1px solid var(--border-glass)',
                   borderRadius: 'var(--radius-sm)',
                   padding: '0.75rem 1rem'
@@ -9182,7 +9182,7 @@ ${profile.name || '[   ]'}`;
               </div>
 
               {/* Tab Content Panel */}
-              <div style={{ flex: 1, padding: '1.5rem 2rem 2rem 2rem', overflowY: 'auto', background: 'rgba(255, 255, 255, 0.005)' }}>
+              <div style={{ flex: 1, padding: '1.5rem 2rem 2rem 2rem', overflowY: 'auto', background: 'var(--bg-dark-card)' }}>
                 <form onSubmit={handleSaveSettings} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                   <div style={{ flex: 1 }}>
                     {settingsActiveTab === 'profile' && (
@@ -9279,7 +9279,7 @@ ${profile.name || '[   ]'}`;
                               value={settingsLocation}
                               onChange={(e) => setSettingsLocation(e.target.value)}
                               className="form-control"
-                              style={{ background: 'rgba(15, 12, 33, 0.8)', color: 'var(--text-primary)', border: '1px solid var(--border-glass)' }}
+                              style={{ background: 'var(--bg-dark-card)', color: 'var(--text-primary)', border: '1px solid var(--border-glass)' }}
                               disabled={isUpdatingSettings}
                             >
                               <option value="[   ]">[   ]</option>
@@ -9383,7 +9383,7 @@ ${profile.name || '[   ]'}`;
                       <div className="animate-fade-in">
                         <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem', color: 'var(--text-primary)' }}>⏱️ Scraping Velox & Feed Sync Calibration</h4>
                         
-                        <div style={{ marginBottom: '2rem', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-glass)', padding: '1.5rem', borderRadius: 'var(--radius-md)' }}>
+                        <div style={{ marginBottom: '2rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', padding: '1.5rem', borderRadius: 'var(--radius-md)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                             <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>Autonomous Scraper Sweep Frequency</label>
                             <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--primary)' }}>
@@ -9411,7 +9411,7 @@ ${profile.name || '[   ]'}`;
                           </div>
                         </div>
 
-                        <div style={{ marginBottom: '2rem', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-glass)', padding: '1.5rem', borderRadius: 'var(--radius-md)' }}>
+                        <div style={{ marginBottom: '2rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', padding: '1.5rem', borderRadius: 'var(--radius-md)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                             <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>Real-Time Live Feed Refresh Speed</label>
                             <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--secondary)' }}>
@@ -9718,7 +9718,7 @@ ${profile.name || '[   ]'}`;
                           <div style={{
                             marginTop: '1.25rem',
                             padding: '1rem',
-                            background: 'rgba(255, 255, 255, 0.02)',
+                            background: 'var(--bg-dark-card)',
                             border: '1px dashed var(--border-glass)',
                             borderRadius: '8px',
                             display: 'flex',
@@ -9817,7 +9817,7 @@ ${profile.name || '[   ]'}`;
                               </p>
 
                               <div className="grid-2-cols" style={{ gap: '1.5rem', marginBottom: '0.5rem' }}>
-                                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', padding: '1rem', borderRadius: '8px' }}>
+                                <div style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', padding: '1rem', borderRadius: '8px' }}>
                                   <h6 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#c4b5fd', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                                     🌟 Key User Benefits
                                   </h6>
@@ -9828,7 +9828,7 @@ ${profile.name || '[   ]'}`;
                                   </ul>
                                 </div>
 
-                                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', padding: '1rem', borderRadius: '8px' }}>
+                                <div style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', padding: '1rem', borderRadius: '8px' }}>
                                   <h6 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#34d399', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                                     🔑 3-Step Setup Handshake
                                   </h6>
@@ -9878,7 +9878,7 @@ ${profile.name || '[   ]'}`;
                             </div>
 
                             {/* SMTP RELAY */}
-                            <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-glass)', padding: '1.25rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem' }}>
+                            <div style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', padding: '1.25rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem' }}>
                               <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--primary)', margin: '0 0 1rem 0' }}>📧 Custom SMTP Mail Dispatch Server (fallback)</h5>
                               <div className="grid-2-cols" style={{ gap: '1.5rem', marginBottom: '1rem' }}>
                                 <div className="form-group">
@@ -9957,7 +9957,7 @@ ${profile.name || '[   ]'}`;
                               </p>
 
                               <div className="grid-2-cols" style={{ gap: '1.5rem', marginBottom: '0.5rem' }}>
-                                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', padding: '1rem', borderRadius: '8px' }}>
+                                <div style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', padding: '1rem', borderRadius: '8px' }}>
                                   <h6 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#f97316', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                                     📤 Outbound Mail Setup
                                   </h6>
@@ -9966,7 +9966,7 @@ ${profile.name || '[   ]'}`;
                                   </p>
                                 </div>
 
-                                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', padding: '1rem', borderRadius: '8px' }}>
+                                <div style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', padding: '1rem', borderRadius: '8px' }}>
                                   <h6 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#8b5cf6', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                                     📥 Inbound Reply Setup
                                   </h6>
@@ -9982,7 +9982,7 @@ ${profile.name || '[   ]'}`;
                             </div>
 
                             {/* ZAPIER WEBHOOK URL CONFIG */}
-                            <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-glass)', padding: '1.25rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem' }}>
+                            <div style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', padding: '1.25rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem' }}>
                               <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#f97316', margin: '0 0 1rem 0' }}>🔗 Custom Zapier Send Webhook URL</h5>
                               <div className="form-group" style={{ marginBottom: 0 }}>
                                 <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.25rem' }}>Zapier Catch Webhook URL</label>
@@ -10049,7 +10049,7 @@ ${profile.name || '[   ]'}`;
                         )}
 
                         {/* CORES */}
-                        <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-glass)', padding: '1.25rem', borderRadius: 'var(--radius-md)' }}>
+                        <div style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', padding: '1.25rem', borderRadius: 'var(--radius-md)' }}>
                           <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--secondary)', margin: '0 0 1rem 0' }}>🧠 Core LLM API Relay</h5>
                           <div className="form-group" style={{ marginBottom: 0 }}>
                             <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.25rem' }}>Personal Gemini API Key (Optional Override)</label>
@@ -10144,7 +10144,7 @@ ${profile.name || '[   ]'}`;
                               Enroll your device biometrics to unlock instant, password-bypass quick login, and intercept critical, wallet-debiting transactions with biometric approval scans.
                             </p>
 
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.02)', padding: '1rem 1.25rem', borderRadius: '10px', border: '1px solid var(--border-glass)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-dark-card)', padding: '1rem 1.25rem', borderRadius: '10px', border: '1px solid var(--border-glass)' }}>
                               <div>
                                 <h6 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 0.25rem 0' }}>
                                   {isBiometricsEnrolled ? '🟢 Biometric Authentication Enrolled' : '🔴 Biometrics De-enrolled'}
@@ -10287,7 +10287,7 @@ ${profile.name || '[   ]'}`;
                                     </div>
 
                                     {ninImageBase64 && (
-                                      <div style={{ background: 'rgba(255,255,255,0.02)', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-glass)', alignSelf: 'start' }}>
+                                      <div style={{ background: 'var(--bg-dark-card)', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-glass)', alignSelf: 'start' }}>
                                         <img 
                                           src={ninImageBase64} 
                                           alt="Preview Upload" 
@@ -10307,7 +10307,7 @@ ${profile.name || '[   ]'}`;
                                 ) : (
                                   /* State-of-the-Art Holographic Laser Scan Overlay & Progress Block */
                                   <div style={{
-                                    background: 'rgba(5, 5, 10, 0.9)',
+                                    background: 'var(--bg-dark-surface)',
                                     border: '1px solid rgba(16, 185, 129, 0.35)',
                                     borderRadius: '10px',
                                     padding: '1.25rem',
@@ -10531,7 +10531,7 @@ ${profile.name || '[   ]'}`;
             maxWidth: '1100px',
             height: '85%',
             maxHeight: '750px',
-            background: 'rgba(255, 255, 255, 0.03)',
+            background: 'var(--bg-dark-surface)',
             border: '1px solid var(--border-glass)',
             borderRadius: 'var(--radius-lg)',
             boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
@@ -10563,7 +10563,7 @@ ${profile.name || '[   ]'}`;
                 {/* Matches Only vs Browse All toggle */}
                 <div style={{
                   display: 'flex',
-                  background: 'rgba(255, 255, 255, 0.03)',
+                  background: 'var(--bg-dark-card)',
                   border: '1px solid var(--border-glass)',
                   borderRadius: '8px',
                   padding: '2px',
@@ -10606,7 +10606,7 @@ ${profile.name || '[   ]'}`;
                 </div>
                 <div style={{
                   display: 'flex',
-                  background: 'rgba(255, 255, 255, 0.03)',
+                  background: 'var(--bg-dark-card)',
                   border: '1px solid var(--border-glass)',
                   borderRadius: '8px',
                   padding: '2px',
@@ -10673,7 +10673,7 @@ ${profile.name || '[   ]'}`;
 
                 <button 
                   style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
+                    background: 'var(--bg-dark-card)',
                     border: '1px solid var(--border-glass)',
                     color: 'var(--text-primary)',
                     fontSize: '1.25rem',
@@ -10737,7 +10737,7 @@ ${profile.name || '[   ]'}`;
                       <div 
                         key={job.id}
                         style={{
-                          background: 'rgba(255, 255, 255, 0.02)',
+                          background: 'var(--bg-dark-card)',
                           border: '1px solid var(--border-glass)',
                           borderRadius: '12px',
                           padding: '1.25rem',
@@ -10820,7 +10820,7 @@ ${profile.name || '[   ]'}`;
                                   key={idx} 
                                   style={{
                                     fontSize: '0.65rem',
-                                    background: 'rgba(255, 255, 255, 0.04)',
+                                    background: 'var(--bg-dark-card)',
                                     border: '1px solid var(--border-glass)',
                                     padding: '0.15rem 0.4rem',
                                     borderRadius: '4px',
@@ -10888,7 +10888,7 @@ ${profile.name || '[   ]'}`;
                       <div 
                         key={job.id}
                         style={{
-                          background: 'rgba(255, 255, 255, 0.02)',
+                          background: 'var(--bg-dark-card)',
                           border: '1px solid var(--border-glass)',
                           borderRadius: '12px',
                           padding: '1rem 1.5rem',
@@ -10939,7 +10939,7 @@ ${profile.name || '[   ]'}`;
                               key={idx} 
                               style={{
                                 fontSize: '0.65rem',
-                                background: 'rgba(255, 255, 255, 0.04)',
+                                background: 'var(--bg-dark-card)',
                                 border: '1px solid var(--border-glass)',
                                 padding: '0.15rem 0.4rem',
                                 borderRadius: '4px',
@@ -10999,7 +10999,7 @@ ${profile.name || '[   ]'}`;
                       <div 
                         key={job.id}
                         style={{
-                          background: 'rgba(255, 255, 255, 0.01)',
+                          background: 'var(--bg-dark-card)',
                           border: '1px solid var(--border-glass)',
                           borderRadius: '6px',
                           padding: '0.4rem 1rem',
@@ -11046,7 +11046,7 @@ ${profile.name || '[   ]'}`;
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }} onClick={(e) => e.stopPropagation()}>
                           <button
                             style={{
-                              background: 'rgba(255,255,255,0.03)',
+                              background: 'var(--bg-dark-card)',
                               border: '1px solid var(--border-glass)',
                               color: 'var(--text-primary)',
                               fontSize: '0.65rem',

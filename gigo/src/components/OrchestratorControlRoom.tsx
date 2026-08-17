@@ -271,8 +271,8 @@ export default function OrchestratorControlRoom({ API_BASE_URL, addLog }: Orches
             display: 'flex', 
             flexDirection: 'column', 
             gap: '1.25rem', 
-            borderLeft: '1px solid rgba(138, 92, 246, 0.2)', 
-            background: 'rgba(10, 8, 25, 0.95)',
+            borderLeft: '1px solid rgba(138, 92, 246, 0.2)',
+            background: 'var(--bg-dark-surface)',
             boxShadow: 'var(--shadow-lg)'
           }}
         >
@@ -343,8 +343,8 @@ export default function OrchestratorControlRoom({ API_BASE_URL, addLog }: Orches
             
             <div 
               style={{ 
-                flex: 1, 
-                background: '#04020a', 
+                flex: 1,
+                background: 'var(--bg-dark-card)',
                 border: '1px solid var(--border-glass)', 
                 borderRadius: '6px', 
                 padding: '0.75rem', 

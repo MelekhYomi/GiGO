@@ -1025,7 +1025,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                                 <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 800 }}>{formatUSD(p.june)}</td>
                                 <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 800 }}>{formatUSD(p.july)}</td>
                                 <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 800 }}>{formatUSD(p.august)}</td>
-                                <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: p.total >= 0 ? '#10b981' : '#f43f5e', fontWeight: 900, background: 'rgba(255,255,255,0.03)' }}>{formatUSD(p.total)}</td>
+                                <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: p.total >= 0 ? '#10b981' : '#f43f5e', fontWeight: 900, background: 'var(--bg-dark-card)' }}>{formatUSD(p.total)}</td>
                               </tr>
                             </tbody>
                           </table>
@@ -1083,7 +1083,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>No expenses logged yet.</span>
                         ) : (
                           companyExpenses.map((exp) => (
-                            <div key={exp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '6px', fontSize: '0.7rem' }}>
+                            <div key={exp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem', background: 'var(--bg-dark-card)', borderRadius: '6px', fontSize: '0.7rem' }}>
                               <div>
                                 <div style={{ color: 'var(--text-primary)', fontWeight: 700 }}>${Number(exp.amountUSD).toFixed(2)} — {exp.category}/{exp.subcategory}</div>
                                 <div style={{ color: 'var(--text-muted)' }}>{exp.date} {exp.description ? `— ${exp.description}` : ''}</div>
@@ -1222,7 +1222,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                                 <span style={{ fontSize: '0.8rem', fontWeight: 800, color: app.confidence >= 90 ? '#10b981' : '#f59e0b' }}>
                                   {app.confidence}%
                                 </span>
-                                <div style={{ width: '48px', height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden' }}>
+                                <div style={{ width: '48px', height: '4px', background: 'var(--bg-dark-card)', borderRadius: '2px', overflow: 'hidden' }}>
                                   <div style={{ width: `${app.confidence || 0}%`, height: '100%', background: app.confidence >= 90 ? '#10b981' : '#f59e0b' }} />
                                 </div>
                               </div>
@@ -1588,7 +1588,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'space-between', 
-                  background: 'rgba(255, 255, 255, 0.03)', 
+                  background: 'var(--bg-dark-card)', 
                   border: '1px solid var(--border-glass)', 
                   borderRadius: '8px', 
                   padding: '0.5rem 0.75rem',
@@ -1636,7 +1636,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  background: 'rgba(255, 255, 255, 0.03)',
+                  background: 'var(--bg-dark-card)',
                   border: '1px solid var(--border-glass)',
                   borderRadius: '8px',
                   padding: '0.5rem 0.75rem',
@@ -1710,7 +1710,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               </div>
 
               {/* Test / Sandbox Credentials Group */}
-              <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', background: 'rgba(255, 255, 255, 0.02)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
+              <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', background: 'var(--bg-dark-card)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
                 <div style={{ gridColumn: '1 / -1' }}>
                   <h5 style={{ fontSize: '0.85rem', fontWeight: 700, margin: '0 0 0.25rem 0', color: '#38bdf8' }}>🛠️ Sandbox / Test Credentials</h5>
                   <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', margin: 0 }}>Used for test checkout simulations and developer validation.</p>
@@ -1746,7 +1746,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               </div>
 
               {/* Live / Production Credentials Group */}
-              <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', background: 'rgba(255, 255, 255, 0.02)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
+              <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', background: 'var(--bg-dark-card)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
                 <div style={{ gridColumn: '1 / -1' }}>
                   <h5 style={{ fontSize: '0.85rem', fontWeight: 700, margin: '0 0 0.25rem 0', color: '#f43f5e' }}>🚀 Production / Live Credentials</h5>
                   <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', margin: 0 }}>Used to process live legal-tender payments. Guarded securely, secret key is obfuscated.</p>
@@ -2199,7 +2199,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
           `}} />
 
           <div className="glass-panel animate-fade-in" style={{
-            background: 'rgba(11, 15, 30, 0.9)',
+            background: 'var(--bg-dark-surface)',
             border: '1px solid rgba(139, 92, 246, 0.35)',
             borderRadius: '20px',
             maxWidth: '680px',
@@ -2226,7 +2226,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               <button 
                 onClick={() => setSelectedNINCard(null)}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
+                  background: 'var(--bg-dark-card)',
                   border: '1px solid var(--border-glass)',
                   borderRadius: '50%',
                   width: '32px',
@@ -2422,7 +2422,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
 
             {/* Verification Console & Action Buttons */}
             <div style={{
-              background: 'rgba(255,255,255,0.02)',
+              background: 'var(--bg-dark-card)',
               border: '1px solid var(--border-glass)',
               borderRadius: '12px',
               padding: '1rem',
