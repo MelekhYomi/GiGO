@@ -643,7 +643,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                   placeholder="Type how you would handle this scenario. Provide details about your strategy to get higher sync boosts..."
                   value={calibrationResponseText}
                   onChange={(e) => setCalibrationResponseText(e.target.value)}
-                  style={{ fontSize: '0.72rem', background: '#090715', color: 'var(--text-primary)', resize: 'none' }}
+                  style={{ fontSize: '0.72rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)', resize: 'none' }}
                 />
               </div>
 
@@ -702,7 +702,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                   <p style={{ margin: 0, fontSize: '0.68rem', color: 'var(--text-secondary)', lineHeight: '0.95rem' }}>
                     <strong>Decision Profile:</strong> {activeCalibratedFeedback.decisionStyle}
                   </p>
-                  <div style={{ padding: '0.45rem', background: '#060410', borderLeft: '2px solid var(--primary)', borderRadius: '4px', fontSize: '0.65rem', color: 'var(--text-primary)', fontStyle: 'italic', lineHeight: '0.9rem' }}>
+                  <div style={{ padding: '0.45rem', background: 'var(--bg-dark-card)', borderLeft: '2px solid var(--primary)', borderRadius: '4px', fontSize: '0.65rem', color: 'var(--text-primary)', fontStyle: 'italic', lineHeight: '0.9rem' }}>
                     " {activeCalibratedFeedback.feedback} "
                   </div>
                 </div>
@@ -784,14 +784,14 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                           placeholder="Company" 
                           value={newJobCompany} 
                           onChange={e => setNewJobCompany(e.target.value)} 
-                          style={{ fontSize: '0.65rem', background: '#090715', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
+                          style={{ fontSize: '0.65rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
                         />
                         <input 
                           type="text" 
                           placeholder="Role" 
                           value={newJobRole} 
                           onChange={e => setNewJobRole(e.target.value)} 
-                          style={{ fontSize: '0.65rem', background: '#090715', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
+                          style={{ fontSize: '0.65rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
                         />
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.3rem' }}>
@@ -800,14 +800,14 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                           placeholder="Start (e.g. 2021)" 
                           value={newJobStart} 
                           onChange={e => setNewJobStart(e.target.value)} 
-                          style={{ fontSize: '0.65rem', background: '#090715', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
+                          style={{ fontSize: '0.65rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
                         />
                         <input 
                           type="text" 
                           placeholder="End (e.g. Present)" 
                           value={newJobEnd} 
                           onChange={e => setNewJobEnd(e.target.value)} 
-                          style={{ fontSize: '0.65rem', background: '#090715', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
+                          style={{ fontSize: '0.65rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
                         />
                       </div>
                       <input 
@@ -815,7 +815,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                         placeholder="Key Achievements (comma separated highlights)" 
                         value={newJobAchievements} 
                         onChange={e => setNewJobAchievements(e.target.value)} 
-                        style={{ fontSize: '0.65rem', background: '#090715', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
+                        style={{ fontSize: '0.65rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
                       />
                       <button
                         type="button"
@@ -878,14 +878,14 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                           placeholder="Institution Name" 
                           value={newSchoolName} 
                           onChange={e => setNewSchoolName(e.target.value)} 
-                          style={{ fontSize: '0.65rem', background: '#090715', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
+                          style={{ fontSize: '0.65rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
                         />
                         <input 
                           type="text" 
                           placeholder="Degree (e.g. BSc)" 
                           value={newSchoolDegree} 
                           onChange={e => setNewSchoolDegree(e.target.value)} 
-                          style={{ fontSize: '0.65rem', background: '#090715', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
+                          style={{ fontSize: '0.65rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
                         />
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '0.3rem' }}>
@@ -894,14 +894,14 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                           placeholder="Field of Study (e.g. Computer Sci)" 
                           value={newSchoolField} 
                           onChange={e => setNewSchoolField(e.target.value)} 
-                          style={{ fontSize: '0.65rem', background: '#090715', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
+                          style={{ fontSize: '0.65rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
                         />
                         <input 
                           type="text" 
                           placeholder="Grad Year (2020)" 
                           value={newSchoolYear} 
                           onChange={e => setNewSchoolYear(e.target.value)} 
-                          style={{ fontSize: '0.65rem', background: '#090715', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
+                          style={{ fontSize: '0.65rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)', border: '1px solid var(--border-glass)', padding: '0.25rem', borderRadius: '4px' }} 
                         />
                       </div>
                       <button
@@ -941,7 +941,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                         className="form-control" 
                         value={wizardDob} 
                         onChange={e => setWizardDob(e.target.value)} 
-                        style={{ fontSize: '0.7rem', background: '#090715', color: 'var(--text-primary)' }} 
+                        style={{ fontSize: '0.7rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)' }} 
                       />
                     </div>
 
@@ -951,7 +951,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                         className="form-control" 
                         value={wizardMaritalStatus} 
                         onChange={e => setWizardMaritalStatus(e.target.value)} 
-                        style={{ fontSize: '0.7rem', background: '#090715', color: 'var(--text-primary)', height: '36px' }}
+                        style={{ fontSize: '0.7rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)', height: '36px' }}
                       >
                         <option value="">Select Status</option>
                         <option value="Single">Single</option>
@@ -971,7 +971,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                       placeholder="e.g. 15 Ikoyi Link Road, Lagos, Nigeria" 
                       value={wizardAddress} 
                       onChange={e => setWizardAddress(e.target.value)} 
-                      style={{ fontSize: '0.7rem', background: '#090715', color: 'var(--text-primary)' }} 
+                      style={{ fontSize: '0.7rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)' }} 
                     />
                   </div>
 
@@ -983,7 +983,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                       placeholder="e.g. Robotics, Hiking, Decentralized Ledgers" 
                       value={wizardHobbies} 
                       onChange={e => setWizardHobbies(e.target.value)} 
-                      style={{ fontSize: '0.7rem', background: '#090715', color: 'var(--text-primary)' }} 
+                      style={{ fontSize: '0.7rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)' }} 
                     />
                   </div>
                 </div>
@@ -1002,7 +1002,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                       placeholder="e.g. High focus under stress, methodical triage, proactive bottleneck mapping" 
                       value={wizardStrengths} 
                       onChange={e => setWizardStrengths(e.target.value)} 
-                      style={{ fontSize: '0.68rem', background: '#090715', color: 'var(--text-primary)', resize: 'none' }} 
+                      style={{ fontSize: '0.68rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)', resize: 'none' }} 
                     />
                   </div>
 
@@ -1014,7 +1014,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                       placeholder="e.g. Empathy, Active Listening, Clear Written Communications" 
                       value={wizardSoftSkills} 
                       onChange={e => setWizardSoftSkills(e.target.value)} 
-                      style={{ fontSize: '0.7rem', background: '#090715', color: 'var(--text-primary)' }} 
+                      style={{ fontSize: '0.7rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)' }} 
                     />
                   </div>
 
@@ -1026,7 +1026,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                       placeholder="e.g. Guided 4 developers through SLA backlogs, coordinated agile sprints" 
                       value={wizardTeamworkExperience} 
                       onChange={e => setWizardTeamworkExperience(e.target.value)} 
-                      style={{ fontSize: '0.68rem', background: '#090715', color: 'var(--text-primary)', resize: 'none' }} 
+                      style={{ fontSize: '0.68rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)', resize: 'none' }} 
                     />
                   </div>
 
@@ -1038,7 +1038,7 @@ export const GiGOBrainDashboard: React.FC<GiGOBrainDashboardProps> = ({
                       placeholder="e.g. 1-on-1 alignment, identifying technical blockages objectively" 
                       value={wizardConflictResolution} 
                       onChange={e => setWizardConflictResolution(e.target.value)} 
-                      style={{ fontSize: '0.68rem', background: '#090715', color: 'var(--text-primary)', resize: 'none' }} 
+                      style={{ fontSize: '0.68rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)', resize: 'none' }} 
                     />
                   </div>
                 </div>

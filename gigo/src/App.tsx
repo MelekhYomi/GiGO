@@ -4962,7 +4962,7 @@ ${profile.name || '[   ]'}`;
                   <span style={{ fontSize: '1.1rem' }}>{item.icon}</span>
                   <span style={{ flex: 1 }}>{item.label}</span>
                   {!!item.badge && (
-                    <span style={{ minWidth: '18px', height: '18px', padding: '0 4px', borderRadius: '999px', background: 'var(--rose, #f43f5e)', color: 'var(--text-primary)', fontSize: '0.65rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{item.badge}</span>
+                    <span style={{ minWidth: '18px', height: '18px', padding: '0 4px', borderRadius: '999px', background: 'var(--rose, #f43f5e)', color: '#fff', fontSize: '0.65rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{item.badge}</span>
                   )}
                 </button>
               ))}
@@ -5163,7 +5163,7 @@ ${profile.name || '[   ]'}`;
                             </div>
 
                             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.25rem' }}>
-                              <button className="btn-glass" style={{ background: 'var(--primary)', color: 'var(--text-primary)', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }}
+                              <button className="btn-glass" style={{ background: 'var(--primary)', color: '#fff', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }}
                                 disabled={!profile?.name || !profile?.role}
                                 onClick={() => setCareerProfileSubStep(2)}
                               >
@@ -5213,7 +5213,7 @@ ${profile.name || '[   ]'}`;
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem' }}>
                               <button className="btn-glass" style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', fontSize: '0.85rem', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(1)}>← Back</button>
-                              <button className="btn-glass" style={{ background: 'var(--primary)', color: 'var(--text-primary)', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(3)}>Continue to Experience →</button>
+                              <button className="btn-glass" style={{ background: 'var(--primary)', color: '#fff', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(3)}>Continue to Experience →</button>
                             </div>
                           </div>
                         )}
@@ -5259,7 +5259,7 @@ ${profile.name || '[   ]'}`;
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem' }}>
                               <button className="btn-glass" style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', fontSize: '0.85rem', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(2)}>← Back</button>
-                              <button className="btn-glass" style={{ background: 'var(--primary)', color: 'var(--text-primary)', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(4)}>Continue to Skills →</button>
+                              <button className="btn-glass" style={{ background: 'var(--primary)', color: '#fff', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(4)}>Continue to Skills →</button>
                             </div>
                           </div>
                         )}
@@ -5304,7 +5304,7 @@ ${profile.name || '[   ]'}`;
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem' }}>
                               <button className="btn-glass" style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', fontSize: '0.85rem', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(3)}>← Back</button>
-                              <button className="btn-glass" style={{ background: 'var(--primary)', color: 'var(--text-primary)', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }}
+                              <button className="btn-glass" style={{ background: 'var(--primary)', color: '#fff', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }}
                                 disabled={(profile?.skills || []).length === 0}
                                 onClick={() => setCareerProfileSubStep(5)}
                               >Continue to Goals →</button>
@@ -5362,7 +5362,7 @@ ${profile.name || '[   ]'}`;
                               <button className="btn-glass" style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', fontSize: '0.85rem', cursor: 'pointer' }} onClick={() => setCareerProfileSubStep(4)}>← Back</button>
                               <button
                                 className="btn-glass"
-                                style={{ background: 'var(--primary)', color: 'var(--text-primary)', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }}
+                                style={{ background: 'var(--primary)', color: '#fff', fontWeight: 700, padding: '0.6rem 1.5rem', borderRadius: '10px', cursor: 'pointer' }}
                                 disabled={!profile?.role}
                                 onClick={async () => {
                                   setProfile(prev => ({
