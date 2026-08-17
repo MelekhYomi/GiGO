@@ -11,6 +11,10 @@ interface WaitlistCommitmentModalProps {
   API_BASE_URL: string;
   userId: string;
   onDone: () => void;
+  // If the candidate already picked a tier in the pre-signup waitlist step on
+  // the landing page, don't ask the same question twice — just confirm it and
+  // move straight to the feedback question.
+  prefilledTierId?: string | null;
 }
 
 const FALLBACK_TIERS: Tier[] = [
@@ -19,8 +23,8 @@ const FALLBACK_TIERS: Tier[] = [
   { id: 'unlimited', label: 'Unlimited', priceNGN: 20000, applicationsPerMonth: 999 },
 ];
 
-export default function WaitlistCommitmentModal({ API_BASE_URL, userId, onDone }: WaitlistCommitmentModalProps) {
-  const [selectedTier, setSelectedTier] = useState<string>('starter');
+export default function WaitlistCommitmentModal({ API_BASE_URL, userId, onDone, prefilledTierId }: WaitlistCommitmentModalProps) {
+  const [selectedTier, setSelectedTier] = useState<string>(prefilledTierId || 'starter');
   const [feedback, setFeedback] = useState('');
   const [rating, setRating] = useState<number>(5);
   const [isRelatedParty, setIsRelatedParty] = useState<boolean | null>(null);
@@ -79,17 +83,19 @@ export default function WaitlistCommitmentModal({ API_BASE_URL, userId, onDone }
 
         <div style={{ marginBottom: '1.25rem' }}>
           <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.6rem' }}>
-            Which plan would you subscribe to once GiGO is fully live?
+            {prefilledTierId ? 'You already told us which plan you\'d pay for:' : 'Which plan would you subscribe to once GiGO is fully live?'}
           </label>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {FALLBACK_TIERS.map(tier => (
+            {FALLBACK_TIERS.filter(tier => !prefilledTierId || tier.id === prefilledTierId).map(tier => (
               <label key={tier.id} style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem',
                 borderRadius: '10px', border: selectedTier === tier.id ? '2px solid var(--primary)' : '1px solid var(--border-glass)',
-                background: selectedTier === tier.id ? 'rgba(138, 92, 246, 0.1)' : 'rgba(255,255,255,0.02)', cursor: 'pointer'
+                background: selectedTier === tier.id ? 'rgba(138, 92, 246, 0.1)' : 'var(--bg-dark-card)', cursor: prefilledTierId ? 'default' : 'pointer'
               }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <input type="radio" name="tier" checked={selectedTier === tier.id} onChange={() => setSelectedTier(tier.id)} style={{ accentColor: 'var(--primary)' }} />
+                  {!prefilledTierId && (
+                    <input type="radio" name="tier" checked={selectedTier === tier.id} onChange={() => setSelectedTier(tier.id)} style={{ accentColor: 'var(--primary)' }} />
+                  )}
                   <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>{tier.label}</span>
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>₦{tier.priceNGN.toLocaleString()}/mo · {tier.applicationsPerMonth === 999 ? 'Unlimited' : tier.applicationsPerMonth} apps</span>

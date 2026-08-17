@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GiGOLogo } from '../components/GiGOLogo';
 import { OnboardingCard } from '../components/OnboardingCard';
-import { AgentTelemetryCards } from '../components/AgentTelemetryCards';
 
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:8080'
@@ -12,6 +11,34 @@ export interface LandingPageProps {
   onSignUp: () => void;
   autoShowWalkthrough?: boolean;
 }
+
+const WALKTHROUGH_STEPS = [
+  {
+    eyebrow: 'Step 1 · Onboarding',
+    title: 'Build your profile in minutes',
+    desc: "Paste your resume and GiGO structures it into a real career profile, or fill it in by hand — either way it's a one-time setup, not a form you repeat for every job.",
+  },
+  {
+    eyebrow: 'Step 2 · Discovery',
+    title: 'GiGO finds matching jobs 24/7',
+    desc: 'Background agents scan real job boards continuously and score every listing against your actual profile, so you only see roles worth your time.',
+  },
+  {
+    eyebrow: 'Step 3 · Applying',
+    title: 'Tailored CVs, one click to apply',
+    desc: 'Every application gets a CV and cover letter tailored to that specific job. Submit it yourself, or let Auto-Apply send high-confidence matches for you.',
+  },
+  {
+    eyebrow: 'Step 4 · Interview prep',
+    title: 'Practice interviews for free',
+    desc: 'Unlimited AI mock interviews tailored to the role you applied for, with real scoring on substance, delivery, and clarity — not generic questions.',
+  },
+  {
+    eyebrow: 'Step 5 · Securing the job',
+    title: 'Track replies, land the offer',
+    desc: 'Every recruiter reply lands in one Mailroom, automatically linked to the right application, so nothing slips through the cracks between "applied" and "hired".',
+  },
+];
 
 const FAQ_ITEMS = [
   { q: 'Is GiGO actually free to start?', a: 'Yes. Every account launches with a 250 Pace welcome bonus - enough to try real CV generation and job applications before you spend a naira. You only refuel your wallet when you choose to.' },
@@ -40,25 +67,43 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
   const [referralCode, setReferralCode] = useState('');
   const [copied, setCopied] = useState(false);
 
-  // Walkthrough details modal toggle
+  // Walkthrough details modal toggle. The modal now runs a real funnel:
+  // screenshot-style walkthrough steps -> a skippable waitlist-interest step
+  // -> signup. walkthroughStep indexes into WALKTHROUGH_STEPS; once it runs
+  // past the last one, the modal shows the waitlist step instead.
   const [showWalkthrough, setShowWalkthrough] = useState(false);
+  const [walkthroughStep, setWalkthroughStep] = useState(0);
+  const [waitlistTiers, setWaitlistTiers] = useState<{ id: string; label: string; priceNGN: number; applicationsPerMonth: number }[]>([]);
+  const [selectedWaitlistTier, setSelectedWaitlistTier] = useState<string | null>(null);
+  const onWaitlistStep = walkthroughStep >= WALKTHROUGH_STEPS.length;
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/waitlist/tiers`)
+      .then(res => res.json())
+      .then(setWaitlistTiers)
+      .catch(err => console.error("Failed to fetch waitlist tiers:", err));
+  }, []);
 
   // Waitlist-tagged visitors (from the /waitlist link) should see the walkthrough
   // immediately, not require an extra click to discover it exists.
   useEffect(() => {
-    if (autoShowWalkthrough) setShowWalkthrough(true);
+    if (autoShowWalkthrough) { setShowWalkthrough(true); setWalkthroughStep(0); }
   }, [autoShowWalkthrough]);
 
-  // For waitlist visitors specifically, closing the walkthrough should flow
-  // straight into signup (the whole point of the link) rather than dropping
-  // them back on the plain landing page with no obvious next step.
-  const closeWalkthrough = () => {
-    setShowWalkthrough(false);
-    if (autoShowWalkthrough) onSignUp();
-  };
+  const openWalkthrough = () => { setWalkthroughStep(0); setShowWalkthrough(true); };
+  const closeWalkthrough = () => setShowWalkthrough(false);
 
-  // Interactive Cost Calculator state inside walkthrough
-  const [calcPace, setCalcPace] = useState<number>(50);
+  // Reaching the end of the funnel (skipping the waitlist step or submitting
+  // a tier preference) is the one thing that actually hands off to signup —
+  // a real account is required to apply for jobs or get interviews.
+  const proceedToSignUp = () => {
+    if (selectedWaitlistTier) {
+      localStorage.setItem('gigo_pending_waitlist_tier', selectedWaitlistTier);
+      localStorage.setItem('gigo_waitlist_flow', 'true');
+    }
+    setShowWalkthrough(false);
+    onSignUp();
+  };
 
   // System preference theme detection display
   const [systemTheme, setSystemTheme] = useState('dark');
@@ -109,7 +154,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
         
         <div className="flex items-center gap-4 sm:gap-6">
           <button
-            onClick={() => setShowWalkthrough(true)}
+            onClick={openWalkthrough}
             className="text-sm font-medium text-brandTextSecondary hover:text-brandPrimary transition-colors"
           >
             How it works
@@ -121,7 +166,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
             Sign in
           </button>
           <button
-            onClick={onSignUp}
+            onClick={openWalkthrough}
             className="px-4 py-2 rounded-xl text-sm font-semibold text-white hover:shadow-[0_0_20px_var(--primary-glow)] hover:scale-[1.02] active:scale-[0.98] transition-all"
             style={{ backgroundImage: 'linear-gradient(to right, var(--primary), var(--secondary))' }}
           >
@@ -191,7 +236,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
 
           <div className="flex gap-4 items-center">
             <button
-              onClick={onSignUp}
+              onClick={openWalkthrough}
               className="px-6 py-3.5 rounded-xl text-white font-semibold text-sm hover:shadow-[0_0_25px_var(--primary-glow)] hover:scale-[1.02] active:scale-95 transition-all"
               style={{ backgroundImage: 'linear-gradient(to right, var(--primary), var(--secondary))' }}
             >
@@ -204,7 +249,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
         <div className="lg:col-span-5 w-full max-w-md mx-auto relative lg:justify-self-end">
           <div className="absolute -inset-1.5 rounded-3xl opacity-20 blur-xl" style={{ backgroundImage: 'linear-gradient(to right, var(--primary), var(--secondary))' }}></div>
           <div className="relative">
-            <OnboardingCard onGetStarted={onSignUp} />
+            <OnboardingCard onGetStarted={openWalkthrough} />
           </div>
         </div>
       </header>
@@ -565,152 +610,209 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
       {showWalkthrough && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fade-in" onClick={closeWalkthrough}>
           <div
-            className="w-full max-w-4xl bg-brandBg border border-brandBorder rounded-3xl p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto space-y-8"
+            className="w-full max-w-2xl bg-brandBg border border-brandBorder rounded-3xl p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
             <button
               onClick={closeWalkthrough}
-              className="absolute top-4 right-4 sm:top-6 sm:right-6 text-2xl font-bold text-brandTextSecondary hover:text-brandTextPrimary"
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 text-2xl font-bold text-brandTextSecondary hover:text-brandTextPrimary z-10"
             >
               &times;
             </button>
 
-            {/* Header */}
-            <div className="text-center space-y-2 border-b border-brandBorder pb-4">
-              <span className="text-[10px] font-bold font-mono uppercase tracking-widest text-brandPrimary bg-brandPrimary/10 border border-brandPrimary/20 px-3 py-1 rounded-full">
-                Detailed Platform Blueprint
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-brandTextPrimary tracking-tight">
-                How GiGO Works & Ecosystem Blueprint
-              </h2>
-              <p className="text-xs text-brandTextSecondary max-w-xl mx-auto">
-                Discover the engineering core, automatic career automation loops, transparent pay-as-you-go metrics, and developer tools.
-              </p>
-            </div>
-
-            {/* 1. Career Lifecycle loop */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-extrabold uppercase tracking-widest text-brandSecondary">
-                ⚙️ 4-Stage Career Automation Engine
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-4 rounded-2xl bg-brandCard/40 border border-brandBorder space-y-2 text-left">
-                  <div className="text-[9px] font-extrabold text-brandPrimary font-mono">STAGE 01</div>
-                  <h4 className="text-xs font-bold text-brandTextPrimary uppercase">Auto Job Finder</h4>
-                  <p className="text-[11px] text-brandTextSecondary leading-relaxed">
-                    Background scrapers continuously scan top job networks to discover matching roles natively.
-                  </p>
-                </div>
-                <div className="p-4 rounded-2xl bg-brandCard/40 border border-brandBorder space-y-2 text-left">
-                  <div className="text-[9px] font-extrabold text-brandSecondary font-mono">STAGE 02</div>
-                  <h4 className="text-xs font-bold text-brandTextPrimary uppercase">Custom CV & Cover Letter</h4>
-                  <p className="text-[11px] text-brandTextSecondary leading-relaxed">
-                    Generate ATS-optimized resumes (5 Pace) and tailored cover letters (3 Pace) instantly.
-                  </p>
-                </div>
-                <div className="p-4 rounded-2xl bg-brandCard/40 border border-brandBorder space-y-2 text-left">
-                  <div className="text-[9px] font-extrabold text-brandPrimary font-mono">STAGE 03</div>
-                  <h4 className="text-xs font-bold text-brandTextPrimary uppercase">Outbound Submissions</h4>
-                  <p className="text-[11px] text-brandTextSecondary leading-relaxed">
-                    Natively dispatch custom tailored portfolios directly to recruiter email channels in one click.
-                  </p>
-                </div>
-                <div className="p-4 rounded-2xl bg-brandCard/40 border border-brandBorder space-y-2 text-left">
-                  <div className="text-[9px] font-extrabold text-emerald-400 font-mono">STAGE 04</div>
-                  <h4 className="text-xs font-bold text-brandTextPrimary uppercase">Practice Room</h4>
-                  <p className="text-[11px] text-brandTextSecondary leading-relaxed">
-                    Join custom practice voice interview simulators with friendly coaches completely free and unlimited.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* 2. Pace Economy & Calculator */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start border-t border-brandBorder pt-6">
-              <div className="space-y-4 text-left">
-                <h3 className="text-sm font-extrabold uppercase tracking-widest text-brandPrimary">
-                  🪙 Transparent Career Momentum Strategy
-                </h3>
-                <p className="text-xs text-brandTextSecondary leading-relaxed">
-                  We reject locking candidates behind massive, expensive monthly fees. Our micro-transaction design maintains a <span className="text-brandTextPrimary font-bold">0 Entry Barriers</span>. A tiny amount of Pace is consumed only when compiling assets or submitting applications.
-                </p>
-                <div className="p-4 rounded-2xl bg-brandPrimary/5 border border-brandPrimary/15 space-y-2">
-                  <h4 className="text-xs font-bold text-brandTextPrimary uppercase">Complimentary Welcome Momentum</h4>
-                  <p className="text-[11px] text-brandTextSecondary">
-                    Create your profile & supply NIN credentials to activate your complimentary <strong className="text-brandTextPrimary">250 Pace</strong> to get started.
-                  </p>
-                </div>
-              </div>
-
-              {/* Momentum Estimator Panel */}
-              <div className="p-6 rounded-2xl bg-brandCard/40 border border-brandBorder space-y-5">
-                <div className="flex justify-between items-center">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-brandTextPrimary">Momentum Estimator</h4>
-                  <span className="text-[10px] font-bold text-brandPrimary px-2 py-0.5 rounded bg-brandPrimary/10 border border-brandPrimary/20">
-                    Pace Utility
+            {!onWaitlistStep ? (
+              <>
+                {/* Reassurance banner — this is a real walkthrough of the live product, not a marketing reel */}
+                <div className="text-center mb-5">
+                  <span className="inline-flex items-center gap-1.5 text-[10px] font-bold font-mono uppercase tracking-widest text-brandPrimary bg-brandPrimary/10 border border-brandPrimary/20 px-3 py-1 rounded-full">
+                    ● Real product walkthrough — not an ad
                   </span>
                 </div>
 
-                <div className="space-y-4 text-left">
-                  <div>
-                    <div className="flex justify-between text-[11px] font-mono mb-1">
-                      <span className="text-brandTextSecondary">Career Momentum Budget</span>
-                      <span className="text-brandTextPrimary font-bold">
-                        {calcPace} Pace
-                      </span>
-                    </div>
-                    <input 
-                      type="range" min="10" max="500" step="10" value={calcPace} 
-                      onChange={(e) => setCalcPace(Number(e.target.value))}
-                      className="w-full accent-brandPrimary"
-                    />
-                  </div>
-
-                  <div className="p-3 bg-brandBg border border-brandBorder rounded-xl space-y-2">
-                    <div className="text-[10px] text-brandTextMuted uppercase font-bold text-center">Estimated Capabilities:</div>
-                    <div className="grid grid-cols-2 gap-2 text-[11px]">
-                      <div className="p-2 rounded bg-brandCard/20 border border-brandBorder/40">
-                        🔍 <strong>{calcPace * 2}</strong> Job Scans
-                      </div>
-                      <div className="p-2 rounded bg-brandCard/20 border border-brandBorder/40">
-                        📄 <strong>{Math.floor(calcPace / 5)}</strong> Tailored CVs
-                      </div>
-                      <div className="p-2 rounded bg-brandCard/20 border border-brandBorder/40">
-                        ✉️ <strong>{Math.floor(calcPace / 3)}</strong> Cover Letters
-                      </div>
-                      <div className="p-2 rounded bg-brandCard/20 border border-brandBorder/40">
-                        🚀 <strong>{Math.floor(calcPace / 10)}</strong> Dispatches
-                      </div>
-                    </div>
-                  </div>
+                {/* Step header */}
+                <div className="text-center space-y-2 mb-6">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-brandSecondary">
+                    {WALKTHROUGH_STEPS[walkthroughStep].eyebrow}
+                  </span>
+                  <h2 className="text-2xl sm:text-3xl font-black text-brandTextPrimary tracking-tight">
+                    {WALKTHROUGH_STEPS[walkthroughStep].title}
+                  </h2>
+                  <p className="text-sm text-brandTextSecondary max-w-lg mx-auto leading-relaxed">
+                    {WALKTHROUGH_STEPS[walkthroughStep].desc}
+                  </p>
                 </div>
-              </div>
-            </div>
 
-            {/* 3. Live Logs Telemetry */}
-            <div className="border-t border-brandBorder pt-6 text-left space-y-4">
-              <h3 className="text-sm font-extrabold uppercase tracking-widest text-brandSecondary">
-                📊 Operational Telemetry
-              </h3>
-              <p className="text-xs text-brandTextSecondary">
-                Below are real-time backend agent events, scrapers, and telemetry streams verifying compiler output and background runs.
-              </p>
-              <div className="rounded-2xl overflow-hidden bg-brandCard/30 border border-brandBorder p-2">
-                <AgentTelemetryCards />
-              </div>
-            </div>
+                {/* Screenshot-style mockup for the active step — built with the same UI tokens as the live app */}
+                <div className="rounded-2xl bg-brandSurface border border-brandBorder p-5 shadow-lg mb-6 min-h-[220px] flex items-center justify-center">
+                  {walkthroughStep === 0 && (
+                    <div className="w-full max-w-sm space-y-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Career Profile</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-brandPrimary/10 text-brandPrimary font-semibold">Step 1 of 3</span>
+                      </div>
+                      <div className="bg-brandCard/50 border border-brandBorder rounded-lg px-3 py-2 text-[12px] text-brandTextPrimary">
+                        Paste your CV, or fill it in by hand
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-1.5 text-[11px] text-brandTextSecondary">Full Name</div>
+                        <div className="bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-1.5 text-[11px] text-brandTextSecondary">Target Role</div>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {['React', 'TypeScript', 'Node.js'].map(s => (
+                          <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-brandSecondary/10 text-brandSecondary font-semibold">{s}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {walkthroughStep === 1 && (
+                    <div className="w-full max-w-sm space-y-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Job Radar</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-brandPrimary/10 text-brandPrimary font-semibold">Live</span>
+                      </div>
+                      {[
+                        { role: 'Backend Eng · Stripe', score: 94 },
+                        { role: 'Product Designer · Notion', score: 88 },
+                        { role: 'Data Analyst · Flutterwave', score: 81 },
+                      ].map(j => (
+                        <div key={j.role} className="flex items-center justify-between bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-1.5">
+                          <span className="text-[11px] text-brandTextPrimary">{j.role}</span>
+                          <span className="text-[10px] font-bold text-emerald-500">{j.score}% match</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {walkthroughStep === 2 && (
+                    <div className="w-full max-w-sm space-y-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Application Builder</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-brandSecondary/10 text-brandSecondary font-semibold">Pay-as-you-go</span>
+                      </div>
+                      <div className="flex justify-between text-[11px] text-brandTextSecondary bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-1.5">
+                        <span>📄 ATS-tailored CV</span><span className="text-brandTextPrimary font-semibold">5 Pace</span>
+                      </div>
+                      <div className="flex justify-between text-[11px] text-brandTextSecondary bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-1.5">
+                        <span>✉️ Tailored cover letter</span><span className="text-brandTextPrimary font-semibold">3 Pace</span>
+                      </div>
+                      <div className="flex justify-between items-center bg-brandPrimary/5 border border-brandPrimary/15 rounded-lg px-2.5 py-1.5 mt-2">
+                        <span className="text-[11px] text-brandTextPrimary font-semibold">Auto-Apply</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 font-bold">ON</span>
+                      </div>
+                    </div>
+                  )}
+                  {walkthroughStep === 3 && (
+                    <div className="w-full max-w-sm flex flex-col items-center gap-3 text-center">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Mock Interview Room</span>
+                      <div className="w-14 h-14 rounded-full flex items-center justify-center text-xl" style={{ backgroundImage: 'linear-gradient(to top right, var(--primary), var(--secondary))' }}>🎙️</div>
+                      <div className="grid grid-cols-3 gap-2 w-full">
+                        {[{ label: 'Substance', v: 87 }, { label: 'Delivery', v: 79 }, { label: 'Clarity', v: 92 }].map(m => (
+                          <div key={m.label} className="bg-brandCard/50 border border-brandBorder rounded-lg py-2 px-1">
+                            <div className="text-sm font-black text-brandTextPrimary">{m.v}</div>
+                            <div className="text-[9px] text-brandTextMuted uppercase font-semibold">{m.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {walkthroughStep === 4 && (
+                    <div className="w-full max-w-sm space-y-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Mailroom</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-brandSecondary/10 text-brandSecondary font-semibold">1 new</span>
+                      </div>
+                      <div className="bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-2">
+                        <div className="flex justify-between text-[11px] font-semibold text-brandTextPrimary mb-0.5">
+                          <span>Paystack Careers</span><span className="text-brandTextMuted font-normal">1d</span>
+                        </div>
+                        <div className="text-[11px] text-brandTextSecondary">We'd like to schedule an interview for DevOps Eng...</div>
+                      </div>
+                      <div className="flex justify-between text-[11px] bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-2.5 py-1.5">
+                        <span className="text-emerald-500 font-semibold">✓ Interview scheduled</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
-            {/* Footer Buttons inside Modal */}
-            <div className="flex justify-end pt-4 border-t border-brandBorder">
-              <button
-                onClick={closeWalkthrough}
-                className="px-5 py-2.5 rounded-xl text-white text-xs font-bold uppercase tracking-wider"
-                style={{ backgroundImage: 'linear-gradient(to right, var(--primary), var(--secondary))' }}
-              >
-                {autoShowWalkthrough ? 'Join the Waitlist →' : 'Got It, Thanks!'}
-              </button>
-            </div>
+                {/* Step dots + nav */}
+                <div className="flex items-center justify-center gap-2 mb-6">
+                  {WALKTHROUGH_STEPS.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setWalkthroughStep(i)}
+                      className={`h-1.5 rounded-full transition-all ${i === walkthroughStep ? 'w-6 bg-brandPrimary' : 'w-1.5 bg-brandBorder'}`}
+                      aria-label={`Go to step ${i + 1}`}
+                    />
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between gap-3">
+                  <button
+                    onClick={() => walkthroughStep === 0 ? closeWalkthrough() : setWalkthroughStep(s => s - 1)}
+                    className="px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-brandTextSecondary border border-brandBorder hover:bg-brandCard/40 transition-all"
+                  >
+                    {walkthroughStep === 0 ? 'Close' : '← Back'}
+                  </button>
+                  <button
+                    onClick={() => setWalkthroughStep(s => s + 1)}
+                    className="px-5 py-2.5 rounded-xl text-white text-xs font-bold uppercase tracking-wider"
+                    style={{ backgroundImage: 'linear-gradient(to right, var(--primary), var(--secondary))' }}
+                  >
+                    {walkthroughStep === WALKTHROUGH_STEPS.length - 1 ? 'Continue →' : 'Next →'}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Waitlist interest step — real, optional, skippable. Signup right after is what actually creates the account. */}
+                <div className="text-center space-y-2 mb-6">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-brandSecondary">One quick thing</span>
+                  <h2 className="text-2xl sm:text-3xl font-black text-brandTextPrimary tracking-tight">
+                    Which plan would you pay for?
+                  </h2>
+                  <p className="text-sm text-brandTextSecondary max-w-lg mx-auto leading-relaxed">
+                    Totally optional — helps us prioritize what to build next. Your account still launches with a free 250 Pace welcome bonus either way.
+                  </p>
+                </div>
+
+                <div className="space-y-2.5 mb-6">
+                  {waitlistTiers.map(tier => (
+                    <label
+                      key={tier.id}
+                      className={`flex justify-between items-center px-4 py-3 rounded-xl border cursor-pointer transition-all ${selectedWaitlistTier === tier.id ? 'border-brandPrimary bg-brandPrimary/10' : 'border-brandBorder bg-brandCard/30 hover:bg-brandCard/50'}`}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <input
+                          type="radio"
+                          name="waitlistTier"
+                          checked={selectedWaitlistTier === tier.id}
+                          onChange={() => setSelectedWaitlistTier(tier.id)}
+                          className="accent-brandPrimary"
+                        />
+                        <span className="text-sm font-bold text-brandTextPrimary">{tier.label}</span>
+                      </span>
+                      <span className="text-xs text-brandTextSecondary">₦{tier.priceNGN.toLocaleString()}/mo · {tier.applicationsPerMonth >= 999 ? 'Unlimited' : tier.applicationsPerMonth} apps</span>
+                    </label>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between gap-3">
+                  <button
+                    onClick={proceedToSignUp}
+                    className="px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-brandTextSecondary border border-brandBorder hover:bg-brandCard/40 transition-all"
+                  >
+                    Skip → Sign Up
+                  </button>
+                  <button
+                    onClick={proceedToSignUp}
+                    className="px-5 py-2.5 rounded-xl text-white text-xs font-bold uppercase tracking-wider"
+                    style={{ backgroundImage: 'linear-gradient(to right, var(--primary), var(--secondary))' }}
+                  >
+                    Continue to Sign Up →
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

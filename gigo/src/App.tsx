@@ -583,7 +583,7 @@ export default function App() {
     softSkills: '[   ]',
     teamworkExperience: '[   ]',
     conflictResolution: '[   ]',
-    calibrationAxes: { cognitive: 65, credential: 55, behavioral: 60, operational: 70 },
+    calibrationAxes: { cognitive: 0, credential: 0, behavioral: 0, operational: 0 },
     calibrationHistory: [],
     isNINVerified: false,
     ninValue: '',
@@ -728,7 +728,7 @@ export default function App() {
   }, [allUniqueJobs]);
 
   const brainSyncPercentage = useMemo(() => {
-    const axes = profile.calibrationAxes || { cognitive: 65, credential: 55, behavioral: 60, operational: 70 };
+    const axes = profile.calibrationAxes || { cognitive: 0, credential: 0, behavioral: 0, operational: 0 };
     const avg = Math.round((axes.cognitive + axes.credential + axes.behavioral + axes.operational) / 4);
     return Math.min(100, Math.max(0, avg));
   }, [profile.calibrationAxes]);
@@ -886,61 +886,43 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
   const [pipelineNINVerified, setPipelineNINVerified] = useState<boolean>(false);
 
   const handlePipelineParseResume = async () => {
-    if (isParsingPipelineResume) return;
+    if (isParsingPipelineResume || !pipelineRawResume.trim()) return;
     setIsParsingPipelineResume(true);
-    setPipelineParsingProgress(10);
-    setPipelineParsingStatus("Establishing secure Gemini connection...");
-    addLog("[Ecosystem Onboarding] Parsing resume coordinates via Gemini pipeline...");
+    setPipelineParsingProgress(20);
+    setPipelineParsingStatus("Sending to Gemini for real extraction...");
+    addLog("[Ecosystem Onboarding] Parsing pasted resume/summary via real Gemini call...");
 
-    const steps = [
-      { prg: 25, txt: "Extracting work history coordinates and educational telemetry..." },
-      { prg: 50, txt: "Classifying core competencies & resolving tool groups..." },
-      { prg: 75, txt: "Mapping multidimensional career coordinates & accent calibration..." },
-      { prg: 100, txt: "Profile coordinates successfully extracted!" }
-    ];
+    const currentUserId = userId || localStorage.getItem('gigo_userId') || 'user_1780714671963_281';
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/users/${currentUserId}/parse-resume-text`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resumeText: pipelineRawResume })
+      });
+      const data = await res.json();
 
-    for (let i = 0; i < steps.length; i++) {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setPipelineParsingProgress(steps[i].prg);
-      setPipelineParsingStatus(steps[i].txt);
-      addLog(`[Ecosystem Onboarding] ${steps[i].txt}`);
+      if (res.ok && data.success && data.parsed) {
+        setPipelineParsingProgress(100);
+        setPipelineParsingStatus("Profile fields extracted from your text!");
+        addLog(`[Ecosystem Onboarding] Gemini extracted: ${data.parsed.role}, ${data.parsed.skills.length} skills, ${data.parsed.yearsOfExperience}y experience.`);
+        setProfile(prev => ({
+          ...prev,
+          name: userFullName || prev?.name || '',
+          role: data.parsed.role || prev?.role,
+          skills: data.parsed.skills?.length ? data.parsed.skills : prev?.skills,
+          yearsOfExperience: typeof data.parsed.yearsOfExperience === 'number' ? data.parsed.yearsOfExperience : prev?.yearsOfExperience,
+          professionalSummary: data.parsed.professionalSummary || prev?.professionalSummary
+        }));
+      } else {
+        setPipelineParsingStatus(data.error || "AI parsing unavailable right now — please fill in the fields manually below.");
+        addLog(`[Ecosystem Onboarding] Resume parsing failed: ${data.error || 'unknown error'}`);
+      }
+    } catch (err: any) {
+      setPipelineParsingStatus("Couldn't reach the AI parsing service — please fill in the fields manually below.");
+      addLog(`[Ecosystem Onboarding] Resume parsing network error: ${err.message}`);
+    } finally {
+      setIsParsingPipelineResume(false);
     }
-
-    // Set mock data inside profile based on the text pasted (or generic beautiful fallback matching our Nigerian target group)
-    const lowerText = pipelineRawResume.toLowerCase();
-    let detectedRole = "Software Engineer";
-    let detectedSkills = ["React", "TypeScript", "Node.js", "LLM Integration", "Python"];
-    let detectedExp = 4;
-    
-    if (lowerText.includes("product") || lowerText.includes("manager")) {
-      detectedRole = "Technical Product Manager";
-      detectedSkills = ["Product Strategy", "Agile Roadmap", "Scrum", "API Design", "User Analytics"];
-      detectedExp = 5;
-    } else if (lowerText.includes("data") || lowerText.includes("scientist") || lowerText.includes("analytics")) {
-      detectedRole = "Senior Data Analyst";
-      detectedSkills = ["BigQuery", "SQLX", "Python", "Data Visualization", "Looker Studio", "Pandas"];
-      detectedExp = 3;
-    } else if (lowerText.includes("design") || lowerText.includes("ui") || lowerText.includes("ux") || lowerText.includes("frontend")) {
-      detectedRole = "Lead UX/UI Engineer";
-      detectedSkills = ["Figma", "React CSS", "Vanilla CSS", "TailwindCSS", "Responsive Layouts", "Aesthetic System"];
-      detectedExp = 6;
-    } else if (lowerText.includes("writer") || lowerText.includes("marketing") || lowerText.includes("content")) {
-      detectedRole = "Technical Writer & Communicator";
-      detectedSkills = ["Markdown", "Technical Documentation", "Copywriting", "Docusaurus", "SEO Best Practices"];
-      detectedExp = 2;
-    }
-
-    setProfile(prev => ({
-      ...prev,
-      name: userFullName || prev?.name || "Abayomi Dele-Ale",
-      role: detectedRole,
-      skills: detectedSkills,
-      yearsOfExperience: detectedExp,
-      location: "Lagos, Nigeria",
-      professionalSummary: `Dynamic ${detectedRole} specialized in ${detectedSkills.slice(0, 3).join(', ')}. Seasoned engineer and candidate with background in real-time collaboration.`
-    }));
-
-    setIsParsingPipelineResume(false);
   };
 
   const handlePipelineVoiceRecord = async () => {
@@ -1591,7 +1573,7 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
         const softSkills = data.softSkills || '[   ]';
         const teamworkExperience = data.teamworkExperience || '[   ]';
         const conflictResolution = data.conflictResolution || '[   ]';
-        const calibrationAxes = data.calibrationAxes || { cognitive: 65, credential: 55, behavioral: 60, operational: 70 };
+        const calibrationAxes = data.calibrationAxes || { cognitive: 0, credential: 0, behavioral: 0, operational: 0 };
         const calibrationHistory = data.calibrationHistory || [];
 
         setProfile({
@@ -1690,7 +1672,7 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
     addLog("[GiGO Brain] Initiating Deep Profile Vault synchronization with Firestore...");
     
     // Dynamically calculate and boost Credential Depth and Operational Sync based on completeness
-    const currentAxes = profile.calibrationAxes || { cognitive: 65, credential: 55, behavioral: 60, operational: 70 };
+    const currentAxes = profile.calibrationAxes || { cognitive: 0, credential: 0, behavioral: 0, operational: 0 };
     let newCredential = currentAxes.credential;
     let newOperational = currentAxes.operational;
 
@@ -11389,7 +11371,12 @@ ${profile.name || '[   ]'}`;
         />
       )}
       {showWaitlistCommitment && userId && (
-        <WaitlistCommitmentModal API_BASE_URL={API_BASE_URL} userId={userId} onDone={() => setShowWaitlistCommitment(false)} />
+        <WaitlistCommitmentModal
+          API_BASE_URL={API_BASE_URL}
+          userId={userId}
+          prefilledTierId={localStorage.getItem('gigo_pending_waitlist_tier')}
+          onDone={() => { localStorage.removeItem('gigo_pending_waitlist_tier'); setShowWaitlistCommitment(false); }}
+        />
       )}
 
     </div>
