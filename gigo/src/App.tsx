@@ -283,7 +283,7 @@ const renderUserAvatar = (avatarPicId: string, size: string = '32px', style?: Re
         <img 
           src={avatarPicId} 
           alt="Avatar" 
-          style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '1px solid rgba(255, 255, 255, 0.15)' }} 
+          style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border-glass)' }} 
         />
       </div>
     );
@@ -4822,7 +4822,7 @@ ${profile.name || '[   ]'}`;
   // MAIN WORKSPACE INTERFACES (LOGGED-IN SESSION)
   // ----------------------------------------------------
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="app-shell" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* HEADER BAR */}
       <header className="app-header">
         <div className="logo-container">
@@ -4876,21 +4876,22 @@ ${profile.name || '[   ]'}`;
       {/* ---------------------------------------------------- */}
       {/* SLIDE-IN NAV DRAWER — replaces the old inline status bar / workspace tabs / dropdown cluster */}
       {/* ---------------------------------------------------- */}
-      {showNavDrawer && (
+      {/* Always mounted (not conditionally rendered) so CSS alone can make this a
+          permanent desktop sidebar while staying a hamburger-triggered mobile
+          overlay — see .nav-drawer-backdrop / .nav-drawer-panel in App.css. */}
+      <div
+        onClick={() => setShowNavDrawer(false)}
+        className={`nav-drawer-backdrop ${showNavDrawer ? 'open' : ''}`}
+      >
         <div
-          onClick={() => setShowNavDrawer(false)}
-          style={{ position: 'fixed', inset: 0, zIndex: 1200, background: 'rgba(2, 8, 23, 0.6)', backdropFilter: 'blur(4px)' }}
-          className="animate-fade-in"
+          onClick={(e) => e.stopPropagation()}
+          className={`nav-drawer-panel ${showNavDrawer ? 'open' : ''}`}
+          style={{
+            background: 'var(--bg-dark-surface)',
+            boxShadow: '-20px 0 50px rgba(0,0,0,0.4)', display: 'flex', flexDirection: 'column',
+            overflowY: 'auto'
+          }}
         >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              position: 'absolute', top: 0, right: 0, height: '100%', width: 'min(340px, 88vw)',
-              background: 'var(--bg-dark-surface)', borderLeft: '1px solid var(--border-glass)',
-              boxShadow: '-20px 0 50px rgba(0,0,0,0.4)', display: 'flex', flexDirection: 'column',
-              overflowY: 'auto'
-            }}
-          >
             {/* User card */}
             <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-glass)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               {renderUserAvatar(profile.profilePic, '46px', {})}
@@ -4971,7 +4972,7 @@ ${profile.name || '[   ]'}`;
             <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
               <div>
                 <div style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Theme</div>
-                <div style={{ display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.15)', padding: '0.25rem', borderRadius: '10px', border: '1px solid var(--border-glass)' }}>
+                <div style={{ display: 'flex', gap: '0.4rem', background: 'var(--bg-dark-card)', padding: '0.25rem', borderRadius: '10px', border: '1px solid var(--border-glass)' }}>
                   {(['system', 'light', 'dark'] as const).map(mode => (
                     <button
                       key={mode}
@@ -5005,7 +5006,6 @@ ${profile.name || '[   ]'}`;
             </div>
           </div>
         </div>
-      )}
 
       {/* DASHBOARD VIEW OR ADMINISTRATIVE PORTAL DISPLAY GRID */}
       {(!isAdminMode || (userEmail !== 'admin@gigo.com' && userRole !== 'admin')) ? (
@@ -5122,7 +5122,7 @@ ${profile.name || '[   ]'}`;
                               >
                                 {isParsingPipelineResume ? (
                                   <>
-                                    <div className="spinner-micro" style={{ width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                                    <div className="spinner-micro" style={{ width: '16px', height: '16px', border: '2px solid var(--border-glass)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
                                     <span>Parsing via Gemini... ({pipelineParsingProgress}%)</span>
                                   </>
                                 ) : <span>⚡ Parse & Auto-Fill</span>}
@@ -5182,7 +5182,7 @@ ${profile.name || '[   ]'}`;
                                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>No education added yet.</span>
                               ) : (
                                 wizardEducationList.map((edu, i) => (
-                                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.6rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
                                     <div>
                                       <div style={{ fontSize: '0.82rem', fontWeight: 700 }}>{edu.degree} in {edu.fieldOfStudy}</div>
                                       <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{edu.institution} · {edu.gradYear}</div>
@@ -5227,7 +5227,7 @@ ${profile.name || '[   ]'}`;
                                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>No experience added yet.</span>
                               ) : (
                                 wizardWorkHistory.map((job, i) => (
-                                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.6rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
                                     <div>
                                       <div style={{ fontSize: '0.82rem', fontWeight: 700 }}>{job.role} @ {job.company}</div>
                                       <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{job.startDate} – {job.endDate}</div>
@@ -5420,7 +5420,7 @@ ${profile.name || '[   ]'}`;
                         </p>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center', textAlign: 'center' }}>
-                          <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '1.25rem', maxWidth: '500px', width: '100%' }}>
+                          <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '16px', padding: '1.25rem', maxWidth: '500px', width: '100%' }}>
                             <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Read This Prompt Aloud</span>
                             <p style={{ margin: '0.5rem 0 0 0', fontSize: '1rem', fontWeight: 500, color: 'var(--text-primary)', fontStyle: 'italic', lineHeight: '1.4' }}>
                               "I authorize GiGO AI to coordinate my career hunt, screen incoming recruiter calls, and manage my matching pipeline using this secure tone calibration."
@@ -5497,7 +5497,7 @@ ${profile.name || '[   ]'}`;
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                           {/* NIN verification block */}
-                          <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.01)' }}>
+                          <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '18px', border: '1px solid var(--border-glass)', background: 'rgba(255,255,255,0.01)' }}>
                             <h4 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', fontWeight: 700 }}>
                               🇳🇬 National Identity Verification (NIN)
                             </h4>
@@ -5548,7 +5548,7 @@ ${profile.name || '[   ]'}`;
                                   Share your unique referral link. Whenever friends or family verify their NIN, your GiGO Ambassador score increases, unlocking exclusive rewards and weekly cash prizes!
                                 </p>
                               </div>
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', alignItems: 'flex-end', background: 'rgba(15, 23, 42, 0.6)', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', alignItems: 'flex-end', background: 'rgba(15, 23, 42, 0.6)', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
                                 <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ambassador ID</span>
                                 <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#a855f7' }}>{userId ? `AMB-${userId.slice(0, 8).toUpperCase()}` : 'AMB-PENDING'}</span>
                               </div>
@@ -5608,10 +5608,10 @@ ${profile.name || '[   ]'}`;
                     )}
 
                     {/* Developer Activity Log Viewer at bottom */}
-                    <div className="glass-panel" style={{ padding: '1.25rem', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.04)', background: 'rgba(0,0,0,0.2)' }}>
+                    <div className="glass-panel" style={{ padding: '1.25rem', borderRadius: '18px', border: '1px solid var(--border-glass)', background: 'var(--bg-dark-card)' }}>
                       <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <span>🔌 Real-time Orchestrator Activity Telemetry</span>
-                        <div className="spinner-micro" style={{ width: '8px', height: '8px', border: '1.5px solid rgba(255,255,255,0.1)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                        <div className="spinner-micro" style={{ width: '8px', height: '8px', border: '1.5px solid var(--border-glass)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
                       </h4>
                       <div 
                         style={{
@@ -5624,7 +5624,7 @@ ${profile.name || '[   ]'}`;
                           fontSize: '0.75rem',
                           color: '#34d399',
                           lineHeight: '1.4',
-                          border: '1px solid rgba(255,255,255,0.03)'
+                          border: '1px solid var(--border-glass)'
                         }}
                       >
                         {logs.slice(-30).reverse().map((log, i) => (
@@ -6100,7 +6100,7 @@ ${profile.name || '[   ]'}`;
               {/* Spinner Overlay for Voice Analysis */}
               {isAnalyzingVoice && (
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 13, 35, 0.85)', backdropFilter: 'blur(8px)', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', padding: '2rem' }}>
-                  <div className="spinner-micro" style={{ width: '40px', height: '40px', border: '3px solid rgba(255, 255, 255, 0.1)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                  <div className="spinner-micro" style={{ width: '40px', height: '40px', border: '3px solid var(--border-glass)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
                   <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', textAlign: 'center' }}>
                     Gemini 2.5 Pro Analyzing Voice Profile...
                   </div>
@@ -6356,7 +6356,7 @@ ${profile.name || '[   ]'}`;
                   >
                     {isSearchingManual ? (
                       <>
-                        <div className="spinner-micro" style={{ width: '16px', height: '16px', border: '2px solid rgba(255, 255, 255, 0.1)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                        <div className="spinner-micro" style={{ width: '16px', height: '16px', border: '2px solid var(--border-glass)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
                         Sweeping Web...
                       </>
                     ) : (
@@ -6618,7 +6618,7 @@ ${profile.name || '[   ]'}`;
                     }
                     return (
                       <div style={{
-                        background: 'rgba(0, 0, 0, 0.45)',
+                        background: 'var(--bg-dark-card)',
                         border: '1px dashed rgba(249, 115, 22, 0.3)',
                         borderRadius: '12px',
                         padding: '0.75rem 1rem',
@@ -6753,7 +6753,7 @@ ${profile.name || '[   ]'}`;
                       value={`${systemConfig.frontendDomain}/?ref=${currentUserId}`}
                       style={{ 
                         flex: 1, 
-                        background: 'rgba(0,0,0,0.4)', 
+                        background: 'var(--bg-dark-card)', 
                         border: '1px solid var(--border-glass)', 
                         borderRadius: '8px', 
                         padding: '0.45rem 0.75rem', 
@@ -6807,7 +6807,7 @@ ${profile.name || '[   ]'}`;
                         placeholder="e.g. John Doe"
                         value={referralFriendName}
                         onChange={(e) => setReferralFriendName(e.target.value)}
-                        style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '0.45rem', fontSize: '0.75rem', color: 'var(--text-primary)', outline: 'none' }}
+                        style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '0.45rem', fontSize: '0.75rem', color: 'var(--text-primary)', outline: 'none' }}
                       />
                     </div>
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
@@ -6818,7 +6818,7 @@ ${profile.name || '[   ]'}`;
                         placeholder="john@example.com"
                         value={referralFriendEmail}
                         onChange={(e) => setReferralFriendEmail(e.target.value)}
-                        style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '0.45rem', fontSize: '0.75rem', color: 'var(--text-primary)', outline: 'none' }}
+                        style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '0.45rem', fontSize: '0.75rem', color: 'var(--text-primary)', outline: 'none' }}
                       />
                     </div>
                   </div>
@@ -6830,7 +6830,7 @@ ${profile.name || '[   ]'}`;
                       placeholder="+2348012345678"
                       value={referralFriendPhone}
                       onChange={(e) => setReferralFriendPhone(e.target.value)}
-                      style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '0.45rem', fontSize: '0.75rem', color: 'var(--text-primary)', outline: 'none' }}
+                      style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '0.45rem', fontSize: '0.75rem', color: 'var(--text-primary)', outline: 'none' }}
                     />
                   </div>
 
@@ -6946,7 +6946,7 @@ ${profile.name || '[   ]'}`;
                       </div>
                     ) : (
                       referrals.map((ref: any) => (
-                        <div key={ref.referralId} className="glass-card animate-fade-in" style={{ padding: '0.65rem 0.85rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', border: '1px solid rgba(255,255,255,0.03)', borderRadius: '8px' }}>
+                        <div key={ref.referralId} className="glass-card animate-fade-in" style={{ padding: '0.65rem 0.85rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', border: '1px solid var(--border-glass)', borderRadius: '8px' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div style={{ fontWeight: 800, fontSize: '0.8rem', color: 'var(--text-primary)' }}>{ref.friendName}</div>
                             <span 
@@ -6960,7 +6960,7 @@ ${profile.name || '[   ]'}`;
                             <span>{ref.friendEmail}</span>
                             <span>{ref.friendPhone || 'No WhatsApp'}</span>
                           </div>
-                          <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.03)', paddingTop: '0.25rem', marginTop: '0.15rem' }}>
+                          <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-glass)', paddingTop: '0.25rem', marginTop: '0.15rem' }}>
                             <span>Outbound: {ref.dispatchMode === 'AI_AGENT' ? '🤖 AI Autopilot' : '✍️ Custom Link'}</span>
                             <span>{new Date(ref.createdAt).toLocaleDateString()}</span>
                           </div>
@@ -7165,7 +7165,7 @@ ${profile.name || '[   ]'}`;
             </p>
 
             {!systemConfig.paystackDisabled && (
-              <div style={{ display: 'flex', background: 'rgba(0,0,0,0.25)', borderRadius: '10px', padding: '0.25rem', border: '1px solid var(--border-glass)', marginBottom: '1.5rem', width: 'fit-content' }}>
+              <div style={{ display: 'flex', background: 'var(--bg-dark-card)', borderRadius: '10px', padding: '0.25rem', border: '1px solid var(--border-glass)', marginBottom: '1.5rem', width: 'fit-content' }}>
                 <button type="button" className="btn-glass" style={{ padding: '0.4rem 1rem', fontSize: '0.75rem', background: topUpMethod === 'paystack' ? 'var(--primary)' : 'transparent' }} onClick={() => setTopUpMethod('paystack')}>
                   💳 Paystack
                 </button>
@@ -7287,7 +7287,7 @@ ${profile.name || '[   ]'}`;
               >
                 {isSubmittingTopUp ? (
                   <>
-                    <div className="spinner-micro" style={{ width: '14px', height: '14px', border: '1px solid rgba(255,255,255,0.1)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite', marginRight: '0.5rem' }}></div>
+                    <div className="spinner-micro" style={{ width: '14px', height: '14px', border: '1px solid var(--border-glass)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite', marginRight: '0.5rem' }}></div>
                     Loading Checkout...
                   </>
                 ) : `Proceed to Secure Refuel — NGN ${parseFloat(topUpAmount || '5000').toLocaleString()}`}
@@ -7395,7 +7395,7 @@ ${profile.name || '[   ]'}`;
       {/* TICKER CHANNEL CONFIGURATION MODAL */}
       {showTickerConfigModal && (
         <div className="modal-overlay" style={{ zIndex: 1100 }}>
-          <div className="modal-content animate-fade-in" style={{ maxWidth: '450px', background: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+          <div className="modal-content animate-fade-in" style={{ maxWidth: '450px', background: 'rgba(15, 23, 42, 0.95)', border: '1px solid var(--border-glass)' }}>
             <button className="close-btn" onClick={() => setShowTickerConfigModal(false)}>&times;</button>
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               🎯 Personalize Match Feed
@@ -7454,7 +7454,7 @@ ${profile.name || '[   ]'}`;
               </div>
 
               <div style={{
-                background: 'rgba(0, 0, 0, 0.2)',
+                background: 'var(--bg-dark-card)',
                 border: '1px solid var(--border-glass)',
                 borderRadius: '8px',
                 padding: '0.75rem',
@@ -7637,7 +7637,7 @@ ${profile.name || '[   ]'}`;
                           </div>
                         )}
                         {selectedJob.emailSubject && (
-                          <div style={{ background: 'rgba(0,0,0,0.15)', padding: '0.4rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border-glass)' }}>
+                          <div style={{ background: 'var(--bg-dark-card)', padding: '0.4rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border-glass)' }}>
                             <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}><strong>Subject Line Template:</strong></div>
                             <code style={{ fontSize: '0.75rem', color: 'var(--text-primary)', wordBreak: 'break-all' }}>{selectedJob.emailSubject}</code>
                           </div>
@@ -7739,7 +7739,7 @@ ${profile.name || '[   ]'}`;
 
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
                         {/* CV CARD */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-dark-card)', padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border-glass)' }}>
                           <div>
                             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>ATS Custom CV / Resume</div>
                             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
@@ -7781,7 +7781,7 @@ ${profile.name || '[   ]'}`;
                         </div>
 
                         {/* COVER LETTER CARD */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-dark-card)', padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border-glass)' }}>
                           <div>
                             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>ATS Custom Cover Letter</div>
                             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
@@ -7968,7 +7968,7 @@ ${profile.name || '[   ]'}`;
                       fontSize: '0.8rem',
                       color: 'var(--text-secondary)',
                       lineHeight: '1.5',
-                      background: 'rgba(0, 0, 0, 0.2)',
+                      background: 'var(--bg-dark-card)',
                       maxHeight: '250px',
                       overflowY: 'auto',
                       padding: '1rem',
@@ -8097,7 +8097,7 @@ ${profile.name || '[   ]'}`;
                         No compiled assets found. Compile a Cover Letter, CV, or Portfolio from the Job Details modal first!
                       </div>
                     ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '140px', overflowY: 'auto', background: 'rgba(0,0,0,0.15)', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-glass)' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '140px', overflowY: 'auto', background: 'var(--bg-dark-card)', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-glass)' }}>
                         {compiledDocuments.map((doc: any) => {
                           const isSelected = selectedDocuments.includes(doc.id);
                           return (
@@ -8157,7 +8157,7 @@ ${profile.name || '[   ]'}`;
                     >
                       {isSendingEmail ? (
                         <>
-                          <div className="spinner-micro" style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite', marginRight: '0.5rem' }}></div>
+                          <div className="spinner-micro" style={{ width: '14px', height: '14px', border: '2px solid var(--border-glass)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite', marginRight: '0.5rem' }}></div>
                           Dispatching...
                         </>
                       ) : "🚀 GiGO Dispatch (10 Pace)"}
@@ -8173,7 +8173,7 @@ ${profile.name || '[   ]'}`;
                   {(() => {
                     const activeDoc = compiledDocuments.find(d => selectedDocuments.includes(d.id));
                     return activeDoc ? (
-                      <div style={{ background: 'rgba(0, 0, 0, 0.25)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-glass)' }}>
+                      <div style={{ background: 'var(--bg-dark-card)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-glass)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.5rem' }}>
                           <span className={`badge ${activeDoc.type === 'CV' ? 'badge-purple' : activeDoc.type === 'PORTFOLIO' ? 'badge-emerald' : 'badge-pink'}`} style={{ fontSize: '0.6rem', padding: '0.1rem 0.35rem' }}>
                             Previewing {activeDoc.type}
@@ -8182,12 +8182,12 @@ ${profile.name || '[   ]'}`;
                             {activeDoc.jobTitle}
                           </span>
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontFamily: 'monospace', whiteSpace: 'pre-wrap', maxHeight: '180px', overflowY: 'auto', padding: '0.5rem', background: 'rgba(0,0,0,0.15)', borderRadius: '4px' }}>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontFamily: 'monospace', whiteSpace: 'pre-wrap', maxHeight: '180px', overflowY: 'auto', padding: '0.5rem', background: 'var(--bg-dark-card)', borderRadius: '4px' }}>
                           {activeDoc.content}
                         </div>
                       </div>
                     ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '180px', background: 'rgba(0,0,0,0.1)', border: '1px dashed var(--border-glass)', borderRadius: 'var(--radius-md)', color: 'var(--text-muted)', fontSize: '0.75rem', textAlign: 'center', padding: '1rem' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '180px', background: 'var(--bg-dark-card)', border: '1px dashed var(--border-glass)', borderRadius: 'var(--radius-md)', color: 'var(--text-muted)', fontSize: '0.75rem', textAlign: 'center', padding: '1rem' }}>
                         <p style={{ margin: '0 0 0.5rem 0' }}>No compiled asset selected for attachment.</p>
                         <p style={{ fontSize: '0.65rem', margin: 0 }}>Check an asset on the left to include it as a dispatch attachment and preview it here.</p>
                       </div>
@@ -8411,7 +8411,7 @@ ${profile.name || '[   ]'}`;
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
               
               {/* Transactions Ledger */}
-              <div className="glass-panel" style={{ padding: '1rem', background: 'rgba(0, 0, 0, 0.15)' }}>
+              <div className="glass-panel" style={{ padding: '1rem', background: 'var(--bg-dark-card)' }}>
                 <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>Handshake Payment Ledger History</span>
                   <span className="badge badge-emerald" style={{ fontSize: '0.65rem' }}>Synced</span>
@@ -8437,7 +8437,7 @@ ${profile.name || '[   ]'}`;
               </div>
 
               {/* Generated Cover Letter Documents */}
-              <div className="glass-panel" style={{ padding: '1rem', background: 'rgba(0, 0, 0, 0.15)' }}>
+              <div className="glass-panel" style={{ padding: '1rem', background: 'var(--bg-dark-card)' }}>
                 <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.75rem' }}>Compiled Career Assets</h4>
                 
                 {isFetchingInspectData ? (
@@ -8454,7 +8454,7 @@ ${profile.name || '[   ]'}`;
                           </div>
                           <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{new Date(doc.generatedAt).toLocaleDateString()}</span>
                         </div>
-                        <pre style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', background: 'rgba(0, 0, 0, 0.2)', padding: '0.4rem', borderRadius: '4px', border: '1px solid var(--border-glass)', whiteSpace: 'pre-wrap', maxHeight: '80px', overflowY: 'auto', fontFamily: 'monospace' }}>
+                        <pre style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', background: 'var(--bg-dark-card)', padding: '0.4rem', borderRadius: '4px', border: '1px solid var(--border-glass)', whiteSpace: 'pre-wrap', maxHeight: '80px', overflowY: 'auto', fontFamily: 'monospace' }}>
                           {doc.content}
                         </pre>
                       </div>
@@ -8503,7 +8503,7 @@ ${profile.name || '[   ]'}`;
 
             {/* DESIGNED ADVANCED BOOLEAN SYNTAX (Admin Only & Editable) */}
             {(userRole === 'admin' || userEmail === 'admin@gigo.com') && (
-              <div style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid var(--border-glass)', padding: '1rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem' }}>
+              <div style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', padding: '1rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
                     🔧 Designed Advanced Google Boolean Search String (Admin Only)
@@ -8636,13 +8636,13 @@ ${profile.name || '[   ]'}`;
                         <span>💰 {job.salaryRange || 'Competitive'}</span>
                       </div>
 
-                      <div style={{ background: 'rgba(0, 0, 0, 0.15)', padding: '0.75rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                      <div style={{ background: 'var(--bg-dark-card)', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border-glass)' }}>
                         <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                           Identified Key Requirements
                         </div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                           {(job.keyRequirementsSummary || []).map((req: string, i: number) => (
-                            <span key={i} style={{ fontSize: '0.7rem', background: 'rgba(255,255,255,0.04)', color: 'var(--text-primary)', padding: '0.2rem 0.5rem', borderRadius: '3px', border: '1px solid rgba(255,255,255,0.02)' }}>
+                            <span key={i} style={{ fontSize: '0.7rem', background: 'rgba(255,255,255,0.04)', color: 'var(--text-primary)', padding: '0.2rem 0.5rem', borderRadius: '3px', border: '1px solid var(--border-glass)' }}>
                               ✓ {req}
                             </span>
                           ))}
@@ -8752,7 +8752,7 @@ ${profile.name || '[   ]'}`;
                     className="form-control font-mono" 
                     readOnly 
                     value={lastGeneratedInvite.subject || ''} 
-                    style={{ fontSize: '0.75rem', background: 'rgba(0,0,0,0.25)' }}
+                    style={{ fontSize: '0.75rem', background: 'var(--bg-dark-card)' }}
                   />
                   <button 
                     type="button"
@@ -8775,7 +8775,7 @@ ${profile.name || '[   ]'}`;
                   readOnly 
                   rows={5}
                   value={lastGeneratedInvite.emailBody || ''} 
-                  style={{ fontSize: '0.75rem', background: 'rgba(0,0,0,0.25)', resize: 'vertical' }}
+                  style={{ fontSize: '0.75rem', background: 'var(--bg-dark-card)', resize: 'vertical' }}
                 />
               </div>
 
@@ -8814,7 +8814,7 @@ ${profile.name || '[   ]'}`;
                   readOnly 
                   rows={4}
                   value={lastGeneratedInvite.whatsappMessage || ''} 
-                  style={{ fontSize: '0.75rem', background: 'rgba(0,0,0,0.25)', resize: 'vertical' }}
+                  style={{ fontSize: '0.75rem', background: 'var(--bg-dark-card)', resize: 'vertical' }}
                 />
               </div>
 
@@ -8856,7 +8856,7 @@ ${profile.name || '[   ]'}`;
                   className="form-control font-mono" 
                   readOnly 
                   value={lastGeneratedInvite.referralLink || `${systemConfig.frontendDomain}/?ref=${userId}`} 
-                  style={{ fontSize: '0.75rem', background: 'rgba(0,0,0,0.3)', color: 'var(--text-primary)', border: 'none' }}
+                  style={{ fontSize: '0.75rem', background: 'var(--bg-dark-card)', color: 'var(--text-primary)', border: 'none' }}
                 />
                 <button 
                   type="button"
@@ -8961,7 +8961,7 @@ ${profile.name || '[   ]'}`;
                   value={brainEnrichStatement}
                   onChange={(e) => setBrainEnrichStatement(e.target.value)}
                   style={{
-                    background: 'rgba(0,0,0,0.25)',
+                    background: 'var(--bg-dark-card)',
                     border: '1px solid var(--border-glass)',
                     borderRadius: '8px',
                     padding: '0.75rem',
@@ -9090,7 +9090,7 @@ ${profile.name || '[   ]'}`;
             <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
               {/* Segmented Navigation — grouped-settings style instead of a fixed sidebar */}
               <div style={{ padding: '1rem 2rem 0 2rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                <div style={{ display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '12px', padding: '0.3rem', overflowX: 'auto' }}>
+                <div style={{ display: 'flex', gap: '0.4rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '12px', padding: '0.3rem', overflowX: 'auto' }}>
                   {([
                     { id: 'profile', label: '👤 Profile & Career Spec' },
                     { id: 'scan', label: '⏱️ Scan Rates & Tickers' },
@@ -9277,7 +9277,7 @@ ${profile.name || '[   ]'}`;
                           <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
                             Interactive Skills Competencies
                           </label>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-glass)', marginBottom: '0.75rem' }}>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', background: 'var(--bg-dark-card)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-glass)', marginBottom: '0.75rem' }}>
                             {settingsSkills.length === 0 ? (
                               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>No skills added. Add some below to drive real-time matching accuracy!</div>
                             ) : (
@@ -9397,7 +9397,7 @@ ${profile.name || '[   ]'}`;
                           <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
                             Ticker Target Domains Filtering
                           </label>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-glass)', marginBottom: '0.75rem' }}>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', background: 'var(--bg-dark-card)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-glass)', marginBottom: '0.75rem' }}>
                             {tickerTargetDomains.length === 0 ? (
                               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>No domain filters registered. Showing all scraped channels.</div>
                             ) : (
@@ -9929,7 +9929,7 @@ ${profile.name || '[   ]'}`;
                                   </h6>
                                   <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.4' }}>
                                     To sync recruiter replies back to GiGO, create a Zap that triggers when you receive a new reply. Add a <strong>Webhooks by Zapier (POST)</strong> action routing to: <br/>
-                                    <code style={{ color: '#c4b5fd', fontSize: '0.7rem', display: 'block', marginTop: '0.25rem', background: 'rgba(0,0,0,0.3)', padding: '0.25rem', borderRadius: '4px', wordBreak: 'break-all' }}>
+                                    <code style={{ color: '#c4b5fd', fontSize: '0.7rem', display: 'block', marginTop: '0.25rem', background: 'var(--bg-dark-card)', padding: '0.25rem', borderRadius: '4px', wordBreak: 'break-all' }}>
                                       {API_BASE_URL}/api/zapier/inbound-reply
                                     </code>
                                     Include the following JSON fields: <code>userId</code> (pass your current User ID), <code>senderEmail</code>, <code>senderName</code>, <code>subject</code>, and <code>body</code>.
@@ -10055,7 +10055,7 @@ ${profile.name || '[   ]'}`;
                                   onChange={(e) => setSettingsNewPassword(e.target.value)}
                                   className="form-control"
                                   placeholder="••••••••"
-                                  style={{ background: 'rgba(0,0,0,0.2)' }}
+                                  style={{ background: 'var(--bg-dark-card)' }}
                                 />
                               </div>
 
@@ -10067,7 +10067,7 @@ ${profile.name || '[   ]'}`;
                                   onChange={(e) => setSettingsConfirmPassword(e.target.value)}
                                   className="form-control"
                                   placeholder="••••••••"
-                                  style={{ background: 'rgba(0,0,0,0.2)' }}
+                                  style={{ background: 'var(--bg-dark-card)' }}
                                 />
                               </div>
 
@@ -10215,7 +10215,7 @@ ${profile.name || '[   ]'}`;
                                         maxLength={11}
                                         value={ninInput}
                                         onChange={(e) => setNinInput(e.target.value.replace(/\D/g, ''))}
-                                        style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)' }}
+                                        style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)' }}
                                       />
                                     </div>
 
@@ -10229,7 +10229,7 @@ ${profile.name || '[   ]'}`;
                                         accept="image/*"
                                         capture="environment"
                                         className="form-control"
-                                        style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', padding: '0.45rem' }}
+                                        style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', padding: '0.45rem' }}
                                         onChange={(e) => {
                                           const file = e.target.files?.[0];
                                           if (file) {
@@ -10292,7 +10292,7 @@ ${profile.name || '[   ]'}`;
 
                                     {/* Diagnostic Terminal Outputs */}
                                     <div style={{
-                                      background: 'rgba(0, 0, 0, 0.4)',
+                                      background: 'var(--bg-dark-card)',
                                       border: '1px solid rgba(16, 185, 129, 0.15)',
                                       borderRadius: '6px',
                                       padding: '0.75rem',
@@ -10453,7 +10453,7 @@ ${profile.name || '[   ]'}`;
                     >
                       {isUpdatingSettings ? (
                         <>
-                          <div className="spinner-micro" style={{ width: '12px', height: '12px', border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite', marginRight: '0.5rem' }}></div>
+                          <div className="spinner-micro" style={{ width: '12px', height: '12px', border: '2px solid var(--border-glass)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite', marginRight: '0.5rem' }}></div>
                           Synchronizing Configuration...
                         </>
                       ) : "💾 Save & Deploy Calibrations"}
@@ -10504,7 +10504,7 @@ ${profile.name || '[   ]'}`;
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              background: 'rgba(0, 0, 0, 0.2)'
+              background: 'var(--bg-dark-card)'
             }}>
               <div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -10667,7 +10667,7 @@ ${profile.name || '[   ]'}`;
               flexDirection: vaultLayout === 'card' ? undefined : 'column',
               gridTemplateColumns: vaultLayout === 'card' ? 'repeat(auto-fill, minmax(300px, 1fr))' : undefined,
               gap: vaultLayout === 'compact' ? '0.5rem' : '1.25rem',
-              background: 'rgba(0, 0, 0, 0.1)'
+              background: 'var(--bg-dark-card)'
             }}>
               {remainingJobs.length === 0 ? (
                 <div style={{
@@ -10778,7 +10778,7 @@ ${profile.name || '[   ]'}`;
                                   style={{
                                     fontSize: '0.65rem',
                                     background: 'rgba(255, 255, 255, 0.04)',
-                                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                                    border: '1px solid var(--border-glass)',
                                     padding: '0.15rem 0.4rem',
                                     borderRadius: '4px',
                                     color: 'var(--text-secondary)'
@@ -10897,7 +10897,7 @@ ${profile.name || '[   ]'}`;
                               style={{
                                 fontSize: '0.65rem',
                                 background: 'rgba(255, 255, 255, 0.04)',
-                                border: '1px solid rgba(255, 255, 255, 0.05)',
+                                border: '1px solid var(--border-glass)',
                                 padding: '0.15rem 0.4rem',
                                 borderRadius: '4px',
                                 color: 'var(--text-secondary)'
@@ -10957,7 +10957,7 @@ ${profile.name || '[   ]'}`;
                         key={job.id}
                         style={{
                           background: 'rgba(255, 255, 255, 0.01)',
-                          border: '1px solid rgba(255, 255, 255, 0.03)',
+                          border: '1px solid var(--border-glass)',
                           borderRadius: '6px',
                           padding: '0.4rem 1rem',
                           display: 'flex',
@@ -11121,7 +11121,7 @@ ${profile.name || '[   ]'}`;
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              background: 'rgba(0, 0, 0, 0.25)'
+              background: 'var(--bg-dark-card)'
             }}>
               <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
                 💡 Tip: Press <kbd style={{ background: 'rgba(255,255,255,0.1)', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>ESC</kbd> to close. Dismissing cards synchronizes with backend database in real-time.
@@ -11279,7 +11279,7 @@ ${profile.name || '[   ]'}`;
                 value={selfDeletionConfirmText}
                 onChange={(e) => setSelfDeletionConfirmText(e.target.value)}
                 style={{
-                  background: 'rgba(0, 0, 0, 0.4)',
+                  background: 'var(--bg-dark-card)',
                   textAlign: 'center',
                   borderColor: selfDeletionConfirmText === 'DELETE' ? 'rgba(239, 68, 68, 0.6)' : 'var(--border-glass)',
                   color: 'var(--text-primary)',

@@ -30,9 +30,64 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(8, 7, 17, 0.6);
+  background: var(--bg-dark-surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+}
+
+/* App shell: on desktop the nav drawer becomes a permanent right sidebar
+   instead of a hamburger-triggered overlay, so the shell reserves real
+   layout space for it instead of letting content run underneath. */
+.app-shell {
+  position: relative;
+}
+
+.nav-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(2, 8, 23, 0.6);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.nav-drawer-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.nav-drawer-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(340px, 88vw);
+  border-left: 1px solid var(--border-glass);
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+}
+.nav-drawer-panel.open {
+  transform: translateX(0);
+}
+
+/* Desktop: the drawer is a permanent sidebar — always visible, no backdrop,
+   no hamburger needed, and the top header (logo/title/user badge) is
+   redundant since the sidebar's own user card covers the same ground. */
+@media (min-width: 992px) {
+  .app-shell {
+    padding-right: min(340px, 88vw);
+  }
+  .nav-drawer-backdrop {
+    display: none;
+  }
+  .nav-drawer-panel {
+    transform: none;
+    position: fixed;
+  }
+  .app-header {
+    display: none;
+  }
 }
 
 .logo-container {
