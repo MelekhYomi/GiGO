@@ -1,7 +1,7 @@
 {
-  "name": "GiGO Platform",
+  "name": "GiGO for You",
   "short_name": "GiGO",
-  "description": "GiGO Platform Web Application",
+  "description": "GiGO for You Web Application",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

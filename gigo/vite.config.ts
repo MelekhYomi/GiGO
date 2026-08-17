@@ -21,9 +21,9 @@ export default defineConfig({
         clientsClaim: true
       },
       manifest: {
-        name: 'GiGO Platform',
+        name: 'GiGO for You',
         short_name: 'GiGO',
-        description: 'GiGO Platform Web Application',
+        description: 'GiGO for You Web Application',
         theme_color: '#863bff',
         background_color: '#ffffff',
         display: 'standalone',
