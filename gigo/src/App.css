@@ -82,11 +82,18 @@
     padding-right: min(340px, 88vw);
   }
   .nav-drawer-backdrop {
-    display: none;
+    /* NOT display:none - .nav-drawer-panel is its child, and a parent's
+       display:none hides descendants regardless of their own position.
+       Make the dimming backdrop itself invisible/inert instead. */
+    background: transparent;
+    backdrop-filter: none;
+    pointer-events: none;
+    opacity: 1;
   }
   .nav-drawer-panel {
     transform: none;
     position: fixed;
+    pointer-events: auto;
   }
   .app-header {
     display: none;
