@@ -214,12 +214,9 @@ export default function VoiceAssistantCopilot({
 
             case 'theme': {
               const themeName = params?.theme || 'toggle';
-              const themes: ('obsidian' | 'emerald' | 'sunset' | 'ocean')[] = ['obsidian', 'emerald', 'sunset', 'ocean'];
               if (themeName === 'toggle') {
-                const currentIdx = themes.indexOf(activeTheme as any);
-                const nextTheme = themes[(currentIdx + 1) % themes.length];
-                setActiveTheme(nextTheme);
-              } else if (themes.includes(themeName as any)) {
+                setActiveTheme(activeTheme === 'dark' ? 'light' : 'dark');
+              } else if (themeName === 'light' || themeName === 'dark' || themeName === 'system') {
                 setActiveTheme(themeName);
               }
               break;
@@ -347,13 +344,11 @@ export default function VoiceAssistantCopilot({
       return;
     }
 
-    // Rotate Theme fallback
+    // Toggle theme fallback
     if (text.includes('change theme') || text.includes('toggle theme') || text.includes('set theme')) {
-      const themes: ('obsidian' | 'emerald' | 'sunset' | 'ocean')[] = ['obsidian', 'emerald', 'sunset', 'ocean'];
-      const currentIdx = themes.indexOf(activeTheme as any);
-      const nextTheme = themes[(currentIdx + 1) % themes.length];
+      const nextTheme = activeTheme === 'dark' ? 'light' : 'dark';
       setActiveTheme(nextTheme);
-      speakText(`Setting layout theme to ${nextTheme}.`);
+      speakText(`Setting theme to ${nextTheme}.`);
       return;
     }
 

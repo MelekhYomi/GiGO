@@ -384,7 +384,9 @@ export default function App() {
   const [isSignupVoiceRecording, setIsSignupVoiceRecording] = useState<boolean>(false);
   const [isAnalyzingSignupVoice, setIsAnalyzingSignupVoice] = useState<boolean>(false);
   const [signupVoiceStatus, setSignupVoiceStatus] = useState<string>('');
-  const [activeTheme, setActiveTheme] = useState<'obsidian' | 'emerald' | 'sunset' | 'ocean'>('obsidian');
+  const [themePreference, setThemePreference] = useState<'system' | 'light' | 'dark'>(
+    () => (localStorage.getItem('gigo_theme_preference') as 'system' | 'light' | 'dark' | null) || 'system'
+  );
   const signupMediaRecorderRef = useRef<MediaRecorder | null>(null);
   const signupChunksRef = useRef<Blob[]>([]);
   const signupStreamRef = useRef<MediaStream | null>(null);
@@ -1233,96 +1235,18 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
   }, []);
 
   // ----------------------------------------------------
-  // DYNAMIC AESTHETIC STYLE & THEME CONTROLLER
+  // THEME CONTROLLER — just light / dark / system, matching the device by
+  // default. Applies data-theme to <html>, which index.css's :root[data-theme]
+  // blocks (and the prefers-color-scheme fallback for "system") key off of.
   // ----------------------------------------------------
   useEffect(() => {
-    // Every "Style" variant is a dark theme (only the accent/background hue changes) —
-    // text and border tokens are set explicitly here rather than left to
-    // `prefers-color-scheme`, since that media query reflects the user's OS/browser
-    // preference and was silently falling back to light-mode (dark-gray) text colors
-    // on top of these forced-dark backgrounds for anyone without a dark system theme,
-    // making labels/captions unreadable regardless of which Style was active.
-    const darkTextTokens = {
-      '--text-primary': '#f8fafc',
-      '--text-secondary': '#cbd5e1',
-      '--text-muted': '#94a3b8',
-      '--border-glass': 'rgba(255, 255, 255, 0.07)',
-      '--border-glass-active': 'rgba(255, 255, 255, 0.15)'
-    };
-
-    const themeConfigs = {
-      obsidian: {
-        ...darkTextTokens,
-        '--primary': '#8a5cf6',
-        '--secondary': '#d946ef',
-        '--bg-dark-base': '#080711',
-        '--bg-dark-surface': 'rgba(15, 13, 35, 0.65)',
-        '--bg-dark-card': 'rgba(22, 19, 50, 0.45)',
-        '--shadow-glow-purple': '0 0 40px -5px rgba(138, 92, 246, 0.3)',
-        '--shadow-glow-pink': '0 0 40px -5px rgba(217, 70, 239, 0.3)'
-      },
-      emerald: {
-        ...darkTextTokens,
-        '--primary': '#10b981',
-        '--secondary': '#06b6d4',
-        '--bg-dark-base': '#040b08',
-        '--bg-dark-surface': 'rgba(6, 20, 15, 0.65)',
-        '--bg-dark-card': 'rgba(8, 28, 20, 0.45)',
-        '--shadow-glow-purple': '0 0 40px -5px rgba(16, 185, 129, 0.3)',
-        '--shadow-glow-pink': '0 0 40px -5px rgba(6, 182, 212, 0.3)'
-      },
-      sunset: {
-        ...darkTextTokens,
-        '--primary': '#f59e0b',
-        '--secondary': '#ec4899',
-        '--bg-dark-base': '#0f0506',
-        '--bg-dark-surface': 'rgba(25, 8, 12, 0.65)',
-        '--bg-dark-card': 'rgba(35, 12, 17, 0.45)',
-        '--shadow-glow-purple': '0 0 40px -5px rgba(245, 158, 11, 0.3)',
-        '--shadow-glow-pink': '0 0 40px -5px rgba(236, 72, 153, 0.3)'
-      },
-      ocean: {
-        ...darkTextTokens,
-        '--primary': '#0ea5e9',
-        '--secondary': '#2dd4bf',
-        '--bg-dark-base': '#030c14',
-        '--bg-dark-surface': 'rgba(4, 18, 30, 0.65)',
-        '--bg-dark-card': 'rgba(6, 26, 42, 0.45)',
-        '--shadow-glow-purple': '0 0 40px -5px rgba(14, 165, 233, 0.3)',
-        '--shadow-glow-pink': '0 0 40px -5px rgba(45, 212, 191, 0.3)'
-      }
-    };
-
-    const config = themeConfigs[activeTheme];
-    Object.entries(config).forEach(([prop, val]) => {
-      document.documentElement.style.setProperty(prop, val);
-    });
-
-    if (activeTheme === 'obsidian') {
-      document.body.style.backgroundImage = `
-        radial-gradient(circle at 10% 20%, rgba(138, 92, 246, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(217, 70, 239, 0.08) 0%, transparent 40%)
-      `;
-    } else if (activeTheme === 'emerald') {
-      document.body.style.backgroundImage = `
-        radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%)
-      `;
-    } else if (activeTheme === 'sunset') {
-      document.body.style.backgroundImage = `
-        radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 40%)
-      `;
-    } else if (activeTheme === 'ocean') {
-      document.body.style.backgroundImage = `
-        radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(45, 212, 191, 0.08) 0%, transparent 40%)
-      `;
+    if (themePreference === 'system') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', themePreference);
     }
-    
-    document.body.style.backgroundColor = config['--bg-dark-base'];
-    addLog(`Theme Switched: Workspace styled in premium ${activeTheme.toUpperCase()} glassmorphism.`);
-  }, [activeTheme]);
+    localStorage.setItem('gigo_theme_preference', themePreference);
+  }, [themePreference]);
 
   // Global Escape key event listener to close modals
   useEffect(() => {
@@ -1376,12 +1300,8 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
     }
     
     if (cleaned === 'toggle theme') {
-      setActiveTheme(prev => {
-        let next: 'obsidian' | 'emerald' | 'sunset' | 'ocean' = 'obsidian';
-        if (prev === 'obsidian') next = 'emerald';
-        else if (prev === 'emerald') next = 'sunset';
-        else if (prev === 'sunset') next = 'ocean';
-        else next = 'obsidian';
+      setThemePreference(prev => {
+        const next = prev === 'dark' ? 'light' : 'dark';
         addLog(`System Command Executed: Toggled theme to ${next.toUpperCase()}.`);
         return next;
       });
@@ -1401,44 +1321,6 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
     }
     
     return false;
-  };
-
-  const handleVoiceStyleCommand = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("Your browser does not support Speech Recognition. Please click on the theme selectors.");
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    addLog("Voice Command: Listening for theme style keywords ('sunset', 'emerald', 'ocean', 'obsidian')...");
-    recognition.start();
-
-    recognition.onresult = (event: any) => {
-      const speechResult = event.results[0][0].transcript.toLowerCase();
-      addLog(`Voice Command recognized: "${speechResult}"`);
-
-      if (speechResult.includes('sunset') || speechResult.includes('sun') || speechResult.includes('orange')) {
-        setActiveTheme('sunset');
-      } else if (speechResult.includes('emerald') || speechResult.includes('green') || speechResult.includes('forest')) {
-        setActiveTheme('emerald');
-      } else if (speechResult.includes('ocean') || speechResult.includes('blue') || speechResult.includes('sea') || speechResult.includes('cyan')) {
-        setActiveTheme('ocean');
-      } else if (speechResult.includes('obsidian') || speechResult.includes('purple') || speechResult.includes('dark') || speechResult.includes('default')) {
-        setActiveTheme('obsidian');
-      } else {
-        addLog(`Voice Command: "${speechResult}" did not match any style keyword. Try 'sunset', 'emerald', 'ocean', or 'obsidian'.`);
-      }
-    };
-
-    recognition.onerror = (err: any) => {
-      console.error("Speech Recognition Error:", err);
-      addLog(`Voice Command error: ${err.error}. Please try again.`);
-    };
   };
 
   const startSignupVoiceRecording = () => {
@@ -5088,13 +4970,23 @@ ${profile.name || '[   ]'}`;
             {/* Theme + admin toggle */}
             <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
               <div>
-                <div style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Style</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <button className="theme-dot obsidian-dot" title="Obsidian Purple" onClick={() => setActiveTheme('obsidian')} style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#8a5cf6', border: activeTheme === 'obsidian' ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', padding: 0 }} />
-                  <button className="theme-dot emerald-dot" title="Emerald Green" onClick={() => setActiveTheme('emerald')} style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#10b981', border: activeTheme === 'emerald' ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', padding: 0 }} />
-                  <button className="theme-dot sunset-dot" title="Sunset Orange" onClick={() => setActiveTheme('sunset')} style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#f59e0b', border: activeTheme === 'sunset' ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', padding: 0 }} />
-                  <button className="theme-dot ocean-dot" title="Ocean Blue" onClick={() => setActiveTheme('ocean')} style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#0ea5e9', border: activeTheme === 'ocean' ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', padding: 0 }} />
-                  <button type="button" className="btn-glass" onClick={handleVoiceStyleCommand} title="Speak Style Command" style={{ padding: '0.3rem 0.5rem', fontSize: '0.7rem', border: 'none', background: 'rgba(255,255,255,0.05)', borderRadius: '6px' }}>🎙️</button>
+                <div style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Theme</div>
+                <div style={{ display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.15)', padding: '0.25rem', borderRadius: '10px', border: '1px solid var(--border-glass)' }}>
+                  {(['system', 'light', 'dark'] as const).map(mode => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setThemePreference(mode)}
+                      style={{
+                        flex: 1, padding: '0.4rem 0.6rem', fontSize: '0.72rem', fontWeight: 700, textTransform: 'capitalize',
+                        borderRadius: '7px', border: 'none', cursor: 'pointer',
+                        background: themePreference === mode ? 'var(--primary)' : 'transparent',
+                        color: themePreference === mode ? '#fff' : 'var(--text-secondary)'
+                      }}
+                    >
+                      {mode === 'system' ? '💻 System' : mode === 'light' ? '☀️ Light' : '🌙 Dark'}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -11254,8 +11146,8 @@ ${profile.name || '[   ]'}`;
           moveTaskStatus={moveTaskStatus}
           addLog={addLog}
           setShowSettingsModal={setShowSettingsModal}
-          activeTheme={activeTheme}
-          setActiveTheme={setActiveTheme}
+          activeTheme={themePreference}
+          setActiveTheme={setThemePreference}
           mailThreads={mailThreads}
           triggerManualJobSearch={triggerManualJobSearch}
         />
