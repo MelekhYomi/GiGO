@@ -1642,6 +1642,10 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
         if (data.role) {
           setUserRole(data.role);
           localStorage.setItem('wa_userRole', data.role);
+          // Restoring a session on page refresh should land an admin back on
+          // the Admin Console too, not silently drop them to the candidate
+          // dashboard just because component state reset on reload.
+          if (data.role === 'admin') setIsAdminMode(true);
         } else {
           setUserRole('candidate');
           localStorage.setItem('wa_userRole', 'candidate');
@@ -3430,9 +3434,12 @@ const [activeLeftTab, setActiveLeftTab] = useState<'logs' | 'ledger' | 'docs' | 
   // ----------------------------------------------------
   const resetSessionWorkspaceStates = (role?: string, email?: string) => {
     handleSetWorkspaceTab('copilot');
-    const defaultLeftTab = (role === 'admin' || email === 'admin@gigo.com') ? 'logs' : 'brain';
+    const isAdminAccount = role === 'admin' || email === 'admin@gigo.com';
+    const defaultLeftTab = isAdminAccount ? 'logs' : 'brain';
     setActiveLeftTab(defaultLeftTab);
-    setIsAdminMode(false);
+    // Admins land on the Admin Console first, not the candidate dashboard —
+    // candidates never see this toggle at all, so this only affects admins.
+    setIsAdminMode(isAdminAccount);
     setShowSettingsModal(false);
     setShowNewTaskModal(false);
     setShowBrainEnrichModal(false);
@@ -5020,8 +5027,8 @@ ${profile.name || '[   ]'}`;
 
               {(userEmail === 'admin@gigo.com' || userRole === 'admin') && (
                 <div className="toggle-switch-panel glass-panel" style={{ width: '100%' }}>
-                  <button className={`btn-glass btn-tab ${!isAdminMode ? 'active-tab' : ''}`} onClick={() => { setIsAdminMode(false); setShowNavDrawer(false); }}>Dashboard</button>
                   <button className={`btn-glass btn-tab ${isAdminMode ? 'active-tab' : ''}`} onClick={() => { setIsAdminMode(true); setShowNavDrawer(false); }}>Admin Console</button>
+                  <button className={`btn-glass btn-tab ${!isAdminMode ? 'active-tab' : ''}`} onClick={() => { setIsAdminMode(false); setShowNavDrawer(false); }}>Dashboard</button>
                 </div>
               )}
             </div>

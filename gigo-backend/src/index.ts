@@ -137,8 +137,13 @@ app.get('/api/users/:userId', authenticateToken, async (req: Request, res: Respo
     const rawData = userDoc.data() || {};
     // Never ship raw OAuth tokens to the client — expose only a connected boolean
     const { gmailCredentials, ...safeData } = rawData as any;
+    // Same effective-role reasoning as login: a granted additional-admin's own
+    // user document may never have had its role field flipped to 'admin', so
+    // without this a page refresh would silently drop them back to candidate.
+    const effectiveRole = (await isAuthorizedAdminEmail(rawData.email)) ? 'admin' : (rawData.role || 'candidate');
     res.status(200).json({
       ...safeData,
+      role: effectiveRole,
       gmailConnected: !!gmailCredentials?.refreshToken
     });
   } catch (error: any) {
@@ -1122,6 +1127,11 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     }
 
     const token = generateToken(userDoc.id);
+    // An email granted admin access via the additional-admins system counts as
+    // admin here even if the user document's own role field was never flipped
+    // (that field is only touched by the separate change-role endpoint) -
+    // otherwise a granted admin would log in and see the candidate dashboard.
+    const effectiveRole = (await isAuthorizedAdminEmail(userData.email)) ? 'admin' : (userData.role || 'candidate');
 
     res.status(200).json({
       success: true,
@@ -1133,7 +1143,7 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
         email: userData.email,
         fullName: userData.fullName,
         phoneNumber: userData.phoneNumber || '',
-        role: userData.role || 'candidate'
+        role: effectiveRole
       }
     });
   } catch (error: any) {
@@ -1158,6 +1168,7 @@ app.post('/api/auth/biometric-login', async (req: Request, res: Response) => {
     }
     const userData = userDoc.data() || {};
     const token = generateToken(userId);
+    const effectiveRole = (await isAuthorizedAdminEmail(userData.email)) ? 'admin' : (userData.role || 'candidate');
     res.status(200).json({
       success: true,
       message: "Biometric authentication successful.",
@@ -1168,7 +1179,7 @@ app.post('/api/auth/biometric-login', async (req: Request, res: Response) => {
         email: userData.email,
         fullName: userData.fullName,
         phoneNumber: userData.phoneNumber || '',
-        role: userData.role || 'candidate'
+        role: effectiveRole
       }
     });
   } catch (error: any) {
