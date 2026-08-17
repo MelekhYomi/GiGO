@@ -250,12 +250,12 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
   };
 
   const inputStyle: React.CSSProperties = {
-    background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px',
+    background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '8px',
     padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)', width: '100%'
   };
 
   return (
-    <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div>
         <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }} className="text-gradient-purple-pink">🏦 Manual Bank Transfer Payments</h3>
         <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
@@ -263,7 +263,7 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
         </p>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
         <div>
           <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>🛟 Manual AI Fallback</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
@@ -286,7 +286,7 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
         </button>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
         <div>
           <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>🧠 Gemini Auto-Apply Judgment Gate</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
@@ -309,7 +309,7 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
         </button>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
         <div>
           <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>🪪 Bypass NIN Verification Wallet Lock</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
@@ -332,7 +332,7 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
         </button>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
         <div>
           <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>💳 Hide Paystack in Refuel Modal</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
@@ -355,7 +355,7 @@ export default function ManualPaymentAdmin({ API_BASE_URL, userEmail, addLog }: 
         </button>
       </div>
 
-      <div style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
+      <div style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.6rem' }}>
           <div>
             <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>📤 Upload-Your-Own-CV Fallback</div>

@@ -151,7 +151,7 @@ export default function AIObservabilityDashboard({ API_BASE_URL }: AIObservabili
           </div>
 
           {/* SVG Line Chart */}
-          <div style={{ width: '100%', height: '220px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', padding: '1rem', position: 'relative' }}>
+          <div style={{ width: '100%', height: '220px', background: 'var(--bg-dark-card)', borderRadius: '8px', padding: '1rem', position: 'relative' }}>
             <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ width: '100%', height: '100%' }}>
               <defs>
                 <linearGradient id="chartGlow" x1="0" y1="0" x2="0" y2="1">

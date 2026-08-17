@@ -366,7 +366,7 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
 
       {/* COLUMN 2: THREAD LIST */}
       <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', padding: '1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.75rem' }}>
           <div>
             <h2 style={{ fontSize: '0.9rem', fontWeight: 800, margin: 0, letterSpacing: '0.05em', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', textTransform: 'uppercase' }}>
               <span className="pulse-dot" style={{ width: '8px', height: '8px', background: activeMailFolder === 'trash' ? '#f87171' : '#d946ef', borderRadius: '50%', boxShadow: activeMailFolder === 'trash' ? '0 0 10px #f87171' : '0 0 10px #d946ef' }}></span>
@@ -550,7 +550,7 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
             )}
 
             {/* ACTIVE THREAD HEADER */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '1rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border-glass)', paddingBottom: '1rem', marginBottom: '1rem' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
                   <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
@@ -655,7 +655,7 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
                         }}
                       >
                         {/* Message Header */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.25rem', gap: '2rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.25rem', gap: '2rem' }}>
                           <span style={{ fontSize: '0.75rem', fontWeight: 800, color: isUser ? '#d8b4fe' : '#94a3b8' }}>
                             {isUser ? 'YOU (Candidate)' : `${msg.senderName || 'Recruiter'} (Recruiting Team)`}
                           </span>
@@ -684,7 +684,7 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
             </div>
 
             {/* MESSAGE INPUT EDITOR FOOTER */}
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem' }}>
+            <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '1rem' }}>
               {selectedThread.isTrash || selectedThread.folder === 'trash' ? (
                 <div style={{ textAlign: 'center', padding: '1.25rem', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.15)', borderRadius: '8px', color: '#f87171', fontSize: '0.85rem', fontWeight: 500 }}>
                   ⚠️ This email thread is currently in the Trash bin. Replying is disabled. Please restore the thread to dispatch replies.
@@ -701,7 +701,7 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
                           width: '100%', 
                           resize: 'none', 
                           background: 'rgba(15, 13, 35, 0.5)', 
-                          border: '1px solid rgba(255,255,255,0.1)',
+                          border: '1px solid var(--border-glass)',
                           padding: '0.75rem',
                           fontSize: '0.85rem',
                           color: '#f3e8ff',
@@ -743,7 +743,7 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
       {showFollowupModal && (
         <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(5, 3, 10, 0.85)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, backdropFilter: 'blur(8px)' }}>
           <div className="glass-panel animate-scale-up" style={{ width: '650px', maxWidth: '90%', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem', background: 'rgba(15, 12, 30, 0.95)', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.75rem' }}>
               <h2 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }} className="text-gradient-purple-pink">
                 <span>🪄</span> AI Career Correspondence Wizard
               </h2>
@@ -776,7 +776,7 @@ export const MailroomTab: React.FC<MailroomTabProps> = ({
               />
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', borderTop: '1px solid var(--border-glass)', paddingTop: '0.75rem' }}>
               <button
                 className="btn-glass btn-secondary"
                 onClick={() => { setShowFollowupModal(false); setFollowupDraftText(''); }}

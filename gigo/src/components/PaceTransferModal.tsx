@@ -78,7 +78,7 @@ export default function PaceTransferModal({ API_BASE_URL, userId, onClose, onSuc
               Send Pace to another GiGO user by email. Only Pace from money you've actually paid in can be sent — your welcome bonus stays non-transferable.
             </p>
 
-            <div style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '1rem' }}>
+            <div style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '1rem' }}>
               <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Transferable Balance</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--text-primary)' }}>
                 {transferablePace === null ? 'Loading...' : `${transferablePace.toLocaleString()} Pace`}
@@ -92,7 +92,7 @@ export default function PaceTransferModal({ API_BASE_URL, userId, onClose, onSuc
                 value={recipientEmail}
                 onChange={e => setRecipientEmail(e.target.value)}
                 placeholder="Recipient's GiGO email"
-                style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.75rem', fontSize: '0.85rem', color: 'var(--text-primary)' }}
+                style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.75rem', fontSize: '0.85rem', color: 'var(--text-primary)' }}
               />
               <input
                 type="number"
@@ -100,7 +100,7 @@ export default function PaceTransferModal({ API_BASE_URL, userId, onClose, onSuc
                 value={paceAmount}
                 onChange={e => setPaceAmount(e.target.value)}
                 placeholder="Pace amount"
-                style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.75rem', fontSize: '0.85rem', color: 'var(--text-primary)' }}
+                style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.75rem', fontSize: '0.85rem', color: 'var(--text-primary)' }}
               />
             </div>
 

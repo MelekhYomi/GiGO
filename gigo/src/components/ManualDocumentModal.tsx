@@ -91,7 +91,7 @@ export default function ManualDocumentModal({ API_BASE_URL, userId, request, onC
               placeholder={`Write your ${LABELS[request.assetType].toLowerCase()} here...`}
               rows={12}
               style={{
-                width: '100%', background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)',
+                width: '100%', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)',
                 borderRadius: '10px', padding: '0.85rem', fontSize: '0.85rem', color: 'var(--text-primary)',
                 lineHeight: 1.5, resize: 'vertical', fontFamily: 'inherit', marginBottom: '1rem'
               }}

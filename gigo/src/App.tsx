@@ -5548,7 +5548,7 @@ ${profile.name || '[   ]'}`;
                                   Share your unique referral link. Whenever friends or family verify their NIN, your GiGO Ambassador score increases, unlocking exclusive rewards and weekly cash prizes!
                                 </p>
                               </div>
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', alignItems: 'flex-end', background: 'rgba(15, 23, 42, 0.6)', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', alignItems: 'flex-end', background: 'var(--bg-dark-card)', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
                                 <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ambassador ID</span>
                                 <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#a855f7' }}>{userId ? `AMB-${userId.slice(0, 8).toUpperCase()}` : 'AMB-PENDING'}</span>
                               </div>
@@ -6918,15 +6918,15 @@ ${profile.name || '[   ]'}`;
 
                   {/* Redesigned Metrics Grid in GiGO Hero Tokens */}
                   <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                    <div style={{ flex: 1, background: 'rgba(15,23,42,0.4)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.65rem 0.5rem', textAlign: 'center', boxShadow: 'inset 0 0 10px rgba(255,255,255,0.01)' }}>
+                    <div style={{ flex: 1, background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.65rem 0.5rem', textAlign: 'center', boxShadow: 'inset 0 0 10px rgba(255,255,255,0.01)' }}>
                       <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Invited</div>
                       <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-primary)', marginTop: '0.15rem' }}>{referrals.length}</div>
                     </div>
-                    <div style={{ flex: 1, background: 'rgba(15,23,42,0.4)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.65rem 0.5rem', textAlign: 'center', boxShadow: 'inset 0 0 10px rgba(255,255,255,0.01)' }}>
+                    <div style={{ flex: 1, background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.65rem 0.5rem', textAlign: 'center', boxShadow: 'inset 0 0 10px rgba(255,255,255,0.01)' }}>
                       <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Registered</div>
                       <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#10b981', marginTop: '0.15rem' }}>{referrals.filter((r: any) => r.status === 'COMPLETED').length}</div>
                     </div>
-                    <div style={{ flex: 1, background: 'rgba(15,23,42,0.4)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.65rem 0.5rem', textAlign: 'center', boxShadow: 'inset 0 0 10px rgba(255,255,255,0.01)' }}>
+                    <div style={{ flex: 1, background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px', padding: '0.65rem 0.5rem', textAlign: 'center', boxShadow: 'inset 0 0 10px rgba(255,255,255,0.01)' }}>
                       <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Earned</div>
                       <div style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--secondary)', marginTop: '0.15rem' }}>
                         ⚡ {(referrals.filter((r: any) => r.status === 'COMPLETED').length * 250).toLocaleString()} Pace
@@ -7395,7 +7395,7 @@ ${profile.name || '[   ]'}`;
       {/* TICKER CHANNEL CONFIGURATION MODAL */}
       {showTickerConfigModal && (
         <div className="modal-overlay" style={{ zIndex: 1100 }}>
-          <div className="modal-content animate-fade-in" style={{ maxWidth: '450px', background: 'rgba(15, 23, 42, 0.95)', border: '1px solid var(--border-glass)' }}>
+          <div className="modal-content animate-fade-in" style={{ maxWidth: '450px', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)' }}>
             <button className="close-btn" onClick={() => setShowTickerConfigModal(false)}>&times;</button>
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               🎯 Personalize Match Feed
@@ -8305,7 +8305,7 @@ ${profile.name || '[   ]'}`;
             </div>
 
             {/* Dynamic Candidate Usage & Performance Analytics */}
-            <div className="glass-panel" style={{ padding: '1.25rem', background: 'rgba(15, 23, 42, 0.4)', border: '1px solid var(--border-glass)', borderRadius: '12px', marginBottom: '1.5rem' }}>
+            <div className="glass-panel" style={{ padding: '1.25rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '12px', marginBottom: '1.5rem' }}>
               <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
                 <span>📈 Dynamic Candidate Usage & Performance Analytics</span>
                 <span className="badge badge-purple" style={{ fontSize: '0.65rem' }}>Real-time</span>

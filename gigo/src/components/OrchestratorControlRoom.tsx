@@ -179,7 +179,7 @@ export default function OrchestratorControlRoom({ API_BASE_URL, addLog }: Orches
         </div>
 
         {/* SVG/CSS Interactive Network Map */}
-        <div style={{ flex: 1, position: 'relative', background: 'rgba(0,0,0,0.4)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.04)', minHeight: '400px' }}>
+        <div style={{ flex: 1, position: 'relative', background: 'var(--bg-dark-card)', borderRadius: '12px', border: '1px solid var(--border-glass)', minHeight: '400px' }}>
           
           <svg style={{ position: 'absolute', width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>
             {/* SVG Connecting Paths with dynamic glow */}
@@ -251,7 +251,7 @@ export default function OrchestratorControlRoom({ API_BASE_URL, addLog }: Orches
                       triggerAgentRun(node.name);
                     }}
                     className="btn-glass"
-                    style={{ flex: 1, padding: '0.25rem 0', fontSize: '0.62rem', borderRadius: '4px', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.04)' }}
+                    style={{ flex: 1, padding: '0.25rem 0', fontSize: '0.62rem', borderRadius: '4px', cursor: 'pointer', border: '1px solid var(--border-glass)' }}
                   >
                     🚀 Trigger
                   </button>
@@ -276,7 +276,7 @@ export default function OrchestratorControlRoom({ API_BASE_URL, addLog }: Orches
             boxShadow: 'var(--shadow-lg)'
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.75rem' }}>
             <div>
               <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
                 {selectedAgent.label}
@@ -312,8 +312,8 @@ export default function OrchestratorControlRoom({ API_BASE_URL, addLog }: Orches
                   style={{
                     width: '100%',
                     height: '110px',
-                    background: 'rgba(0,0,0,0.4)',
-                    border: '1px solid rgba(255,255,255,0.08)',
+                    background: 'var(--bg-dark-card)',
+                    border: '1px solid var(--border-glass)',
                     borderRadius: '6px',
                     color: 'var(--text-primary)',
                     padding: '0.5rem',
@@ -345,7 +345,7 @@ export default function OrchestratorControlRoom({ API_BASE_URL, addLog }: Orches
               style={{ 
                 flex: 1, 
                 background: '#04020a', 
-                border: '1px solid rgba(255,255,255,0.05)', 
+                border: '1px solid var(--border-glass)', 
                 borderRadius: '6px', 
                 padding: '0.75rem', 
                 fontFamily: 'monospace', 
@@ -366,7 +366,7 @@ export default function OrchestratorControlRoom({ API_BASE_URL, addLog }: Orches
                 </div>
               ) : (
                 agentLogs.map((log) => (
-                  <div key={log.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', paddingBottom: '0.4rem' }}>
+                  <div key={log.id} style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.4rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: '#999' }}>
                       <span>[{new Date(log.timestamp).toLocaleTimeString()}]</span>
                       <span style={{ color: log.status === 'COMPLETED' ? 'var(--emerald)' : 'red' }}>{log.status}</span>

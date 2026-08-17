@@ -26,7 +26,7 @@ export default function WaitlistPanel({ API_BASE_URL }: WaitlistPanelProps) {
 
   if (!data || data.totalSignups === 0) {
     return (
-      <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+      <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
         <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }} className="text-gradient-purple-pink">📋 Waitlist Demand Validation</h3>
         <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '1rem' }}>No waitlist signups yet. Share the /waitlist link to start collecting real demand evidence.</p>
       </div>
@@ -34,7 +34,7 @@ export default function WaitlistPanel({ API_BASE_URL }: WaitlistPanelProps) {
   }
 
   return (
-    <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div>
         <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }} className="text-gradient-purple-pink">📋 Waitlist Demand Validation</h3>
         <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
@@ -50,7 +50,7 @@ export default function WaitlistPanel({ API_BASE_URL }: WaitlistPanelProps) {
           { label: 'Avg. Committed Price', value: `₦${data.avgCommittedPriceNGN.toLocaleString()}` },
           { label: 'Avg. Voice Onboarding Rating', value: data.avgVoiceRating ? `${data.avgVoiceRating} / 5` : '—' },
         ].map(stat => (
-          <div key={stat.label} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '10px', padding: '1rem', textAlign: 'center' }}>
+          <div key={stat.label} style={{ background: 'var(--bg-dark-card)', borderRadius: '10px', padding: '1rem', textAlign: 'center' }}>
             <div style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--text-primary)' }}>{stat.value}</div>
             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{stat.label}</div>
           </div>
@@ -71,7 +71,7 @@ export default function WaitlistPanel({ API_BASE_URL }: WaitlistPanelProps) {
             </thead>
             <tbody>
               {data.candidates.map((c: any) => (
-                <tr key={c.userId} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                <tr key={c.userId} style={{ borderBottom: '1px solid var(--border-glass)' }}>
                   <td style={{ padding: '0.5rem', fontWeight: 700 }}>{c.fullName}</td>
                   <td style={{ padding: '0.5rem' }}>{c.waitlistCommittedPriceNGN ? `₦${c.waitlistCommittedPriceNGN.toLocaleString()}/mo` : '—'}</td>
                   <td style={{ padding: '0.5rem' }}>{c.voiceOnboardingRating ?? '—'}</td>

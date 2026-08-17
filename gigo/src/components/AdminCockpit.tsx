@@ -502,7 +502,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
 
       {/* KPI STATISTICAL RIBBON */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
-        <div className="glass-panel" style={{ padding: '1.25rem', background: 'rgba(15, 23, 42, 0.35)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '1rem', transition: 'transform 0.2s', cursor: 'default' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+        <div className="glass-panel" style={{ padding: '1.25rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '1rem', transition: 'transform 0.2s', cursor: 'default' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
           <div style={{ padding: '0.75rem', background: 'rgba(139, 92, 246, 0.15)', borderRadius: '12px', fontSize: '1.5rem', color: '#8b5cf6' }}>👥</div>
           <div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ecosystem Candidates</div>
@@ -510,7 +510,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
           </div>
         </div>
 
-        <div className="glass-panel" style={{ padding: '1.25rem', background: 'rgba(15, 23, 42, 0.35)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '1rem', transition: 'transform 0.2s', cursor: 'default' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+        <div className="glass-panel" style={{ padding: '1.25rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '1rem', transition: 'transform 0.2s', cursor: 'default' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
           <div style={{ padding: '0.75rem', background: 'rgba(16, 185, 129, 0.15)', borderRadius: '12px', fontSize: '1.5rem', color: '#10b981' }}>🪙</div>
           <div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ecosystem Ledger Liability</div>
@@ -523,7 +523,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
           </div>
         </div>
 
-        <div className="glass-panel" style={{ padding: '1.25rem', background: 'rgba(15, 23, 42, 0.35)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '1rem', transition: 'transform 0.2s', cursor: 'default' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+        <div className="glass-panel" style={{ padding: '1.25rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '1rem', transition: 'transform 0.2s', cursor: 'default' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
           <div style={{ padding: '0.75rem', background: 'rgba(14, 165, 233, 0.15)', borderRadius: '12px', fontSize: '1.5rem', color: '#0ea5e9' }}>💼</div>
           <div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ecosystem Application Hub</div>
@@ -531,7 +531,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
           </div>
         </div>
 
-        <div className="glass-panel" style={{ padding: '1.25rem', background: 'rgba(15, 23, 42, 0.35)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '1rem', transition: 'transform 0.2s', cursor: 'default' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+        <div className="glass-panel" style={{ padding: '1.25rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '1rem', transition: 'transform 0.2s', cursor: 'default' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
           <div style={{ padding: '0.75rem', background: 'rgba(236, 72, 153, 0.15)', borderRadius: '12px', fontSize: '1.5rem', color: '#ec4899' }}>💳</div>
           <div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ledger Records</div>
@@ -601,7 +601,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
       {adminTab === 'activities' && (
         <div className="animate-fade-in" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
           {/* Continuous Validation Logs */}
-          <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', maxHeight: '520px', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+          <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', maxHeight: '520px', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <div>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -647,7 +647,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
           </div>
 
           {/* Continuous Integration Environment Calibration Monitoring */}
-          <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+          <div className="glass-panel" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span>🚀</span> Active Telemetry Health Rings
             </h3>
@@ -722,7 +722,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
           </div>
 
           {financialSubTab === 'ledger' ? (
-            <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+            <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
                   <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>💳 Global Financial Ledger</h3>
@@ -868,7 +868,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
             // CORPORATE ACCOUNTING / BOOKKEEPING BOARD — real, computed P&L. No simulated
             // or projected figures: revenue comes from actual Paystack-confirmed wallet
             // top-ups, expenses come from real logged spend.
-            <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
                   <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }} className="text-gradient-purple-pink">🏦 GiGO Corporate Bookkeeping — Real P&L Statement</h3>
@@ -912,7 +912,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                         <span style={{ fontSize: '0.9rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '0.05em' }}>PROFIT & LOSS STATEMENT</span>
                       </div>
                       <div style={{ background: '#00c58e', height: '0.45rem', width: '100%' }}></div>
-                      <div style={{ background: '#0f172a', padding: '0.75rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', borderBottom: '1px solid var(--border-glass)' }}>
+                      <div style={{ background: 'var(--bg-dark-card)', padding: '0.75rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', borderBottom: '1px solid var(--border-glass)' }}>
                         <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>Program Period: <strong style={{ color: 'var(--text-primary)' }}>May 19 - August 17</strong></span>
                         <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>Currency: <strong style={{ color: '#38bdf8' }}>USD</strong></span>
                       </div>
@@ -940,7 +940,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                       );
 
                       return (
-                        <div className="table-wrapper" style={{ overflowX: 'auto', border: '1px solid var(--border-glass)', borderRadius: '0 0 16px 16px', background: 'rgba(15, 23, 42, 0.4)' }}>
+                        <div className="table-wrapper" style={{ overflowX: 'auto', border: '1px solid var(--border-glass)', borderRadius: '0 0 16px 16px', background: 'var(--bg-dark-card)' }}>
                           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
                             <thead>
                               <tr style={{ background: '#0b1329', borderBottom: '2px solid var(--border-glass)' }}>
@@ -1000,7 +1000,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                     })()}
 
                     {/* Legend */}
-                    <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+                    <div className="glass-panel" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
                       <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#fb923c', textTransform: 'uppercase', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>LEGEND:</div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
                         <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.5 }}><span style={{ color: '#fb923c', marginRight: '0.4rem' }}>■</span> <strong style={{ color: 'var(--text-primary)' }}>COGS</strong> stands for Cost of Goods Sold and includes expenses to produce the service provided by the business.</div>
@@ -1078,7 +1078,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
 
       {/* TAB 3: APPLICATION HUB */}
       {adminTab === 'applications' && (
-        <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+        <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
               <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>💼 Ecosystem Application Hub</h3>
@@ -1205,7 +1205,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
 
       {/* TAB 4: CANDIDATE DIRECTORY */}
       {adminTab === 'candidates' && (
-        <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+        <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <div>
               <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>👥 Candidate Accounts Directory</h3>
@@ -1459,7 +1459,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
           <LegalDocumentsEditor API_BASE_URL={API_BASE_URL} userEmail={userEmail || 'admin@gigo.com'} addLog={addLog} />
 
           {/* Global System Configuration */}
-          <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+          <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }} className="text-gradient-purple-pink">Global System Configuration</h3>
@@ -1539,8 +1539,8 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   required
                   style={{ background: 'var(--bg-dark-card)', borderColor: 'var(--border-glass)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem', outline: 'none' }}
                 >
-                  <option value="test" style={{ background: '#0f172a' }}>Sandbox / Test Environment</option>
-                  <option value="live" style={{ background: '#0f172a' }}>Production / Live Environment</option>
+                  <option value="test" style={{ background: 'var(--bg-dark-surface)' }}>Sandbox / Test Environment</option>
+                  <option value="live" style={{ background: 'var(--bg-dark-surface)' }}>Production / Live Environment</option>
                 </select>
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.35rem', display: 'block' }}>Switching environment modes immediately shifts payment routing for all platform checkouts.</span>
               </div>
@@ -1759,7 +1759,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
           </div>
 
           {/* Managing Searchable Domains */}
-          <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+          <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
             <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>🔧 Boolean Scraper Targeted Domains Directory</h4>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0 0 1rem 0' }}>Add or delete target web domains that are dynamically selectable in the Candidate Scraper Workspace filters dropdown.</p>
             
@@ -1830,7 +1830,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
           </div>
 
           {/* Ecosystem Security & Governance Flags */}
-          <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+          <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
             <h4 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }} className="text-gradient-purple-pink">🔒 Ecosystem Security & Governance Flags</h4>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0 0 1.25rem 0' }}>Enforce global architectural overrides and security rules across all candidate consoles instantly.</p>
             
@@ -1912,7 +1912,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
           </div>
 
           {/* Administrative Audit Trails */}
-          <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+          <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
             <h4 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }} className="text-gradient-purple-pink">🛡️ Ecosystem Security Audit Vault</h4>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0 0 1.25rem 0' }}>Chronological register of admin action overrides, configurations, and user freezes. Non-repudiable logs.</p>
             
@@ -1985,7 +1985,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(15, 23, 42, 0.85)',
+          background: 'var(--bg-dark-card)',
           backdropFilter: 'blur(10px)',
           display: 'flex',
           alignItems: 'center',
@@ -1994,7 +1994,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
           padding: '1rem'
         }}>
           <div className="glass-panel animate-fade-in" style={{
-            background: 'rgba(15, 23, 42, 0.75)',
+            background: 'var(--bg-dark-card)',
             border: '1px solid rgba(139, 92, 246, 0.3)',
             borderRadius: '16px',
             maxWidth: '500px',

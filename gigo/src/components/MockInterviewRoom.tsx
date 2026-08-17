@@ -452,34 +452,34 @@ export default function MockInterviewRoom({
             <button 
               className={`domain-btn ${selectedDomain === 'react' ? 'active' : ''}`}
               onClick={() => loadPresetQuestions('react')}
-              style={{ padding: '0.65rem', borderRadius: '8px', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)', color: 'var(--text-secondary)', fontWeight: 600 }}
+              style={{ padding: '0.65rem', borderRadius: '8px', cursor: 'pointer', border: '1px solid var(--border-glass)', background: 'rgba(255,255,255,0.02)', color: 'var(--text-secondary)', fontWeight: 600 }}
             >
               ⚛️ React Frontend
             </button>
             <button 
               className={`domain-btn ${selectedDomain === 'node' ? 'active' : ''}`}
               onClick={() => loadPresetQuestions('node')}
-              style={{ padding: '0.65rem', borderRadius: '8px', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)', color: 'var(--text-secondary)', fontWeight: 600 }}
+              style={{ padding: '0.65rem', borderRadius: '8px', cursor: 'pointer', border: '1px solid var(--border-glass)', background: 'rgba(255,255,255,0.02)', color: 'var(--text-secondary)', fontWeight: 600 }}
             >
               🟢 Node.js Backend
             </button>
             <button 
               className={`domain-btn ${selectedDomain === 'system' ? 'active' : ''}`}
               onClick={() => loadPresetQuestions('system')}
-              style={{ padding: '0.65rem', borderRadius: '8px', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)', color: 'var(--text-secondary)', fontWeight: 600 }}
+              style={{ padding: '0.65rem', borderRadius: '8px', cursor: 'pointer', border: '1px solid var(--border-glass)', background: 'rgba(255,255,255,0.02)', color: 'var(--text-secondary)', fontWeight: 600 }}
             >
               🏗️ System Design
             </button>
             <button 
               className={`domain-btn ${selectedDomain === 'behavioral' ? 'active' : ''}`}
               onClick={() => loadPresetQuestions('behavioral')}
-              style={{ padding: '0.65rem', borderRadius: '8px', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)', color: 'var(--text-secondary)', fontWeight: 600 }}
+              style={{ padding: '0.65rem', borderRadius: '8px', cursor: 'pointer', border: '1px solid var(--border-glass)', background: 'rgba(255,255,255,0.02)', color: 'var(--text-secondary)', fontWeight: 600 }}
             >
               🤝 Behavioral & Ops
             </button>
           </div>
 
-          <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+          <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--primary)' }}>💼 Custom Job-Specific Interview</span>
@@ -487,7 +487,7 @@ export default function MockInterviewRoom({
               </div>
               
               {/* Dual-Option Toggle Buttons */}
-              <div style={{ display: 'flex', background: 'rgba(0,0,0,0.4)', padding: '0.2rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <div style={{ display: 'flex', background: 'var(--bg-dark-card)', padding: '0.2rem', borderRadius: '6px', border: '1px solid var(--border-glass)' }}>
                 <button
                   type="button"
                   onClick={() => setIsCustomMode(false)}
@@ -532,7 +532,7 @@ export default function MockInterviewRoom({
                   value={selectedJobId}
                   onChange={(e) => setSelectedJobId(e.target.value)}
                   className="input-glass"
-                  style={{ flex: 1, padding: '0.6rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.8rem', outline: 'none' }}
+                  style={{ flex: 1, padding: '0.6rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.8rem', outline: 'none' }}
                 >
                   <option value="">-- Choose an active matched job ({allUniqueJobs.length} available) --</option>
                   {allUniqueJobs.map(job => (
@@ -551,7 +551,7 @@ export default function MockInterviewRoom({
               </div>
             ) : (
               /* Custom Job Parameter Fields */
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'rgba(255,255,255,0.01)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)', transform: 'translateY(0)', transition: 'all 0.3s ease' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'rgba(255,255,255,0.01)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-glass)', transform: 'translateY(0)', transition: 'all 0.3s ease' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                     <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800 }}>JOB TITLE</span>
@@ -561,7 +561,7 @@ export default function MockInterviewRoom({
                       value={customJobTitle}
                       onChange={(e) => setCustomJobTitle(e.target.value)}
                       className="input-glass"
-                      style={{ padding: '0.55rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.8rem', outline: 'none' }}
+                      style={{ padding: '0.55rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.8rem', outline: 'none' }}
                     />
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
@@ -572,7 +572,7 @@ export default function MockInterviewRoom({
                       value={customCompany}
                       onChange={(e) => setCustomCompany(e.target.value)}
                       className="input-glass"
-                      style={{ padding: '0.55rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.8rem', outline: 'none' }}
+                      style={{ padding: '0.55rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.8rem', outline: 'none' }}
                     />
                   </div>
                 </div>
@@ -584,7 +584,7 @@ export default function MockInterviewRoom({
                       value={customJobStyle}
                       onChange={(e: any) => setCustomJobStyle(e.target.value)}
                       className="input-glass"
-                      style={{ padding: '0.55rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.8rem', outline: 'none' }}
+                      style={{ padding: '0.55rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.8rem', outline: 'none' }}
                     >
                       <option value="Remote">Remote</option>
                       <option value="Hybrid">Hybrid</option>
@@ -705,7 +705,7 @@ export default function MockInterviewRoom({
 
             {/* Expandable Preparation Drawer */}
             {(questionsList[activeQuestionIndex]?.focusArea || questionsList[activeQuestionIndex]?.keyPoints) && (
-              <div style={{ border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', background: 'rgba(255,255,255,0.01)', overflow: 'hidden' }}>
+              <div style={{ border: '1px solid var(--border-glass)', borderRadius: '8px', background: 'rgba(255,255,255,0.01)', overflow: 'hidden' }}>
                 <button
                   type="button"
                   onClick={() => setIsPrepExpanded(!isPrepExpanded)}
@@ -718,7 +718,7 @@ export default function MockInterviewRoom({
                   <span>{isPrepExpanded ? '▲ Hide' : '▼ Show'}</span>
                 </button>
                 {isPrepExpanded && (
-                  <div style={{ padding: '1rem', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'rgba(0,0,0,0.2)' }}>
+                  <div style={{ padding: '1rem', borderTop: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'var(--bg-dark-card)' }}>
                     {questionsList[activeQuestionIndex]?.focusArea && (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
                         <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase' }}>What They Look For</span>
@@ -749,7 +749,7 @@ export default function MockInterviewRoom({
             )}
 
             {/* Voice Transcribing Box */}
-            <div style={{ background: 'rgba(0,0,0,0.4)', borderRadius: '8px', padding: '1rem', border: '1px solid rgba(255,255,255,0.04)', minHeight: '100px', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ background: 'var(--bg-dark-card)', borderRadius: '8px', padding: '1rem', border: '1px solid var(--border-glass)', minHeight: '100px', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>
                 Your Answer
               </span>
@@ -885,7 +885,7 @@ export default function MockInterviewRoom({
             )}
 
             {/* Expert Model Response */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 🎓 Example Answer Reference
               </span>

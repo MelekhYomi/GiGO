@@ -155,7 +155,7 @@ Vercel Recruiting`
                 key={idx}
                 onClick={() => setEmailBody(p.body)}
                 className="btn-glass"
-                style={{ padding: '0.5rem', fontSize: '0.72rem', borderRadius: '6px', cursor: 'pointer', textAlign: 'center', border: '1px solid rgba(255,255,255,0.06)' }}
+                style={{ padding: '0.5rem', fontSize: '0.72rem', borderRadius: '6px', cursor: 'pointer', textAlign: 'center', border: '1px solid var(--border-glass)' }}
               >
                 {p.title}
               </button>
@@ -176,8 +176,8 @@ Vercel Recruiting`
               width: '100%',
               minHeight: '180px',
               flex: 1,
-              background: 'rgba(0,0,0,0.3)',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'var(--bg-dark-card)',
+              border: '1px solid var(--border-glass)',
               borderRadius: '8px',
               color: 'var(--text-primary)',
               padding: '0.75rem',
@@ -235,7 +235,7 @@ Vercel Recruiting`
             </div>
 
             {/* Suggested Reply Draft */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
               <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase' }}>
                 🎓 Structured Responder Draft (Gemini Core)
               </span>

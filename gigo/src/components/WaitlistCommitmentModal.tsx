@@ -121,7 +121,7 @@ export default function WaitlistCommitmentModal({ API_BASE_URL, userId, onDone }
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
             placeholder="e.g. Felt natural, wish it asked more about my portfolio..."
-            style={{ width: '100%', minHeight: '80px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.6rem', fontSize: '0.8rem', color: 'var(--text-primary)', resize: 'vertical' }}
+            style={{ width: '100%', minHeight: '80px', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.6rem', fontSize: '0.8rem', color: 'var(--text-primary)', resize: 'vertical' }}
           />
         </div>
 

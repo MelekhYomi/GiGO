@@ -149,12 +149,12 @@ export default function JobSourcesManager({ API_BASE_URL, userEmail, addLog }: J
   };
 
   const inputStyle: React.CSSProperties = {
-    background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px',
+    background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '8px',
     padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)', width: '100%'
   };
 
   return (
-    <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }} className="text-gradient-purple-pink">🌐 Job Sources</h3>
@@ -168,7 +168,7 @@ export default function JobSourcesManager({ API_BASE_URL, userEmail, addLog }: J
       </div>
 
       {showAddForm && (
-        <div className="glass-panel" style={{ padding: '1.25rem', background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+        <div className="glass-panel" style={{ padding: '1.25rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
             <div>
               <label style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Source Name</label>
@@ -234,7 +234,7 @@ export default function JobSourcesManager({ API_BASE_URL, userEmail, addLog }: J
             </thead>
             <tbody>
               {builtIn.map(s => (
-                <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                <tr key={s.id} style={{ borderBottom: '1px solid var(--border-glass)' }}>
                   <td style={{ padding: '0.5rem', fontWeight: 700 }}>{s.name}</td>
                   <td style={{ padding: '0.5rem', color: 'var(--text-muted)', fontFamily: 'monospace', fontSize: '0.7rem' }}>{s.apiUrl}</td>
                   <td style={{ padding: '0.5rem' }}>{s.coverage}</td>
@@ -266,7 +266,7 @@ export default function JobSourcesManager({ API_BASE_URL, userEmail, addLog }: J
               </thead>
               <tbody>
                 {configured.map(s => (
-                  <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                  <tr key={s.id} style={{ borderBottom: '1px solid var(--border-glass)' }}>
                     <td style={{ padding: '0.5rem', fontWeight: 700 }}>{s.name}</td>
                     <td style={{ padding: '0.5rem', color: 'var(--text-muted)', fontFamily: 'monospace', fontSize: '0.7rem', maxWidth: '260px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.apiUrl}</td>
                     <td style={{ padding: '0.5rem' }}>

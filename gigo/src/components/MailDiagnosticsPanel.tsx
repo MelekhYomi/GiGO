@@ -7,7 +7,7 @@ interface MailDiagnosticsPanelProps {
 
 function StatusRow({ label, ok, summary }: { label: string; ok: boolean; summary: string }) {
   return (
-    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', padding: '0.6rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', padding: '0.6rem 0', borderBottom: '1px solid var(--border-glass)' }}>
       <span style={{ fontSize: '1rem', flexShrink: 0 }}>{ok ? '✅' : '⚠️'}</span>
       <div>
         <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>{label}</div>
@@ -36,7 +36,7 @@ export default function MailDiagnosticsPanel({ API_BASE_URL, userEmail }: MailDi
   useEffect(() => { fetchDiagnostics(); }, []);
 
   return (
-    <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+    <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
         <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }} className="text-gradient-purple-pink">📬 Email Delivery Diagnostics</h3>
         <button className="btn-glass" style={{ padding: '0.35rem 0.9rem', fontSize: '0.72rem' }} onClick={fetchDiagnostics} disabled={isLoading}>

@@ -56,7 +56,7 @@ export default function LegalDocumentsEditor({ API_BASE_URL, userEmail, addLog }
   };
 
   return (
-    <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+    <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
         <div>
           <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }} className="text-gradient-purple-pink">📜 Legal Documents</h3>
@@ -94,7 +94,7 @@ export default function LegalDocumentsEditor({ API_BASE_URL, userEmail, addLog }
           value={activeDoc === 'terms' ? termsOfService : privacyPolicy}
           onChange={(e) => activeDoc === 'terms' ? setTermsOfService(e.target.value) : setPrivacyPolicy(e.target.value)}
           style={{
-            width: '100%', minHeight: '420px', background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)',
+            width: '100%', minHeight: '420px', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)',
             borderRadius: '8px', padding: '1rem', fontSize: '0.8rem', color: 'var(--text-primary)', fontFamily: 'monospace', resize: 'vertical', lineHeight: 1.6
           }}
         />

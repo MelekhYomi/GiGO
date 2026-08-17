@@ -431,7 +431,7 @@ export default function ResumeTailorPanel({
         return { background: '#faf9f6', color: '#2b2b2a', minHeight: '800px', fontFamily: "Georgia, serif", padding: '2.5rem', borderRadius: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' };
       }
       if (resumeTemplate === 3) {
-        return { background: '#0e1117', color: '#c9d1d9', minHeight: '800px', fontFamily: "'Courier New', Courier, monospace", padding: '2.5rem', borderRadius: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.06)' };
+        return { background: '#0e1117', color: '#c9d1d9', minHeight: '800px', fontFamily: "'Courier New', Courier, monospace", padding: '2.5rem', borderRadius: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', border: '1px solid var(--border-glass)' };
       }
       return { background: '#ffffff', color: '#111111', minHeight: '800px', fontFamily: "'Inter', sans-serif", padding: '2.5rem', borderRadius: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' };
     } else if (activeSubTab === 'cover_letter') {
@@ -443,15 +443,15 @@ export default function ResumeTailorPanel({
       // Portfolio Layout Styles
       switch (portfolioTemplate) {
         case 0: // Glassmorphic Sunset
-          return { background: '#090816', color: '#f1f1f5', minHeight: '700px', fontFamily: "'Inter', sans-serif", padding: '2.5rem', borderRadius: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.05)' };
+          return { background: '#090816', color: '#f1f1f5', minHeight: '700px', fontFamily: "'Inter', sans-serif", padding: '2.5rem', borderRadius: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', border: '1px solid var(--border-glass)' };
         case 1: // Timeline Story
-          return { background: '#0e1111', color: '#e5e5e5', minHeight: '700px', fontFamily: "'Inter', sans-serif", padding: '2.5rem', borderRadius: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.05)' };
+          return { background: '#0e1111', color: '#e5e5e5', minHeight: '700px', fontFamily: "'Inter', sans-serif", padding: '2.5rem', borderRadius: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', border: '1px solid var(--border-glass)' };
         case 2: // Cyber Terminal CLI
           return { background: '#05070a', color: '#39ff14', minHeight: '700px', fontFamily: "'Courier New', Courier, monospace", padding: '2rem', borderRadius: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.6)', border: '1px solid #1a2d1d' };
         case 3: // Left Sidebar Bento
-          return { background: '#0a0d14', color: '#f3f4f6', minHeight: '700px', fontFamily: "'Inter', sans-serif", padding: '2.5rem', borderRadius: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.05)' };
+          return { background: '#0a0d14', color: '#f3f4f6', minHeight: '700px', fontFamily: "'Inter', sans-serif", padding: '2.5rem', borderRadius: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', border: '1px solid var(--border-glass)' };
         case 4: // Obsidian Dark Minimal
-          return { background: '#0d0d12', color: '#e2e8f0', minHeight: '700px', fontFamily: "'Inter', sans-serif", padding: '2.5rem', borderRadius: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.05)' };
+          return { background: '#0d0d12', color: '#e2e8f0', minHeight: '700px', fontFamily: "'Inter', sans-serif", padding: '2.5rem', borderRadius: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', border: '1px solid var(--border-glass)' };
         default:
           return { background: '#ffffff', color: '#111111', minHeight: '700px', fontFamily: "'Inter', sans-serif", padding: '2.5rem', borderRadius: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' };
       }
@@ -1112,7 +1112,7 @@ export default function ResumeTailorPanel({
         </div>
 
         {/* Sub-Navigation Tabs */}
-        <div style={{ display: 'flex', background: 'rgba(0,0,0,0.3)', padding: '0.35rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', gap: '0.25rem' }}>
+        <div style={{ display: 'flex', background: 'var(--bg-dark-card)', padding: '0.35rem', borderRadius: '8px', border: '1px solid var(--border-glass)', gap: '0.25rem' }}>
           <button
             onClick={() => setActiveSubTab('resume')}
             style={{
@@ -1189,7 +1189,7 @@ export default function ResumeTailorPanel({
           {/* ACTIVE CONTENT SOURCE SWITCH */}
           <div>
             {activeSubTab === 'resume' && (
-              <div style={{ display: 'flex', background: 'rgba(0,0,0,0.3)', padding: '0.25rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ display: 'flex', background: 'var(--bg-dark-card)', padding: '0.25rem', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
                 <button
                   onClick={() => setResumeUseLive(false)}
                   style={{ background: !resumeUseLive ? 'var(--primary)' : 'transparent', color: 'var(--text-primary)', border: 'none', padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
@@ -1206,7 +1206,7 @@ export default function ResumeTailorPanel({
             )}
 
             {activeSubTab === 'cover_letter' && (
-              <div style={{ display: 'flex', background: 'rgba(0,0,0,0.3)', padding: '0.25rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ display: 'flex', background: 'var(--bg-dark-card)', padding: '0.25rem', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
                 <button
                   onClick={() => setLetterUseLive(false)}
                   style={{ background: !letterUseLive ? 'var(--primary)' : 'transparent', color: 'var(--text-primary)', border: 'none', padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
@@ -1223,7 +1223,7 @@ export default function ResumeTailorPanel({
             )}
 
             {activeSubTab === 'portfolio' && (
-              <div style={{ display: 'flex', background: 'rgba(0,0,0,0.3)', padding: '0.25rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ display: 'flex', background: 'var(--bg-dark-card)', padding: '0.25rem', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
                 <button
                   onClick={() => setPortfolioUseLive(false)}
                   style={{ background: !portfolioUseLive ? 'var(--primary)' : 'transparent', color: 'var(--text-primary)', border: 'none', padding: '0.45rem 1rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
@@ -1242,7 +1242,7 @@ export default function ResumeTailorPanel({
         </div>
 
         {/* Row 2: Template Carousel Buttons */}
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem' }}>
+        <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '1rem' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
             🎨 Select Template Design
           </div>
@@ -1332,7 +1332,7 @@ export default function ResumeTailorPanel({
         {/* Left Column: Document Canvas Preview */}
         <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', border: '1px solid rgba(138, 92, 246, 0.15)', alignSelf: 'start' }}>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '1rem', width: '100%', gap: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', paddingBottom: '1rem', width: '100%', gap: '1rem' }}>
             <div style={{ flex: 1 }}>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
                 {activeSubTab === 'resume' && `📄 ${resumeTemplatesList[resumeTemplate].name} CV`}
@@ -1372,13 +1372,13 @@ export default function ResumeTailorPanel({
                         <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)' }}>{data.name}</div>
                         <div style={{ color: '#10b981', fontWeight: 700, fontSize: '0.9rem', marginTop: '0.25rem' }}>{data.role}</div>
                       </div>
-                      <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '0.8rem' }}>
+                      <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '0.8rem' }}>
                         <div style={{ fontWeight: 800, textTransform: 'uppercase', color: '#10b981', marginBottom: '0.5rem', fontSize: '0.75rem' }}>Contact</div>
                         <div>📍 {data.location}</div>
                         <div style={{ marginTop: '0.4rem' }}>💰 {data.salary}</div>
                         <div style={{ marginTop: '0.4rem' }}>💼 {data.yearsOfExperience} Yrs Exp</div>
                       </div>
-                      <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '0.8rem' }}>
+                      <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '0.8rem' }}>
                         <div style={{ fontWeight: 800, textTransform: 'uppercase', color: '#10b981', marginBottom: '0.5rem', fontSize: '0.75rem' }}>Capabilities</div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
                           {data.skills.map((sk, i) => (
@@ -1776,17 +1776,17 @@ export default function ResumeTailorPanel({
               if (portfolioTemplate === 0) {
                 return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '1rem', textAlign: 'center' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '1rem', textAlign: 'center' }}>
                       <h1 style={{ fontSize: '1.5rem', margin: 0, background: 'linear-gradient(45deg, #ff7e5f, #feb47b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontWeight: 'bold' }}>{data.title}</h1>
                       <div style={{ fontSize: '0.9rem', color: '#feb47b', marginTop: '0.25rem' }}>{data.role}</div>
                       <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.5rem' }}>📍 {data.location} &bull; {data.yearsOfExperience} Years Experience</div>
                     </div>
-                    <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '6px', padding: '1rem' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '1rem' }}>
                       <p style={{ margin: 0, fontSize: '0.8rem', lineHeight: 1.5, color: '#d1d5db' }}>{data.bio}</p>
                     </div>
                     <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#feb47b', marginTop: '0.5rem' }}>Featured Systems Engineering Projects</div>
                     {data.projects.map((p, idx) => (
-                      <div key={idx} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', padding: '0.8rem' }}>
+                      <div key={idx} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '0.8rem' }}>
                         <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: 'var(--text-primary)', marginBottom: '0.35rem' }}>{p.name}</div>
                         <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.75rem', color: '#9ca3af', lineHeight: 1.4 }}>{p.desc}</p>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
@@ -1880,7 +1880,7 @@ export default function ResumeTailorPanel({
               if (portfolioTemplate === 3) {
                 return (
                   <div style={{ display: 'flex', gap: '1.25rem' }}>
-                    <div style={{ width: '35%', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '6px', padding: '1rem', fontSize: '0.8rem' }}>
+                    <div style={{ width: '35%', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '1rem', fontSize: '0.8rem' }}>
                       <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}>{data.name}</div>
                       <div style={{ color: '#38bdf8', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.8rem' }}>{data.role}</div>
                       <p style={{ fontSize: '0.75rem', color: '#9ca3af', lineHeight: 1.45, margin: '0 0 1rem 0' }}>{data.bio}</p>
@@ -1892,7 +1892,7 @@ export default function ResumeTailorPanel({
                     <div style={{ width: '65%', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                       <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>Featured Engineering Cases</div>
                       {data.projects.map((p, idx) => (
-                        <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '6px', padding: '0.8rem' }}>
+                        <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '6px', padding: '0.8rem' }}>
                           <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.85rem', marginBottom: '0.25rem' }}>{p.name}</div>
                           <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.75rem', color: '#9ca3af', lineHeight: 1.4 }}>{p.desc}</p>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
@@ -1911,19 +1911,19 @@ export default function ResumeTailorPanel({
               if (portfolioTemplate === 4) {
                 return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem' }}>
+                    <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.75rem' }}>
                       <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-primary)', margin: 0 }}>{data.title}</h1>
                       <div style={{ fontSize: '0.85rem', color: '#888', marginTop: '0.2rem' }}>{data.role}</div>
                     </div>
                     <p style={{ fontSize: '0.8rem', lineHeight: 1.5, color: '#b1b5b5', margin: 0 }}>{data.bio}</p>
                     <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>Engineering Cases</div>
                     {data.projects.map((p, idx) => (
-                      <div key={idx} style={{ border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', padding: '1rem', background: '#0d0d12' }}>
+                      <div key={idx} style={{ border: '1px solid var(--border-glass)', borderRadius: '4px', padding: '1rem', background: '#0d0d12' }}>
                         <div style={{ fontWeight: 'bold', fontSize: '0.85rem', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>{p.name}</div>
                         <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.75rem', color: '#b1b5b5', lineHeight: 1.45 }}>{p.desc}</p>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
                           {p.tech.map((t, tIdx) => (
-                            <span key={tIdx} style={{ border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)', padding: '0.15rem 0.4rem', borderRadius: '2px', fontSize: '0.7rem' }}>{t}</span>
+                            <span key={tIdx} style={{ border: '1px solid var(--border-glass)', color: 'var(--text-primary)', padding: '0.15rem 0.4rem', borderRadius: '2px', fontSize: '0.7rem' }}>{t}</span>
                           ))}
                         </div>
                       </div>
@@ -1954,7 +1954,7 @@ export default function ResumeTailorPanel({
               value={selectedJobId}
               onChange={(e) => setSelectedJobId(e.target.value)}
               className="input-glass"
-              style={{ width: '100%', padding: '0.65rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none' }}
+              style={{ width: '100%', padding: '0.65rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none' }}
             >
               <option value="">-- Choose a target job --</option>
               {allUniqueJobs.map(job => (
@@ -2002,7 +2002,7 @@ export default function ResumeTailorPanel({
               </div>
 
               {/* Side-by-side keywords */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', borderTop: '1px solid var(--border-glass)', paddingTop: '1rem' }}>
                 
                 {/* Matching */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
@@ -2039,7 +2039,7 @@ export default function ResumeTailorPanel({
               </div>
 
               {/* AI Custom Action */}
-              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                   <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase' }}>🔮 Tips to Match This Job</span>
                   <ul style={{ margin: 0, paddingLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>

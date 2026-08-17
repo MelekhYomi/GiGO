@@ -67,7 +67,7 @@ export default function AdminAccessManagement({ API_BASE_URL, userEmail, addLog 
   };
 
   return (
-    <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div className="glass-panel animate-fade-in" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       <div>
         <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }} className="text-gradient-purple-pink">🔑 Admin Access</h3>
         <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
@@ -80,7 +80,7 @@ export default function AdminAccessManagement({ API_BASE_URL, userEmail, addLog 
           value={newEmail}
           onChange={e => setNewEmail(e.target.value)}
           placeholder="judges@gigo.com"
-          style={{ flex: 1, background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}
+          style={{ flex: 1, background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}
         />
         <button className="btn-glass btn-primary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.8rem', fontWeight: 700 }} onClick={handleAdd} disabled={isSaving}>
           {isSaving ? 'Granting...' : '+ Grant Access'}
