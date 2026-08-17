@@ -2306,3 +2306,44 @@
 
 /* Hide the horizontal scrollbar on the admin tab strip in Chrome/Safari (Firefox handled inline via scrollbarWidth) */
 .admin-tabs-scroller::-webkit-scrollbar { display: none; }
+
+/* Admin Cockpit: mobile/tablet default is the original stacked layout - nav
+   scroller on top, content below, unchanged from before. */
+.admin-content-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: stretch;
+}
+.admin-content-main {
+  min-width: 0;
+}
+
+/* Desktop: nav becomes a permanent vertical column on the right. row-reverse
+   puts the nav (first child in the DOM) on the right and content (second
+   child) on the left, without needing per-element order overrides. */
+@media (min-width: 640px) {
+  .admin-content-row {
+    flex-direction: row-reverse;
+    align-items: flex-start;
+  }
+  .admin-content-main {
+    flex: 1;
+  }
+  .admin-tabs-scroller {
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    width: 220px;
+    flex-shrink: 0;
+    overflow-x: visible !important;
+    border-bottom: none !important;
+    border-left: 1px solid var(--border-glass);
+    padding-left: 1.25rem !important;
+    gap: 0.35rem !important;
+  }
+  .admin-tabs-scroller button {
+    border-bottom: none !important;
+    padding: 0.6rem 0.75rem !important;
+    border-radius: 8px;
+  }
+}

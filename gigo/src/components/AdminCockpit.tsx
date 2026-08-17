@@ -540,62 +540,70 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
         </div>
       </div>
 
-      {/* Nav tabs: horizontal scroller on mobile, wraps into a pinned vertical
-          list on desktop instead of a single scrolling row. */}
-      <div
-        className="admin-tabs-scroller"
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '0.5rem 1.5rem',
-          overflowX: 'auto',
-          paddingBottom: '0.5rem',
-          borderBottom: '1px solid var(--border-glass)',
-          scrollbarWidth: 'none',
-          position: 'sticky',
-          top: 0,
-          zIndex: 10,
-          background: 'var(--bg-dark-base)',
-        }}
-      >
-        {([
-          { id: 'candidates', label: '👥 Candidate Directory' },
-          { id: 'applications', label: '💼 Application Hub' },
-          { id: 'activities', label: '📊 Activity Stream' },
-          { id: 'financials', label: '💳 Financial Ledger' },
-          { id: 'orchestrator', label: '🤖 Orchestrator' },
-          { id: 'observability', label: '📈 Observability' },
-          { id: 'jobSources', label: '🌐 Job Sources' },
-          { id: 'sandbox', label: '🧪 Recruiter Sandbox' },
-          { id: 'settings', label: '⚙️ System Control' }
-        ] as const).map((t) => {
-          const isActive = adminTab === t.id;
-          return (
-            <button
-              key={t.id}
-              onClick={() => selectAdminTab(t.id)}
-              style={{
-                whiteSpace: 'nowrap',
-                padding: '0.6rem 0.2rem',
-                borderRadius: 0,
-                border: 'none',
-                borderBottom: isActive ? '2px solid var(--primary)' : '2px solid transparent',
-                background: 'none',
-                color: isActive ? '#fff' : 'var(--text-secondary)',
-                fontWeight: isActive ? 700 : 500,
-                fontSize: '0.8rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-              }}
-            >
-              {t.label}
-            </button>
-          );
-        })}
-      </div>
+      {/* Content + nav split into a flex row on desktop (nav visually on the
+          right via CSS order, content on the left), stacked on mobile with
+          nav back to a horizontal scroller on top. The nav's JSX position
+          in the tree is unchanged from before (still comes right before the
+          tab-content blocks) - only its visual position moves, via `order`,
+          which is far lower-risk than physically relocating the huge content
+          block below. */}
+      <div className="admin-content-row">
+        <div
+          className="admin-tabs-scroller"
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '0.5rem 1.5rem',
+            overflowX: 'auto',
+            paddingBottom: '0.5rem',
+            borderBottom: '1px solid var(--border-glass)',
+            scrollbarWidth: 'none',
+            position: 'sticky',
+            top: 0,
+            zIndex: 10,
+            background: 'var(--bg-dark-base)',
+          }}
+        >
+          {([
+            { id: 'candidates', label: '👥 Candidate Directory' },
+            { id: 'applications', label: '💼 Application Hub' },
+            { id: 'activities', label: '📊 Activity Stream' },
+            { id: 'financials', label: '💳 Financial Ledger' },
+            { id: 'orchestrator', label: '🤖 Orchestrator' },
+            { id: 'observability', label: '📈 Observability' },
+            { id: 'jobSources', label: '🌐 Job Sources' },
+            { id: 'sandbox', label: '🧪 Recruiter Sandbox' },
+            { id: 'settings', label: '⚙️ System Control' }
+          ] as const).map((t) => {
+            const isActive = adminTab === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => selectAdminTab(t.id)}
+                style={{
+                  whiteSpace: 'nowrap',
+                  padding: '0.6rem 0.2rem',
+                  borderRadius: 0,
+                  border: 'none',
+                  borderBottom: isActive ? '2px solid var(--primary)' : '2px solid transparent',
+                  background: 'none',
+                  color: isActive ? '#fff' : 'var(--text-secondary)',
+                  fontWeight: isActive ? 700 : 500,
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                }}
+              >
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="admin-content-main">
 
       {/* TAB 1: ACTIVITIES */}
       {adminTab === 'activities' && (
@@ -1979,6 +1987,9 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
       {adminTab === 'jobSources' && (
         <JobSourcesManager API_BASE_URL={API_BASE_URL} userEmail={userEmail || 'admin@gigo.com'} addLog={addLog} />
       )}
+
+        </div>
+      </div>
 
       {/* 🔐 Admin Password Reset Override Modal */}
       {resetPasswordUser && (
