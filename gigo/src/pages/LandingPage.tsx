@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { GiGOLogo } from '../components/GiGOLogo';
 import { OnboardingCard } from '../components/OnboardingCard';
+import { AgentTelemetryCards } from '../components/AgentTelemetryCards';
 
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:8080'
@@ -14,29 +15,69 @@ export interface LandingPageProps {
 
 const WALKTHROUGH_STEPS = [
   {
-    eyebrow: 'Step 1 · Onboarding',
-    title: 'Build your profile in minutes',
-    desc: "Paste your resume and GiGO structures it into a real career profile, or fill it in by hand — either way it's a one-time setup, not a form you repeat for every job.",
+    eyebrow: 'Step 1 · Sign Up',
+    title: 'Create your account in seconds',
+    desc: 'Speak your name, email, and phone number, or type them in — either way your real account launches instantly with a 250 Pace welcome bonus.',
   },
   {
-    eyebrow: 'Step 2 · Discovery',
+    eyebrow: 'Step 2 · Voice Onboarding',
+    title: 'Just talk — GiGO builds your profile',
+    desc: 'Real speech-to-profile parsing, powered by Gemini: describe your background out loud and GiGO extracts your role, skills, and experience automatically.',
+  },
+  {
+    eyebrow: 'Step 3 · Career Profile',
+    title: 'Or paste your CV to auto-fill it',
+    desc: "Prefer typing? Paste your resume and GiGO's AI extracts the same structured profile — role, skills, years of experience — no dictation required.",
+  },
+  {
+    eyebrow: 'Step 4 · Profile & Settings',
+    title: 'Everything lives in one real profile',
+    desc: 'Whatever you spoke or pasted is saved to your actual Profile & Settings — the same data every tailored CV, cover letter, and match score is built from.',
+  },
+  {
+    eyebrow: 'Step 5 · Your Dashboard',
+    title: 'Your career command center',
+    desc: 'One home screen for your career score, quick actions, and recent activity — the first thing you see every time you sign in.',
+  },
+  {
+    eyebrow: 'Step 6 · Discovery',
     title: 'GiGO finds matching jobs 24/7',
     desc: 'Background agents scan real job boards continuously and score every listing against your actual profile, so you only see roles worth your time.',
   },
   {
-    eyebrow: 'Step 3 · Applying',
+    eyebrow: 'Step 7 · Applying',
     title: 'Tailored CVs, one click to apply',
     desc: 'Every application gets a CV and cover letter tailored to that specific job. Submit it yourself, or let Auto-Apply send high-confidence matches for you.',
   },
   {
-    eyebrow: 'Step 4 · Interview prep',
+    eyebrow: 'Step 8 · Interview prep',
     title: 'Practice interviews for free',
     desc: 'Unlimited AI mock interviews tailored to the role you applied for, with real scoring on substance, delivery, and clarity — not generic questions.',
   },
   {
-    eyebrow: 'Step 5 · Securing the job',
-    title: 'Track replies, land the offer',
-    desc: 'Every recruiter reply lands in one Mailroom, automatically linked to the right application, so nothing slips through the cracks between "applied" and "hired".',
+    eyebrow: 'Step 9 · Track Board',
+    title: 'Every application, one board',
+    desc: 'Matched, Applied, Interviews — watch every real application move across your board as it actually progresses, no spreadsheets required.',
+  },
+  {
+    eyebrow: 'Step 10 · Mailroom',
+    title: 'Every recruiter reply, one inbox',
+    desc: 'Connect Gmail once and every response lands in your Mailroom, automatically linked to the right application, so nothing slips through the cracks.',
+  },
+  {
+    eyebrow: 'Step 11 · Wallet & Pace',
+    title: 'Pay only for what you use',
+    desc: 'No monthly subscription. A small amount of Pace is spent only when you compile a document or submit an application — refuel by bank transfer any time.',
+  },
+  {
+    eyebrow: 'Step 12 · GiGO Brain',
+    title: 'Your personal career analytics',
+    desc: 'Match trends, skill gaps pulled from real job requirements, and a Mind Clone you can chat with about your own career — grounded in your real data.',
+  },
+  {
+    eyebrow: 'Step 13 · AI Career Coach',
+    title: 'Career advice, on demand',
+    desc: 'Chat anytime for guidance grounded in your actual profile and goals — not generic scripts copy-pasted for every user.',
   },
 ];
 
@@ -92,6 +133,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
 
   const openWalkthrough = () => { setWalkthroughStep(0); setShowWalkthrough(true); };
   const closeWalkthrough = () => setShowWalkthrough(false);
+
+  // The old single-scroll "platform blueprint" page (automation-engine cards,
+  // Pace calculator, live telemetry) is real content, just not a good fit as
+  // the main funnel — kept as an optional deeper technical read, linked from
+  // the walkthrough instead of gating it.
+  const [showDeepDive, setShowDeepDive] = useState(false);
+  const [calcPace, setCalcPace] = useState<number>(50);
 
   // Reaching the end of the funnel (skipping the waitlist step or submitting
   // a tier preference) is the one thing that actually hands off to signup —
@@ -624,10 +672,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
             {!onWaitlistStep ? (
               <>
                 {/* Reassurance banner — this is a real walkthrough of the live product, not a marketing reel */}
-                <div className="text-center mb-5">
+                <div className="text-center mb-5 space-y-2">
                   <span className="inline-flex items-center gap-1.5 text-[10px] font-bold font-mono uppercase tracking-widest text-brandPrimary bg-brandPrimary/10 border border-brandPrimary/20 px-3 py-1 rounded-full">
                     ● Real product walkthrough — not an ad
                   </span>
+                  <div>
+                    <button onClick={() => setShowDeepDive(true)} className="text-[11px] text-brandTextSecondary hover:text-brandPrimary underline underline-offset-2 transition-colors">
+                      Prefer a deeper technical read instead? →
+                    </button>
+                  </div>
                 </div>
 
                 {/* Step header */}
@@ -646,10 +699,34 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
                 {/* Screenshot-style mockup for the active step — built with the same UI tokens as the live app */}
                 <div className="rounded-2xl bg-brandSurface border border-brandBorder p-5 shadow-lg mb-6 min-h-[220px] flex items-center justify-center">
                   {walkthroughStep === 0 && (
+                    <div className="w-full max-w-sm space-y-2.5">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Create Account</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 font-semibold">+250 Pace</span>
+                      </div>
+                      <div className="bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-1.5 text-[11px] text-brandTextSecondary">Full Name</div>
+                      <div className="bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-1.5 text-[11px] text-brandTextSecondary">Email Address</div>
+                      <div className="bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-1.5 text-[11px] text-brandTextSecondary">Phone Number</div>
+                      <div className="flex justify-center pt-1">
+                        <span className="text-[10px] px-3 py-1 rounded-full text-white font-bold" style={{ backgroundImage: 'linear-gradient(to right, var(--primary), var(--secondary))' }}>Create Account →</span>
+                      </div>
+                    </div>
+                  )}
+                  {walkthroughStep === 1 && (
+                    <div className="w-full max-w-sm flex flex-col items-center gap-3 text-center">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">🎤 AI Voice Sign-up</span>
+                      <p className="text-[11px] text-brandTextSecondary">Tap the mic and state your name, email, phone — and your background, if you like.</p>
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center text-lg animate-pulse" style={{ backgroundImage: 'linear-gradient(to top right, var(--primary), var(--secondary))' }}>🎙️</div>
+                      <div className="w-full bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-2 text-[11px] text-brandTextPrimary text-left">
+                        ✨ Extracted: Amara O. · amara@email.com · Frontend Engineer, 4 yrs React
+                      </div>
+                    </div>
+                  )}
+                  {walkthroughStep === 2 && (
                     <div className="w-full max-w-sm space-y-3">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Career Profile</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-brandPrimary/10 text-brandPrimary font-semibold">Step 1 of 3</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-brandPrimary/10 text-brandPrimary font-semibold">Parse & Auto-Fill</span>
                       </div>
                       <div className="bg-brandCard/50 border border-brandBorder rounded-lg px-3 py-2 text-[12px] text-brandTextPrimary">
                         Paste your CV, or fill it in by hand
@@ -665,7 +742,46 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
                       </div>
                     </div>
                   )}
-                  {walkthroughStep === 1 && (
+                  {walkthroughStep === 3 && (
+                    <div className="w-full max-w-sm space-y-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Profile & Settings</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-brandPrimary/10 text-brandPrimary font-semibold">Saved</span>
+                      </div>
+                      {[
+                        { label: 'Name', v: 'Amara Okafor' },
+                        { label: 'Target Role', v: 'Frontend Engineer' },
+                        { label: 'Experience', v: '4 years' },
+                        { label: 'Skills', v: 'React, TypeScript, Node.js' },
+                      ].map(f => (
+                        <div key={f.label} className="flex justify-between bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-1.5">
+                          <span className="text-[10px] text-brandTextMuted uppercase font-semibold">{f.label}</span>
+                          <span className="text-[11px] text-brandTextPrimary font-semibold">{f.v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {walkthroughStep === 4 && (
+                    <div className="w-full max-w-sm space-y-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Dashboard</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-brandPrimary/10 text-brandPrimary font-semibold">Home</span>
+                      </div>
+                      <div className="rounded-xl border border-brandBorder p-3" style={{ backgroundImage: 'linear-gradient(to bottom right, color-mix(in srgb, var(--primary) 15%, transparent), color-mix(in srgb, var(--secondary) 15%, transparent))' }}>
+                        <div className="text-[10px] text-brandTextMuted uppercase font-bold mb-0.5">Career Score</div>
+                        <div className="text-2xl font-black text-brandTextPrimary">78<span className="text-sm text-brandTextSecondary">/100</span></div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[{ l: 'Applied', v: 12 }, { l: 'Interviews', v: 3 }, { l: 'Docs', v: 8 }].map(s => (
+                          <div key={s.l} className="bg-brandCard/50 border border-brandBorder rounded-lg py-1.5 text-center">
+                            <div className="text-sm font-black text-brandTextPrimary">{s.v}</div>
+                            <div className="text-[9px] text-brandTextMuted uppercase font-semibold">{s.l}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {walkthroughStep === 5 && (
                     <div className="w-full max-w-sm space-y-2">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Job Radar</span>
@@ -683,7 +799,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
                       ))}
                     </div>
                   )}
-                  {walkthroughStep === 2 && (
+                  {walkthroughStep === 6 && (
                     <div className="w-full max-w-sm space-y-2">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Application Builder</span>
@@ -701,7 +817,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
                       </div>
                     </div>
                   )}
-                  {walkthroughStep === 3 && (
+                  {walkthroughStep === 7 && (
                     <div className="w-full max-w-sm flex flex-col items-center gap-3 text-center">
                       <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Mock Interview Room</span>
                       <div className="w-14 h-14 rounded-full flex items-center justify-center text-xl" style={{ backgroundImage: 'linear-gradient(to top right, var(--primary), var(--secondary))' }}>🎙️</div>
@@ -715,7 +831,30 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
                       </div>
                     </div>
                   )}
-                  {walkthroughStep === 4 && (
+                  {walkthroughStep === 8 && (
+                    <div className="w-full max-w-sm space-y-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Track Board</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-brandPrimary/10 text-brandPrimary font-semibold">Live</span>
+                      </div>
+                      {[
+                        { label: 'Matched', color: 'bg-brandPrimary', items: ['Backend Eng · Stripe'] },
+                        { label: 'Applied', color: 'bg-brandSecondary', items: ['Data Analyst · Flutterwave'] },
+                        { label: 'Interviews', color: 'bg-emerald-500', items: ['DevOps Eng · Paystack'] },
+                      ].map(col => (
+                        <div key={col.label}>
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <span className={`w-1.5 h-1.5 rounded-full ${col.color}`} />
+                            <span className="text-[10px] font-bold uppercase text-brandTextMuted">{col.label}</span>
+                          </div>
+                          {col.items.map(item => (
+                            <div key={item} className="text-[11px] text-brandTextPrimary bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-1.5 mb-1">{item}</div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {walkthroughStep === 9 && (
                     <div className="w-full max-w-sm space-y-2">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Mailroom</span>
@@ -729,6 +868,50 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
                       </div>
                       <div className="flex justify-between text-[11px] bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-2.5 py-1.5">
                         <span className="text-emerald-500 font-semibold">✓ Interview scheduled</span>
+                      </div>
+                    </div>
+                  )}
+                  {walkthroughStep === 10 && (
+                    <div className="w-full max-w-sm space-y-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">Wallet</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-brandPrimary/10 text-brandPrimary font-semibold">Pay-as-you-go</span>
+                      </div>
+                      <div className="rounded-xl border border-brandBorder p-3 mb-1" style={{ backgroundImage: 'linear-gradient(to bottom right, color-mix(in srgb, var(--primary) 15%, transparent), color-mix(in srgb, var(--secondary) 15%, transparent))' }}>
+                        <div className="text-[10px] text-brandTextMuted uppercase font-bold mb-0.5">Career Momentum</div>
+                        <div className="text-2xl font-black text-brandTextPrimary">250 <span className="text-sm font-semibold text-brandTextSecondary">Pace</span></div>
+                      </div>
+                      <div className="flex justify-between text-[11px] text-brandTextSecondary bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-1.5">
+                        <span>Bank transfer top-up</span><span className="text-emerald-500 font-semibold">+200 Pace</span>
+                      </div>
+                    </div>
+                  )}
+                  {walkthroughStep === 11 && (
+                    <div className="w-full max-w-sm space-y-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">GiGO Brain</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-brandPrimary/10 text-brandPrimary font-semibold">Synced</span>
+                      </div>
+                      <div className="flex justify-between text-[11px] text-brandTextSecondary bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-1.5">
+                        <span>Career Momentum Score</span><span className="text-brandTextPrimary font-semibold">78%</span>
+                      </div>
+                      <div className="bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-2 text-[11px] text-brandTextSecondary">
+                        <span className="text-brandTextPrimary font-semibold">Gap detected:</span> GraphQL — required by 3 of your high-score matches
+                      </div>
+                      <div className="bg-brandPrimary/5 border border-brandPrimary/15 rounded-lg px-2.5 py-1.5 text-[11px] text-brandTextPrimary">💬 Chat with your Mind Clone</div>
+                    </div>
+                  )}
+                  {walkthroughStep === 12 && (
+                    <div className="w-full max-w-sm space-y-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-brandTextSecondary">AI Career Coach</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-brandPrimary/10 text-brandPrimary font-semibold">Chat</span>
+                      </div>
+                      <div className="bg-brandCard/50 border border-brandBorder rounded-lg px-2.5 py-2 text-[11px] text-brandTextSecondary">
+                        "Given your React background, is it worth learning Next.js before applying to the Stripe role?"
+                      </div>
+                      <div className="bg-brandPrimary/5 border border-brandPrimary/15 rounded-lg px-2.5 py-2 text-[11px] text-brandTextPrimary">
+                        Worth it — 3 of your matched roles list it as preferred. I can tailor your next CV to lead with it.
                       </div>
                     </div>
                   )}
@@ -813,6 +996,152 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn, onSignUp, au
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {showDeepDive && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fade-in" onClick={() => setShowDeepDive(false)}>
+          <div
+            className="w-full max-w-4xl bg-brandBg border border-brandBorder rounded-3xl p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto space-y-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowDeepDive(false)}
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 text-2xl font-bold text-brandTextSecondary hover:text-brandTextPrimary"
+            >
+              &times;
+            </button>
+
+            <div className="text-center space-y-2 border-b border-brandBorder pb-4">
+              <span className="text-[10px] font-bold font-mono uppercase tracking-widest text-brandPrimary bg-brandPrimary/10 border border-brandPrimary/20 px-3 py-1 rounded-full">
+                What GiGO Can Do On Your Dashboard
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-brandTextPrimary tracking-tight">
+                A Deeper Technical Tour
+              </h2>
+              <p className="text-xs text-brandTextSecondary max-w-xl mx-auto">
+                For the curious — the engineering core, automatic career automation loops, transparent pay-as-you-go metrics, and live agent telemetry.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-sm font-extrabold uppercase tracking-widest text-brandSecondary">
+                ⚙️ 4-Stage Career Automation Engine
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="p-4 rounded-2xl bg-brandCard/40 border border-brandBorder space-y-2 text-left">
+                  <div className="text-[9px] font-extrabold text-brandPrimary font-mono">STAGE 01</div>
+                  <h4 className="text-xs font-bold text-brandTextPrimary uppercase">Auto Job Finder</h4>
+                  <p className="text-[11px] text-brandTextSecondary leading-relaxed">
+                    Background scrapers continuously scan top job networks to discover matching roles natively.
+                  </p>
+                </div>
+                <div className="p-4 rounded-2xl bg-brandCard/40 border border-brandBorder space-y-2 text-left">
+                  <div className="text-[9px] font-extrabold text-brandSecondary font-mono">STAGE 02</div>
+                  <h4 className="text-xs font-bold text-brandTextPrimary uppercase">Custom CV & Cover Letter</h4>
+                  <p className="text-[11px] text-brandTextSecondary leading-relaxed">
+                    Generate ATS-optimized resumes (5 Pace) and tailored cover letters (3 Pace) instantly.
+                  </p>
+                </div>
+                <div className="p-4 rounded-2xl bg-brandCard/40 border border-brandBorder space-y-2 text-left">
+                  <div className="text-[9px] font-extrabold text-brandPrimary font-mono">STAGE 03</div>
+                  <h4 className="text-xs font-bold text-brandTextPrimary uppercase">Outbound Submissions</h4>
+                  <p className="text-[11px] text-brandTextSecondary leading-relaxed">
+                    Natively dispatch custom tailored portfolios directly to recruiter email channels in one click.
+                  </p>
+                </div>
+                <div className="p-4 rounded-2xl bg-brandCard/40 border border-brandBorder space-y-2 text-left">
+                  <div className="text-[9px] font-extrabold text-emerald-400 font-mono">STAGE 04</div>
+                  <h4 className="text-xs font-bold text-brandTextPrimary uppercase">Practice Room</h4>
+                  <p className="text-[11px] text-brandTextSecondary leading-relaxed">
+                    Join custom practice voice interview simulators with friendly coaches completely free and unlimited.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start border-t border-brandBorder pt-6">
+              <div className="space-y-4 text-left">
+                <h3 className="text-sm font-extrabold uppercase tracking-widest text-brandPrimary">
+                  🪙 Transparent Career Momentum Strategy
+                </h3>
+                <p className="text-xs text-brandTextSecondary leading-relaxed">
+                  We reject locking candidates behind massive, expensive monthly fees. Our micro-transaction design maintains a <span className="text-brandTextPrimary font-bold">0 Entry Barriers</span>. A tiny amount of Pace is consumed only when compiling assets or submitting applications.
+                </p>
+                <div className="p-4 rounded-2xl bg-brandPrimary/5 border border-brandPrimary/15 space-y-2">
+                  <h4 className="text-xs font-bold text-brandTextPrimary uppercase">Complimentary Welcome Momentum</h4>
+                  <p className="text-[11px] text-brandTextSecondary">
+                    Create your profile & supply NIN credentials to activate your complimentary <strong className="text-brandTextPrimary">250 Pace</strong> to get started.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-6 rounded-2xl bg-brandCard/40 border border-brandBorder space-y-5">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-brandTextPrimary">Momentum Estimator</h4>
+                  <span className="text-[10px] font-bold text-brandPrimary px-2 py-0.5 rounded bg-brandPrimary/10 border border-brandPrimary/20">
+                    Pace Utility
+                  </span>
+                </div>
+
+                <div className="space-y-4 text-left">
+                  <div>
+                    <div className="flex justify-between text-[11px] font-mono mb-1">
+                      <span className="text-brandTextSecondary">Career Momentum Budget</span>
+                      <span className="text-brandTextPrimary font-bold">
+                        {calcPace} Pace
+                      </span>
+                    </div>
+                    <input
+                      type="range" min="10" max="500" step="10" value={calcPace}
+                      onChange={(e) => setCalcPace(Number(e.target.value))}
+                      className="w-full accent-brandPrimary"
+                    />
+                  </div>
+
+                  <div className="p-3 bg-brandBg border border-brandBorder rounded-xl space-y-2">
+                    <div className="text-[10px] text-brandTextMuted uppercase font-bold text-center">Estimated Capabilities:</div>
+                    <div className="grid grid-cols-2 gap-2 text-[11px]">
+                      <div className="p-2 rounded bg-brandCard/20 border border-brandBorder/40">
+                        🔍 <strong>{calcPace * 2}</strong> Job Scans
+                      </div>
+                      <div className="p-2 rounded bg-brandCard/20 border border-brandBorder/40">
+                        📄 <strong>{Math.floor(calcPace / 5)}</strong> Tailored CVs
+                      </div>
+                      <div className="p-2 rounded bg-brandCard/20 border border-brandBorder/40">
+                        ✉️ <strong>{Math.floor(calcPace / 3)}</strong> Cover Letters
+                      </div>
+                      <div className="p-2 rounded bg-brandCard/20 border border-brandBorder/40">
+                        🚀 <strong>{Math.floor(calcPace / 10)}</strong> Dispatches
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-brandBorder pt-6 text-left space-y-4">
+              <h3 className="text-sm font-extrabold uppercase tracking-widest text-brandSecondary">
+                📊 Operational Telemetry
+              </h3>
+              <p className="text-xs text-brandTextSecondary">
+                Below are real-time backend agent events, scrapers, and telemetry streams verifying compiler output and background runs.
+              </p>
+              <div className="rounded-2xl overflow-hidden bg-brandCard/30 border border-brandBorder p-2">
+                <AgentTelemetryCards />
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-4 border-t border-brandBorder">
+              <button
+                onClick={() => setShowDeepDive(false)}
+                className="px-5 py-2.5 rounded-xl text-white text-xs font-bold uppercase tracking-wider"
+                style={{ backgroundImage: 'linear-gradient(to right, var(--primary), var(--secondary))' }}
+              >
+                Got It, Thanks!
+              </button>
+            </div>
           </div>
         </div>
       )}
