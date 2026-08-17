@@ -540,16 +540,22 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
         </div>
       </div>
 
-      {/* ACTIVE NEON HORIZONTAL TABS (SIDE SCROLLABLE) */}
-      <div 
+      {/* Nav tabs: horizontal scroller on mobile, wraps into a pinned vertical
+          list on desktop instead of a single scrolling row. */}
+      <div
         className="admin-tabs-scroller"
         style={{
           display: 'flex',
-          gap: '1.5rem',
+          flexWrap: 'wrap',
+          gap: '0.5rem 1.5rem',
           overflowX: 'auto',
-          paddingBottom: '0',
+          paddingBottom: '0.5rem',
           borderBottom: '1px solid var(--border-glass)',
           scrollbarWidth: 'none',
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+          background: 'var(--bg-dark-base)',
         }}
       >
         {([
@@ -621,7 +627,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                         key={log.id || index} 
                         style={{ 
                           padding: '0.65rem 0.85rem', 
-                          background: 'rgba(0,0,0,0.2)', 
+                          background: 'var(--bg-dark-card)', 
                           borderLeft: isWarning ? '3px solid #ef4444' : isSuccess ? '3px solid #10b981' : '3px solid #8b5cf6', 
                           borderRadius: '4px',
                           fontSize: '0.75rem'
@@ -680,7 +686,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
       {adminTab === 'financials' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {/* Sub-tab selection bar */}
-          <div style={{ display: 'flex', background: 'rgba(0, 0, 0, 0.25)', borderRadius: '10px', padding: '0.25rem', border: '1px solid var(--border-glass)', width: 'fit-content' }}>
+          <div style={{ display: 'flex', background: 'var(--bg-dark-card)', borderRadius: '10px', padding: '0.25rem', border: '1px solid var(--border-glass)', width: 'fit-content' }}>
             <button
               onClick={() => setFinancialSubTab('ledger')}
               style={{
@@ -739,11 +745,11 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   placeholder="Search ledger (purpose, email, candidate name)..."
                   value={ledgerSearch}
                   onChange={(e) => setLedgerSearch(e.target.value)}
-                  style={{ flex: 1, minWidth: '240px', background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}
+                  style={{ flex: 1, minWidth: '240px', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}
                 />
                 
                 {/* Currency Filter Button Group */}
-                <div style={{ display: 'flex', background: 'rgba(0, 0, 0, 0.25)', borderRadius: '8px', padding: '0.2rem', border: '1px solid var(--border-glass)' }}>
+                <div style={{ display: 'flex', background: 'var(--bg-dark-card)', borderRadius: '8px', padding: '0.2rem', border: '1px solid var(--border-glass)' }}>
                   {(['ALL', 'NGN', 'USD'] as const).map((curr) => (
                     <button
                       key={curr}
@@ -768,7 +774,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
 
               {isLoadingGlobalTransactions ? (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4rem 0' }}>
-                  <div className="spinner-micro" style={{ width: '40px', height: '40px', border: '3px solid rgba(255, 255, 255, 0.1)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '1rem' }}></div>
+                  <div className="spinner-micro" style={{ width: '40px', height: '40px', border: '3px solid var(--border-glass)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '1rem' }}></div>
                   <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Compiling global ledger records...</span>
                 </div>
               ) : (
@@ -819,7 +825,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                               const displayName = t.userFullName || t.fullName || 'Anonymous';
                               const displayEmail = t.userEmail || t.email || '';
                               return (
-                                <tr key={t.id || idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                                <tr key={t.id || idx} style={{ borderBottom: '1px solid var(--border-glass)' }}>
                                   <td style={{ padding: '0.75rem', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                                     {displayDate ? new Date(displayDate).toLocaleString('en-NG') : 'N/A'}
                                   </td>
@@ -887,7 +893,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
 
               {isLoadingPL || !plStatement ? (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4rem 0' }}>
-                  <div className="spinner-micro" style={{ width: '40px', height: '40px', border: '3px solid rgba(255, 255, 255, 0.1)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '1rem' }}></div>
+                  <div className="spinner-micro" style={{ width: '40px', height: '40px', border: '3px solid var(--border-glass)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '1rem' }}></div>
                   <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Computing real P&L from live transaction data...</span>
                 </div>
               ) : (
@@ -906,7 +912,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                         <span style={{ fontSize: '0.9rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '0.05em' }}>PROFIT & LOSS STATEMENT</span>
                       </div>
                       <div style={{ background: '#00c58e', height: '0.45rem', width: '100%' }}></div>
-                      <div style={{ background: '#0f172a', padding: '0.75rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                      <div style={{ background: '#0f172a', padding: '0.75rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', borderBottom: '1px solid var(--border-glass)' }}>
                         <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>Program Period: <strong style={{ color: 'var(--text-primary)' }}>May 19 - August 17</strong></span>
                         <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>Currency: <strong style={{ color: '#38bdf8' }}>USD</strong></span>
                       </div>
@@ -923,7 +929,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                       const p = plStatement.profitLoss;
 
                       const row = (label: string, data: any, indent = true, bold = false) => (
-                        <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }}>
+                        <tr style={{ borderBottom: '1px solid var(--border-glass)' }}>
                           <td style={{ padding: `0.55rem 1rem 0.55rem ${indent ? '1.5rem' : '1rem'}`, color: bold ? '#fff' : '#cbd5e1', fontWeight: bold ? 700 : 400 }}>{label}</td>
                           <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)' }}>{formatUSD(data.may)}</td>
                           <td style={{ padding: '0.55rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)' }}>{formatUSD(data.june)}</td>
@@ -937,7 +943,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                         <div className="table-wrapper" style={{ overflowX: 'auto', border: '1px solid var(--border-glass)', borderRadius: '0 0 16px 16px', background: 'rgba(15, 23, 42, 0.4)' }}>
                           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
                             <thead>
-                              <tr style={{ background: '#0b1329', borderBottom: '2px solid rgba(255, 255, 255, 0.1)' }}>
+                              <tr style={{ background: '#0b1329', borderBottom: '2px solid var(--border-glass)' }}>
                                 <th style={{ padding: '0.75rem 1rem', textAlign: 'left', color: 'var(--text-primary)', fontWeight: 800 }}>Description</th>
                                 <th style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fb923c', fontWeight: 800 }}>May</th>
                                 <th style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: '#fb923c', fontWeight: 800 }}>June</th>
@@ -979,7 +985,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                                 <td style={{ padding: '0.65rem 1rem', textAlign: 'right', color: '#f43f5e', fontWeight: 900, background: 'rgba(244, 63, 94, 0.08)' }}>{formatUSD(e.total.total)}</td>
                               </tr>
 
-                              <tr style={{ background: p.total >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)', borderTop: '2px solid rgba(255,255,255,0.15)' }}>
+                              <tr style={{ background: p.total >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)', borderTop: '2px solid var(--border-glass)' }}>
                                 <td style={{ padding: '0.75rem 1rem', fontWeight: 900, color: p.total >= 0 ? '#10b981' : '#f43f5e', fontSize: '0.85rem' }}>PROFIT (LOSS)</td>
                                 <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 800 }}>{formatUSD(p.may)}</td>
                                 <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 800 }}>{formatUSD(p.june)}</td>
@@ -1007,7 +1013,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
 
                   {/* COLUMN 2: LOG A REAL EXPENSE + AUDIT LIST */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+                    <div className="glass-panel" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
                       <h4 style={{ fontSize: '0.9rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                         <span>📝</span> Log a Real Expense
                       </h4>
@@ -1015,28 +1021,28 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                         Record actual money spent (hosting, API overage, contractor pay). Updates the P&L immediately.
                       </p>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                        <input type="date" value={newExpenseDate} onChange={(e) => setNewExpenseDate(e.target.value)} min="2026-05-19" max="2026-08-17" style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }} />
-                        <select value={newExpenseCategory} onChange={(e) => { const cat = e.target.value as 'COGS' | 'SG&A' | 'Other'; setNewExpenseCategory(cat); setNewExpenseSubcategory(cat === 'Other' ? 'Other' : 'Personnel'); }} style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}>
+                        <input type="date" value={newExpenseDate} onChange={(e) => setNewExpenseDate(e.target.value)} min="2026-05-19" max="2026-08-17" style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }} />
+                        <select value={newExpenseCategory} onChange={(e) => { const cat = e.target.value as 'COGS' | 'SG&A' | 'Other'; setNewExpenseCategory(cat); setNewExpenseSubcategory(cat === 'Other' ? 'Other' : 'Personnel'); }} style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}>
                           <option value="COGS">COGS</option>
                           <option value="SG&A">SG&A</option>
                           <option value="Other">Other Expenses</option>
                         </select>
                         {newExpenseCategory !== 'Other' && (
-                          <select value={newExpenseSubcategory} onChange={(e) => setNewExpenseSubcategory(e.target.value)} style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}>
+                          <select value={newExpenseSubcategory} onChange={(e) => setNewExpenseSubcategory(e.target.value)} style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}>
                             <option value="Personnel">Personnel</option>
                             <option value="Software Subscriptions">Software Subscriptions</option>
                             <option value="Tokens">Tokens</option>
                           </select>
                         )}
-                        <input type="number" step="0.01" min="0" placeholder="Amount (USD)" value={newExpenseAmount} onChange={(e) => setNewExpenseAmount(e.target.value)} style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }} />
-                        <input type="text" placeholder="Description (e.g. Render hosting - August)" value={newExpenseDescription} onChange={(e) => setNewExpenseDescription(e.target.value)} style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }} />
+                        <input type="number" step="0.01" min="0" placeholder="Amount (USD)" value={newExpenseAmount} onChange={(e) => setNewExpenseAmount(e.target.value)} style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }} />
+                        <input type="text" placeholder="Description (e.g. Render hosting - August)" value={newExpenseDescription} onChange={(e) => setNewExpenseDescription(e.target.value)} style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }} />
                         <button className="btn-glass btn-primary" onClick={handleAddExpense} disabled={isSubmittingExpense} style={{ justifyContent: 'center', fontWeight: 700 }}>
                           {isSubmittingExpense ? 'Logging...' : '+ Log Expense'}
                         </button>
                       </div>
                     </div>
 
-                    <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
+                    <div className="glass-panel" style={{ padding: '1.5rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '16px' }}>
                       <h4 style={{ fontSize: '0.9rem', fontWeight: 800, margin: '0 0 1rem 0', color: 'var(--text-primary)' }}>📋 Logged Expenses ({companyExpenses.length})</h4>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '320px', overflowY: 'auto' }}>
                         {companyExpenses.length === 0 ? (
@@ -1090,12 +1096,12 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               placeholder="Search applications (title, company, candidate)..."
               value={appSearch}
               onChange={(e) => setAppSearch(e.target.value)}
-              style={{ flex: 1, minWidth: '240px', background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}
+              style={{ flex: 1, minWidth: '240px', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}
             />
             <select 
               value={appStatusFilter} 
               onChange={(e: any) => setAppStatusFilter(e.target.value)}
-              style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem', fontSize: '0.8rem', color: 'var(--text-primary)', cursor: 'pointer' }}
+              style={{ background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem', fontSize: '0.8rem', color: 'var(--text-primary)', cursor: 'pointer' }}
             >
               <option value="ALL">All Kanban Column Statuses</option>
               <option value="matched">Matched Applications</option>
@@ -1106,7 +1112,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
 
           {isLoadingGlobalApplications ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4rem 0' }}>
-              <div className="spinner-micro" style={{ width: '40px', height: '40px', border: '3px solid rgba(255, 255, 255, 0.1)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '1rem' }}></div>
+              <div className="spinner-micro" style={{ width: '40px', height: '40px', border: '3px solid var(--border-glass)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '1rem' }}></div>
               <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Gathering candidate application telemetries...</span>
             </div>
           ) : (
@@ -1152,7 +1158,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                           return matchesSearch && matchesFilter;
                         })
                         .map((app, idx) => (
-                          <tr key={app.id || idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                          <tr key={app.id || idx} style={{ borderBottom: '1px solid var(--border-glass)' }}>
                             <td style={{ padding: '0.75rem' }}>
                               <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>{app.fullName}</div>
                               <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{app.email}</div>
@@ -1217,13 +1223,13 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               placeholder="Search candidates by name, email, phone..."
               value={candSearch}
               onChange={(e) => setCandidateSearch(e.target.value)}
-              style={{ width: '100%', background: 'rgba(0, 0, 0, 0.2)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}
+              style={{ width: '100%', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}
             />
           </div>
 
           {isLoadingAdminData ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4rem 0' }}>
-              <div className="spinner-micro" style={{ width: '40px', height: '40px', border: '3px solid rgba(255, 255, 255, 0.1)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '1rem' }}></div>
+              <div className="spinner-micro" style={{ width: '40px', height: '40px', border: '3px solid var(--border-glass)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '1rem' }}></div>
               <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Querying candidates snapshot...</span>
             </div>
           ) : (
@@ -1263,7 +1269,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                           );
                         })
                         .map(user => (
-                          <tr key={user.userId} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', background: frozenUserIds.includes(user.userId) ? 'rgba(239, 68, 68, 0.02)' : 'transparent' }}>
+                          <tr key={user.userId} style={{ borderBottom: '1px solid var(--border-glass)', background: frozenUserIds.includes(user.userId) ? 'rgba(239, 68, 68, 0.02)' : 'transparent' }}>
                             <td style={{ padding: '0.75rem' }}>
                               <div style={{ fontWeight: 700, fontSize: '0.9rem', color: frozenUserIds.includes(user.userId) ? '#ef4444' : 'var(--text-primary)' }}>{user.fullName}</div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.15rem', flexWrap: 'wrap' }}>
@@ -1473,7 +1479,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   onChange={(e) => setConfigDomain(e.target.value)}
                   placeholder="https://gigo-career.com"
                   required
-                  style={{ background: 'rgba(0, 0, 0, 0.25)', borderColor: 'rgba(255, 255, 255, 0.12)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem' }}
+                  style={{ background: 'var(--bg-dark-card)', borderColor: 'var(--border-glass)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem' }}
                 />
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.35rem', display: 'block' }}>Used to compile personalized onboarding, campaign invites, and dynamic tracking URLs.</span>
               </div>
@@ -1491,7 +1497,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   required
                   min="0"
                   step="0.01"
-                  style={{ background: 'rgba(0, 0, 0, 0.25)', borderColor: 'rgba(255, 255, 255, 0.12)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem' }}
+                  style={{ background: 'var(--bg-dark-card)', borderColor: 'var(--border-glass)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem' }}
                 />
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.35rem', display: 'block' }}>Atomically credited to candidate ledger balances on registration tracking conversion.</span>
               </div>
@@ -1506,13 +1512,13 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   onChange={(e) => setConfigBooleanSearchTemplate(e.target.value)}
                   placeholder='"Social Media Marketer" (onsite OR "in-office" OR "on-site") (site:boards.greenhouse.io OR site:jobs.lever.co OR inurl:careers OR inurl:job-openings OR inurl:open-positions) after:2026-01-01 before:2026-12-31'
                   required
-                  style={{ background: 'rgba(0, 0, 0, 0.25)', borderColor: 'rgba(255, 255, 255, 0.12)', color: 'var(--text-primary)', minHeight: '80px', borderRadius: '8px', width: '100%', padding: '0.75rem', fontFamily: 'monospace', fontSize: '0.85rem', resize: 'vertical' }}
+                  style={{ background: 'var(--bg-dark-card)', borderColor: 'var(--border-glass)', color: 'var(--text-primary)', minHeight: '80px', borderRadius: '8px', width: '100%', padding: '0.75rem', fontFamily: 'monospace', fontSize: '0.85rem', resize: 'vertical' }}
                 />
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.35rem', display: 'block' }}>Strictly invisible on the frontend for standard candidates. Both background and on-demand search engines ingest this template to build exact Boolean constraints.</span>
               </div>
 
               {/* Global Paystack Gateway Settings Section */}
-              <div style={{ gridColumn: '1 / -1', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.5rem', marginTop: '0.5rem' }}>
+              <div style={{ gridColumn: '1 / -1', borderTop: '1px solid var(--border-glass)', paddingTop: '1.5rem', marginTop: '0.5rem' }}>
                 <h4 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0 0 0.25rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }} className="text-gradient-purple-pink">
                   💳 Global Paystack Gateway Settings
                 </h4>
@@ -1531,7 +1537,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   value={configPaystackMode}
                   onChange={(e) => setConfigPaystackMode(e.target.value)}
                   required
-                  style={{ background: 'rgba(0, 0, 0, 0.3)', borderColor: 'rgba(255, 255, 255, 0.12)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem', outline: 'none' }}
+                  style={{ background: 'var(--bg-dark-card)', borderColor: 'var(--border-glass)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem', outline: 'none' }}
                 >
                   <option value="test" style={{ background: '#0f172a' }}>Sandbox / Test Environment</option>
                   <option value="live" style={{ background: '#0f172a' }}>Production / Live Environment</option>
@@ -1549,7 +1555,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   alignItems: 'center', 
                   justifyContent: 'space-between', 
                   background: 'rgba(255, 255, 255, 0.03)', 
-                  border: '1px solid rgba(255, 255, 255, 0.08)', 
+                  border: '1px solid var(--border-glass)', 
                   borderRadius: '8px', 
                   padding: '0.5rem 0.75rem',
                   height: '42px'
@@ -1597,7 +1603,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   background: 'rgba(255, 255, 255, 0.03)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  border: '1px solid var(--border-glass)',
                   borderRadius: '8px',
                   padding: '0.5rem 0.75rem',
                   height: '42px'
@@ -1647,7 +1653,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   className="form-control"
                   value={configScraperIntervalMinutes}
                   onChange={(e) => setConfigScraperIntervalMinutes(e.target.value)}
-                  style={{ background: 'rgba(0, 0, 0, 0.3)', borderColor: 'rgba(255, 255, 255, 0.12)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem', outline: 'none' }}
+                  style={{ background: 'var(--bg-dark-card)', borderColor: 'var(--border-glass)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem', outline: 'none' }}
                 />
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.35rem', display: 'block' }}>Minutes between backend discovery sweeps of the shared job pool. Takes effect on the next scheduled tick — no restart needed.</span>
               </div>
@@ -1664,13 +1670,13 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   className="form-control"
                   value={configMinMatchScoreThreshold}
                   onChange={(e) => setConfigMinMatchScoreThreshold(e.target.value)}
-                  style={{ background: 'rgba(0, 0, 0, 0.3)', borderColor: 'rgba(255, 255, 255, 0.12)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem', outline: 'none' }}
+                  style={{ background: 'var(--bg-dark-card)', borderColor: 'var(--border-glass)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem', outline: 'none' }}
                 />
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.35rem', display: 'block' }}>Jobs scoring below this against a candidate's profile are excluded server-side — they never reach that candidate's dashboard.</span>
               </div>
 
               {/* Test / Sandbox Credentials Group */}
-              <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', background: 'rgba(255, 255, 255, 0.02)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', background: 'rgba(255, 255, 255, 0.02)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
                 <div style={{ gridColumn: '1 / -1' }}>
                   <h5 style={{ fontSize: '0.85rem', fontWeight: 700, margin: '0 0 0.25rem 0', color: '#38bdf8' }}>🛠️ Sandbox / Test Credentials</h5>
                   <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', margin: 0 }}>Used for test checkout simulations and developer validation.</p>
@@ -1686,7 +1692,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                     value={configPaystackTestPublicKey}
                     onChange={(e) => setConfigPaystackTestPublicKey(e.target.value)}
                     placeholder="pk_test_..."
-                    style={{ background: 'rgba(0, 0, 0, 0.25)', borderColor: 'rgba(255, 255, 255, 0.12)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem', fontFamily: 'monospace', fontSize: '0.8rem' }}
+                    style={{ background: 'var(--bg-dark-card)', borderColor: 'var(--border-glass)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem', fontFamily: 'monospace', fontSize: '0.8rem' }}
                   />
                 </div>
 
@@ -1700,13 +1706,13 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                     value={configPaystackTestSecretKey}
                     onChange={(e) => setConfigPaystackTestSecretKey(e.target.value)}
                     placeholder="sk_test_..."
-                    style={{ background: 'rgba(0, 0, 0, 0.25)', borderColor: 'rgba(255, 255, 255, 0.12)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem', fontFamily: 'monospace', fontSize: '0.8rem' }}
+                    style={{ background: 'var(--bg-dark-card)', borderColor: 'var(--border-glass)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem', fontFamily: 'monospace', fontSize: '0.8rem' }}
                   />
                 </div>
               </div>
 
               {/* Live / Production Credentials Group */}
-              <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', background: 'rgba(255, 255, 255, 0.02)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', background: 'rgba(255, 255, 255, 0.02)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
                 <div style={{ gridColumn: '1 / -1' }}>
                   <h5 style={{ fontSize: '0.85rem', fontWeight: 700, margin: '0 0 0.25rem 0', color: '#f43f5e' }}>🚀 Production / Live Credentials</h5>
                   <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', margin: 0 }}>Used to process live legal-tender payments. Guarded securely, secret key is obfuscated.</p>
@@ -1722,7 +1728,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                     value={configPaystackLivePublicKey}
                     onChange={(e) => setConfigPaystackLivePublicKey(e.target.value)}
                     placeholder="pk_live_..."
-                    style={{ background: 'rgba(0, 0, 0, 0.25)', borderColor: 'rgba(255, 255, 255, 0.12)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem', fontFamily: 'monospace', fontSize: '0.8rem' }}
+                    style={{ background: 'var(--bg-dark-card)', borderColor: 'var(--border-glass)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem', fontFamily: 'monospace', fontSize: '0.8rem' }}
                   />
                 </div>
 
@@ -1736,7 +1742,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                     value={configPaystackLiveSecretKey}
                     onChange={(e) => setConfigPaystackLiveSecretKey(e.target.value)}
                     placeholder="sk_live_..."
-                    style={{ background: 'rgba(0, 0, 0, 0.25)', borderColor: 'rgba(255, 255, 255, 0.12)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem', fontFamily: 'monospace', fontSize: '0.8rem' }}
+                    style={{ background: 'var(--bg-dark-card)', borderColor: 'var(--border-glass)', color: 'var(--text-primary)', height: '42px', borderRadius: '8px', width: '100%', padding: '0.5rem 0.75rem', fontFamily: 'monospace', fontSize: '0.8rem' }}
                   />
                 </div>
               </div>
@@ -1799,7 +1805,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                 placeholder="e.g. facebook.com, djinni.co" 
                 value={newDomainInput}
                 onChange={(e) => setNewDomainInput(e.target.value)}
-                style={{ background: 'rgba(0, 0, 0, 0.25)', borderColor: 'rgba(255, 255, 255, 0.12)', color: 'var(--text-primary)', height: '36px', borderRadius: '8px', padding: '0.25rem 0.50rem', fontSize: '0.8rem', flex: 1 }}
+                style={{ background: 'var(--bg-dark-card)', borderColor: 'var(--border-glass)', color: 'var(--text-primary)', height: '36px', borderRadius: '8px', padding: '0.25rem 0.50rem', fontSize: '0.8rem', flex: 1 }}
               />
               <button 
                 type="button" 
@@ -1831,7 +1837,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
               
               {/* Flag 1 */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px' }}>
                 <div>
                   <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>🎙️ Voice Response Agent</div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>Allow AI interactive vocal coaching.</div>
@@ -1849,7 +1855,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               </div>
 
               {/* Flag 2 */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px' }}>
                 <div>
                   <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>🕵️ Autonomous Scraper Loop</div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>Trigger background cron searches.</div>
@@ -1867,7 +1873,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               </div>
 
               {/* Flag 3 */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px' }}>
                 <div>
                   <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>🚧 System Maintenance Mode</div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>Lock down console access for candidates.</div>
@@ -1885,7 +1891,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
               </div>
 
               {/* Flag 4 */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'var(--bg-dark-card)', border: '1px solid var(--border-glass)', borderRadius: '10px' }}>
                 <div>
                   <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>💳 Paystack Payout Channel</div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>Allow manual or automated bank cashouts.</div>
@@ -1923,7 +1929,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                 </thead>
                 <tbody>
                   {adminAuditLogs.map((log) => (
-                    <tr key={log.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                    <tr key={log.id} style={{ borderBottom: '1px solid var(--border-glass)' }}>
                       <td style={{ padding: '0.6rem', fontSize: '0.7rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                         {new Date(log.timestamp).toLocaleString()}
                       </td>
@@ -2029,8 +2035,8 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                       onChange={(e) => setNewPasswordValue(e.target.value)}
                       required
                       style={{
-                        background: 'rgba(0, 0, 0, 0.25)',
-                        borderColor: 'rgba(255, 255, 255, 0.12)',
+                        background: 'var(--bg-dark-card)',
+                        borderColor: 'var(--border-glass)',
                         color: 'var(--text-primary)',
                         height: '42px',
                         borderRadius: '8px',
@@ -2072,7 +2078,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                   <button 
                     type="button"
                     className="btn-glass"
-                    style={{ flex: 1, height: '42px', justifyContent: 'center', borderColor: 'rgba(255, 255, 255, 0.1)', cursor: 'pointer' }}
+                    style={{ flex: 1, height: '42px', justifyContent: 'center', borderColor: 'var(--border-glass)', cursor: 'pointer' }}
                     onClick={() => setResetPasswordUser(null)}
                   >
                     Cancel
@@ -2184,7 +2190,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                 onClick={() => setSelectedNINCard(null)}
                 style={{
                   background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  border: '1px solid var(--border-glass)',
                   borderRadius: '50%',
                   width: '32px',
                   height: '32px',
@@ -2255,7 +2261,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
                     height: '140px',
                     borderRadius: '8px',
                     border: '1px solid rgba(139, 92, 246, 0.25)',
-                    background: 'rgba(0,0,0,0.4)',
+                    background: 'var(--bg-dark-card)',
                     overflow: 'hidden',
                     display: 'flex',
                     alignItems: 'center',
@@ -2380,7 +2386,7 @@ export const AdminCockpit: React.FC<AdminCockpitProps> = ({
             {/* Verification Console & Action Buttons */}
             <div style={{
               background: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,255,255,0.05)',
+              border: '1px solid var(--border-glass)',
               borderRadius: '12px',
               padding: '1rem',
               display: 'flex',
